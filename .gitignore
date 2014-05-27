@@ -1,5 +1,10 @@
+# Vim temp files
+*.swp
+*.swo
+
 # Ignore MAR files
 *.mar
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
