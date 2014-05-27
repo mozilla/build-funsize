@@ -1,9 +1,12 @@
+# What should go into core and what shouldn't?
 import fetch
 import cache
+import db
 
 import errno
 import os
 import subprocess
+import tempfile
 
 def get_complete_mar(url, checksum, output_file=None):
 
@@ -20,14 +23,86 @@ def get_complete_mar(url, checksum, output_file=None):
 
     return mar
 
-def get_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash):
-    """ Function that returns the partial MAR file to transition from the mar
-    given by old_cmar_url to new_cmar_url
-    """
-
+def something():
+# What did I even make this for?!
     pass
 
-    # Check if this exists in cache
+def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
+        identifier):
+    #""" Function that returns the partial MAR file to transition from the mar
+    #given by old_cmar_url to new_cmar_url
+    #"""
+    
+    # Don't have to check the cache anymore, do we?
+    # Add Tool Fetching logic
+    # Setup things for the generate_partial_mar 
+    # Call partial mar and that's it?
+    # Dump into cache
+    # Add stuff to the DB as well? Yes? Good idea? not so good?
+
+# Some global config here
+
+# Do we really need this? Why not use python's inbuilt Random folder generator?
+# Unless we have better reason, we probably should, but lets keep the option
+# open to configuration
+#TMP_MAR_STORAGE='/tmp/something/'
+#TMP_TOOL_STORAGE='tmp/tools/'
+#TMP_WORKING_DIR='/tmp/working/'
+
+    # Create the directories to work in.
+    TMP_MAR_STORAGE = tempfile.mkdtemp(prefix='cmar_storage_')
+    TMP_TOOL_STORAGE='tmp/tools/' # Using static location, till we figure out tooling.
+    TMP_WORKING_DIR = tempfile.mkdtemp(prefix='working_dir_')
+
+    new_cmar_path = os.path.join(TMP_MAR_STORAGE, 'new.mar')
+    old_cmar_path = os.path.join(TMP_MAR_STORAGE, 'old.mar')
+
+
+    # Fetch the complete MARs here. ################################################
+
+    get_complete_mar(new_cmar_url, new_cmar_hash, output_file=new_mar_path)
+    get_complete_mar(old_cmar_url, old_cmar_hash, output_file=old_mar_path)
+
+################################################################################
+
+# Tool fetching and related things go in here. #################################
+# Nothing here, right now, TODO: Tooling after issue resolved
+
+# If there are very few, might as well dump them all in the cache before hand?
+# Keeping it all in the dir statically for now.
+
+
+################################################################################
+
+# Call generate? ###############################################################
+
+    # If can't generate pmar location properly, then insert ABORT in DB?
+    try: 
+        local_pmar_location = generate_partial_mar(new_cmar_path, old_cmar_path,
+                                    TMP_TOOL_STORAGE, working_dir=TMP_WORKING_DIR)
+    except:
+        # Something definitely went wrong.
+        # Update DB to reflect abortion
+        db.update(identifier, status=db.status_code['ABORT'])
+        return None
+
+################################################################################
+    else:
+# Cache related stuff ##########################################################
+        try:
+            pmar_location = cache.save('somelocation', isfile=True)
+        except:
+            # If there are porblems in caching, handle them here.
+            raise
+################################################################################
+
+# DB Updates and related stuff? ################################################
+        db.update(identifier, status=db.status_code['COMPLETED'],
+                location=pmar_location)
+################################################################################
+
+# What do we want to return?
+    return None
 
 def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
     """ cmar_new is the path of the newer complete .mar file
@@ -65,6 +140,11 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
 
 ################################################################################
 
+##generate_partial_mar('/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/current.mar',
+##                      '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/previous.mar',
+##                      '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/',
+##                      working_dir='/tmp/testing-work')
+
 # Unwrap MAR1 ##################################################################
     cmn_name = os.path.basename(cmar_new)
     cmn_wd = os.path.join(working_dir, cmn_name)
@@ -100,16 +180,19 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
 
 ################################################################################
     # run make_incremental_update.sh on both of them
-    pmar_name = cmo_name + '--' + cmn_name # partial mar name
+    pmar_name = cmo_name + '-' + cmn_name # partial mar name
     pmar_path = os.path.join(working_dir, pmar_name)
 
     print "Generating partial mar @ %s" % pmar_path
     subprocess.call([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], cwd=working_dir, env=my_env)
 
+    return pmar_path
 
-##generate_partial_mar('/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/current.mar',
-##                      '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/previous.mar',
-##                      '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/',
-##                      working_dir='/tmp/testing-work')
 
-# Why does this break with relative paths? probably cwd arg
+if __name__ == '__main__':
+    # Why does this break with relative paths? probably cwd arg
+    generate_partial_mar('/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/current.mar',
+                         '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/previous.mar',
+                         '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/',
+                         working_dir='/tmp/testing-work')
+

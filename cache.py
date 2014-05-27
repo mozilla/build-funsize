@@ -4,6 +4,7 @@
 def save(string, isfile=False):
     """ Saves given file to cache, treats string as a local filepath if isfile is true.
         returns hash of file
+        #returns URI of file on cache?
     """
     return False
 
