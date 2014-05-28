@@ -13,26 +13,34 @@ TODO
 
 **Overall TODOs:**
 - Write unit-tests for all the functions.
+- Figure out the tooling issues
+- Talk about and flesh out the caching
 - Figure out how to set them up to run with `python setup.py test`
 - How to do the packaging
+- Flesh out the dev-env requirements
+- Get feedback
 
 **Open Issues:**
 
-- Integrate with flask
-- Figure out the tooling issues
-- Talk about and flesh out the caching
-- Flesh out the dev-env requirements
-- Get feedback
+- ~~Integrate with flask~~
+- Possibly dump fetching and similar tasks to a celery worker each.
 
 Dev-Env Requirements
 --------------------
 
 - Setup a virtualenv
 - Clone source
+
+- Install the latest versions of:
+
+  1. Flask
+  2. Celery
+  3. SQLAlchemy
+  4. RabbitMQ
+
 - You're good to go!
 
-These will/might be needed in the future, but aren't used by current code
+The following will/might be needed in the future, but aren't used by current code:
 
-1. Flask
-2. requests
-3. Nose
+1. Nose
+2. Requests
