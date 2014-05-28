@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-# Author: Anhad Jai Singh
-# Download the update packagin tools from hg.m.o
-
-
-# TODO: Need to integrate downloads of mar and mbsdiff tools aswell.
-
 BASENAME=$(basename $0)
 CHANGESET="tip"
 OUTPUT_DIR="."
@@ -41,7 +35,7 @@ do
 done
 
 
-file_list=$(curl 'http://hg.mozilla.org/mozilla-central/file/41a54c8add09/tools/update-packaging?style=raw' | awk '{print $3}')
+file_list=$(curl "http://hg.mozilla.org/mozilla-central/file/$CHANGESET/tools/update-packaging?style=raw" | awk '{print $3}')
 echo $file_list
 
 for FILENAME in $file_list

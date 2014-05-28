@@ -52,6 +52,8 @@ def update(identifier, url=None, status=None, location=None):
     if not (url or status or location):
         # raise error, or fail or something
         print "Wrong params"
+        print "given params are:"
+        print locals()
     record = lookup(identifier=identifier)
 
     # Pretty code or ugly hack?

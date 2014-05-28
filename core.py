@@ -19,7 +19,8 @@ def get_complete_mar(url, checksum, output_file=None):
     # Otherwise we download it and cache it
     else:
         mar = fetch.downloadmar(url, checksum, output_file=output_file)
-        cache.save(outputfile, isfile=bool(outputfile))
+        # If output_file is specified, use that, else use the mar binary string
+        cache.save(output_file or mar, isfile=bool(output_file))
 
     return mar
 
@@ -29,6 +30,9 @@ def something():
 
 def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
         identifier):
+
+    #import pdb
+    #pdb.set_trace()
     #""" Function that returns the partial MAR file to transition from the mar
     #given by old_cmar_url to new_cmar_url
     #"""
@@ -51,8 +55,18 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
     # Create the directories to work in.
     TMP_MAR_STORAGE = tempfile.mkdtemp(prefix='cmar_storage_')
-    TMP_TOOL_STORAGE='tmp/tools/' # Using static location, till we figure out tooling.
+    TMP_TOOL_STORAGE='/tmp/tools/' # Using static location, till we figure out tooling.
     TMP_WORKING_DIR = tempfile.mkdtemp(prefix='working_dir_')
+
+    print "Locals:", '*'*50
+    print locals()
+    print '*'*50
+
+    print "Working directories:"
+    print TMP_MAR_STORAGE
+    print TMP_TOOL_STORAGE
+    print TMP_WORKING_DIR
+    print "*"*80
 
     new_cmar_path = os.path.join(TMP_MAR_STORAGE, 'new.mar')
     old_cmar_path = os.path.join(TMP_MAR_STORAGE, 'old.mar')
@@ -60,8 +74,8 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
     # Fetch the complete MARs here. ################################################
 
-    get_complete_mar(new_cmar_url, new_cmar_hash, output_file=new_mar_path)
-    get_complete_mar(old_cmar_url, old_cmar_hash, output_file=old_mar_path)
+    get_complete_mar(new_cmar_url, new_cmar_hash, output_file=new_cmar_path)
+    get_complete_mar(old_cmar_url, old_cmar_hash, output_file=old_cmar_path)
 
 ################################################################################
 
@@ -76,14 +90,14 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
 # Call generate? ###############################################################
 
-    # If can't generate pmar location properly, then insert ABORT in DB?
+    # If can't generate pmar location properly, then insert ABORTED in DB?
     try: 
         local_pmar_location = generate_partial_mar(new_cmar_path, old_cmar_path,
                                     TMP_TOOL_STORAGE, working_dir=TMP_WORKING_DIR)
     except:
         # Something definitely went wrong.
         # Update DB to reflect abortion
-        db.update(identifier, status=db.status_code['ABORT'])
+        db.update(identifier, status=db.status_code['ABORTED'])
         return None
 
 ################################################################################
@@ -99,6 +113,9 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 # DB Updates and related stuff? ################################################
         db.update(identifier, status=db.status_code['COMPLETED'],
                 location=pmar_location)
+################################################################################
+
+# Cleanup temp directories here ?###############################################
 ################################################################################
 
 # What do we want to return?
@@ -160,6 +177,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
 
     print "unwrapping mar1"
     subprocess.call([UNWRAP, cmar_new], cwd=cmn_wd, env=my_env)
+    print "Crossed subprocess"
 
 # Unwrap MAR2 ##################################################################
     cmo_name = os.path.basename(cmar_old)
@@ -175,7 +193,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
             raise
 
     print "unwrapping mar2"
-    subprocess.call([UNWRAP, cmar_new], cwd=cmo_wd, env=my_env)
+    subprocess.call([UNWRAP, cmar_old], cwd=cmo_wd, env=my_env)
 
 
 ################################################################################
@@ -186,11 +204,16 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
     print "Generating partial mar @ %s" % pmar_path
     subprocess.call([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], cwd=working_dir, env=my_env)
 
+    print "Path:",pmar_path
     return pmar_path
 
 
 if __name__ == '__main__':
     # Why does this break with relative paths? probably cwd arg
+    ##generate_partial_mar('/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/current.mar',
+    ##                     '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/previous.mar',
+    ##                     '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/',
+    ##                     working_dir='/tmp/testing-work')
     generate_partial_mar('/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/current.mar',
                          '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/previous.mar',
                          '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/',

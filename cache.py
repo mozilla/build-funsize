@@ -6,7 +6,7 @@ def save(string, isfile=False):
         returns hash of file
         #returns URI of file on cache?
     """
-    return False
+    return 'SavedToSomeLocation'
 
 def find(filehash):
     """ Checks if file with specified hash is in cache 

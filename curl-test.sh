@@ -19,13 +19,20 @@ DEFAULT_SRC_HASH='da0ecd3c65f3f333ee42ca332b97e925'
 DEFAULT_DST_HASH='c738c5f2d719ef0e00041b6df6a987fe'
 DEFAULT_IDENTIFIER="$DEFAULT_SRC_HASH-$DEFAULT_DST_HASH"
 
+FF29="http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/29.0/update/mac/en-US/firefox-29.0.complete.mar"
+FF29_HASH=
+FF28="http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/28.0/update/mac/en-US/firefox-28.0.complete.mar"
+FF28_HASH="d7f65cf5002a1dfda88a33b7a31b65eb"
+
 trigger_partial_build(){
     SRC_MAR=$1
     DST_MAR=$2
     SRC_HASH=$3
     DST_HASH=$4
 
+    #echo curl -X POST "$DEFAULT_URL/partial" -d "mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
     curl -X POST "$DEFAULT_URL/partial" -d "mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
+
 }
 
 
@@ -47,6 +54,11 @@ case $1 in
 
     "trigger") 
         trigger_partial_build $DEFAULT_SRC_MAR $DEFAULT_DST_MAR $DEFAULT_SRC_HASH $DEFAULT_DST_HASH
+        #echo "Called trigger_partial_build"
+        exit 0 ;;
+
+    "trigger-release") 
+        trigger_partial_build $FF28 $FF29 $FF28_HASH $FF29_HASH
         #echo "Called trigger_partial_build"
         exit 0 ;;
 

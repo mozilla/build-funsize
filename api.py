@@ -52,6 +52,9 @@ def trigger_partial():
         #print "Couldn't insert, got error: %s" % e
         # Lookup and get url and return it
         partial = db.lookup(identifier=identifier)
+        print "**"*10
+        print partial
+        print "**"*10
         resp = flask.Response(
                 "{'result': '%s'}" % partial.url,
                 status=201,
@@ -61,9 +64,10 @@ def trigger_partial():
     else:
         print "calling generation functions"
         # Call generation functions here
-        resp = flask.Response("{'result' : '%s'" % url, status=202, mimetype='application/json')
+        resp = flask.Response("{'result' : '%s'}" % url, status=202, mimetype='application/json')
 
-        tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from, mar_from_hash)
+        tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from,
+                mar_from_hash, identifier)
 
         return resp
 

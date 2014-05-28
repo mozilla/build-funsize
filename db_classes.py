@@ -5,10 +5,10 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 status_code = {'COMPLETED': 0,         # Where should this dict reallly go to make it easily importable
-                'ABORTED': 1,
-                'IN_PROGRESS': 2,
-                'INVALID': 3, # Do we need this?
-                }
+               'ABORTED': 1,
+               'IN_PROGRESS': 2,
+               'INVALID': 3, # Do we need this?
+              }
 COMPLETED=1
 
 class Partial(Base):
