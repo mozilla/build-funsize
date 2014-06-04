@@ -5,8 +5,11 @@ import db
 
 import errno
 import os
+import pprint
 import subprocess
 import tempfile
+
+DB_URI = 'sqlite:///test.db'
 
 def get_complete_mar(url, checksum, output_file=None):
 
@@ -14,19 +17,21 @@ def get_complete_mar(url, checksum, output_file=None):
 
     # Check if file is in cache
     # If we find it retrieve it from cache
-    if cache.find(checksum):
+    logging.info('Request for complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
+    if cache.find(checksum): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
+        logging.debug('Found complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
+        logging.debug('retriving MAR from cache')
         mar = cache.retrieve(checksum, output_file=output_file)
     # Otherwise we download it and cache it
     else:
+        logging.debug('Did not find complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
+        logging.debug('Downloading complete MAR %s with MD5/Identifer %s' % (url, checksum))
         mar = fetch.downloadmar(url, checksum, output_file=output_file)
         # If output_file is specified, use that, else use the mar binary string
         cache.save(output_file or mar, isfile=bool(output_file))
 
+    logging.info('Request for complete MAR %s with MD5/Identifer %s satisfied' % (url, checksum))
     return mar
-
-def something():
-# What did I even make this for?!
-    pass
 
 def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
         identifier):
@@ -36,15 +41,18 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     #""" Function that returns the partial MAR file to transition from the mar
     #given by old_cmar_url to new_cmar_url
     #"""
-    
+
     # Don't have to check the cache anymore, do we?
     # Add Tool Fetching logic
-    # Setup things for the generate_partial_mar 
+    # Setup things for the generate_partial_mar
     # Call partial mar and that's it?
     # Dump into cache
     # Add stuff to the DB as well? Yes? Good idea? not so good?
 
 # Some global config here
+
+# FIXME: Need to move the DBO stuff into celery logic
+    dbo = db.DBInterface(DB_URI)
 
 # Do we really need this? Why not use python's inbuilt Random folder generator?
 # Unless we have better reason, we probably should, but lets keep the option
@@ -59,7 +67,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     TMP_WORKING_DIR = tempfile.mkdtemp(prefix='working_dir_')
 
     print "Locals:", '*'*50
-    print locals()
+    pprint.pprint(locals())
     print '*'*50
 
     print "Working directories:"
@@ -97,8 +105,9 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     except:
         # Something definitely went wrong.
         # Update DB to reflect abortion
-        db.update(identifier, status=db.status_code['ABORTED'])
-        return None
+        dbo.update(identifier, status=db.status_code['ABORTED'])
+        #return None
+        raise
 
 ################################################################################
     else:
@@ -111,10 +120,12 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 ################################################################################
 
 # DB Updates and related stuff? ################################################
-        db.update(identifier, status=db.status_code['COMPLETED'],
+        dbo.update(identifier, status=db.status_code['COMPLETED'],
                 location=pmar_location)
 ################################################################################
 
+# Cleanup
+    dbo.close()
 # Cleanup temp directories here ?###############################################
 ################################################################################
 
@@ -127,6 +138,9 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
         difftools_path specifies the path of the directory in which
         the difftools, including mar,mbsdiff exist
     """
+
+    print "generate_partial_mar called with :"
+    print locals()
 
     # Setup defaults and ENV vars
     # Set working directory
@@ -176,7 +190,9 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
             raise
 
     print "unwrapping mar1"
-    subprocess.call([UNWRAP, cmar_new], cwd=cmn_wd, env=my_env)
+    print ([UNWRAP, cmar_new], cmn_wd, my_env)
+    process = subprocess.call([UNWRAP, cmar_new], cwd=cmn_wd, env=my_env)
+    print process#.communicate()
     print "Crossed subprocess"
 
 # Unwrap MAR2 ##################################################################

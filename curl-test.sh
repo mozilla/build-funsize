@@ -20,7 +20,7 @@ DEFAULT_DST_HASH='c738c5f2d719ef0e00041b6df6a987fe'
 DEFAULT_IDENTIFIER="$DEFAULT_SRC_HASH-$DEFAULT_DST_HASH"
 
 FF29="http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/29.0/update/mac/en-US/firefox-29.0.complete.mar"
-FF29_HASH=
+FF29_HASH="cd757aa3cfed6f0a117fa16f33250f74"
 FF28="http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/28.0/update/mac/en-US/firefox-28.0.complete.mar"
 FF28_HASH="d7f65cf5002a1dfda88a33b7a31b65eb"
 

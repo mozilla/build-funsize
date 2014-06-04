@@ -33,10 +33,11 @@ Dev-Env Requirements
 
 - Install the latest versions of:
 
-  1. Flask
-  2. Celery
-  3. SQLAlchemy
-  4. RabbitMQ
+  1. Celery
+  2. Flask
+  3. RabbitMQ
+  4. Requests
+  5. SQLAlchemy
 
 - You're good to go!
 
