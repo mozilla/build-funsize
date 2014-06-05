@@ -4,6 +4,8 @@ import os
 import shutil
 import logging
 
+import oddity
+
 class Cache(object):
     """ Class that provides access to cache """
 
@@ -45,19 +47,24 @@ class Cache(object):
                      data = f.read()
             except:
                 # Could not read file or is not a file or something
-                raise
+                logging.warning('Could not read file source %s ' %string +
+                                'to insert into cache')
+                raise CacheError('Error reading input %s' % string)
         else:
             data = string
 
         identifier = csum.getmd5(data)
         file_cache_path = os.path.join(self.cache_dir, identifier)
 
+        if self.find(identifier):
+            raise CacheCollisionError('identifier %s collision' % identifier)
+
         try:
             with open(file_cache_path, 'wb') as f:
                 f.write(data)
         except:
             # couldn't open file or other error
-            raise
+            raise CacheError('Error saving input %s to cache' % string)
         else:
             return identifier
 
@@ -82,7 +89,8 @@ class Cache(object):
                 shutil.copyfile(file_path, output_file)
             except:
                 logging.warning('could not retrieve file from cache')
-                raise
+                raise oddity.CacheMissError('File with identifier %s not found' 
+                                       % identifier)
             else:
                 return
         else:
@@ -91,6 +99,7 @@ class Cache(object):
                     data = f.read()
             except:
                 logging.warning('could not retrieve file from cache')
-                raise
+                raise oddity.CacheMissError('File with identifier %s not found' 
+                                       % identifier)
             else:
                 return data
