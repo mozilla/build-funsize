@@ -4,31 +4,35 @@ import cache
 import db
 
 import errno
+import logging
 import os
 import pprint
 import subprocess
 import tempfile
 
 DB_URI = 'sqlite:///test.db'
+CACHE_URI = '/perma/cache/'
 
 def get_complete_mar(url, checksum, output_file=None):
 
     """ Return binary string if no output_file specified """
 
+    cacheo = cache.Cache(CACHE_URI)
+
     # Check if file is in cache
     # If we find it retrieve it from cache
     logging.info('Request for complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
-    if cache.find(checksum): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
+    if cacheo.find(checksum): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
         logging.debug('Found complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
         logging.debug('retriving MAR from cache')
-        mar = cache.retrieve(checksum, output_file=output_file)
+        mar = cacheo.retrieve(checksum, output_file=output_file)
     # Otherwise we download it and cache it
     else:
         logging.debug('Did not find complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
         logging.debug('Downloading complete MAR %s with MD5/Identifer %s' % (url, checksum))
         mar = fetch.downloadmar(url, checksum, output_file=output_file)
         # If output_file is specified, use that, else use the mar binary string
-        cache.save(output_file or mar, isfile=bool(output_file))
+        cacheo.save(output_file or mar, isfile=bool(output_file))
 
     logging.info('Request for complete MAR %s with MD5/Identifer %s satisfied' % (url, checksum))
     return mar
@@ -52,7 +56,8 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 # Some global config here
 
 # FIXME: Need to move the DBO stuff into celery logic
-    dbo = db.DBInterface(DB_URI)
+    dbo = db.Database(DB_URI)
+    cacheo = cache.Cache(CACHE_URI)
 
 # Do we really need this? Why not use python's inbuilt Random folder generator?
 # Unless we have better reason, we probably should, but lets keep the option
@@ -113,7 +118,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     else:
 # Cache related stuff ##########################################################
         try:
-            pmar_location = cache.save('somelocation', isfile=True)
+            pmar_location = cacheo.save(local_pmar_location, isfile=True)
         except:
             # If there are porblems in caching, handle them here.
             raise
