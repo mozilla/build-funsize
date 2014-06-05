@@ -1,8 +1,12 @@
 #from flask import Flask, request, Response
 import flask
 import logging
+import os
+import shutil
+import tempfile
 
 import core
+import cache
 import flasktask
 import db
 import tasks
@@ -11,19 +15,15 @@ import tasks
 DB_URI = 'sqlite:///test.db'
 CACHE_URI = '/perma/cache/'
 
-dbo = db.DBInterface(DB_URI)
+dbo = db.Database(DB_URI)
 cacheo = cache.Cache(CACHE_URI)
 
 app = flask.Flask(__name__)
 
 @app.route('/')
 def index():
-    return "Index"
-
-@app.route('/hello')
-def hello():
-    flasktask.hello()
-    return 'Hello World'
+    return "Welcome Senbonzakura, the Partial MAR on demand Web-Service."\
+           "Please see https://wiki.mozilla.org/User:Ffledgling/Senbonzakura"
 
 @app.route('/partial', methods=['POST'])
 def trigger_partial():
@@ -86,6 +86,12 @@ def trigger_partial():
     # TODO: Hook responses up with relengapi -- https://api.pub.build.mozilla.org/docs/development/api_methods/
     return resp
 
+@app.route('/cache/<identifier>', methods=['GET'])
+def get_from_cache(identifier):
+    """ URL to allow direct access to cache """
+    raise oddity.NotImplementedError()
+
+
 @app.route('/partial/<identifier>', methods=['GET'])
 def get_partial(identifier):
     # Check DB state corresponding to URL
@@ -110,8 +116,32 @@ def get_partial(identifier):
             # Call relevant functions from the core section.
             # We'll want to stream the data to the client eventually, right now,
             # we can just throw it at the client just like that.
-            identifier = partial.identifier
-            resp = flask.Response("{'result': '%s'}" % identifier, status=200)
+
+            # Our older way of sending the file
+            #identifier = partial.identifier
+            #resp = flask.Response("{'result': '%s'}" % identifier, status=200)
+
+            # Testing some stuff, see -- http://stackoverflow.com/questions/7877282/how-to-send-image-generated-by-pil-to-browser
+            ### # Generate temp file and a temp file desc
+            ### _, mar_to_return = tempfile.mkstemp()
+            ### temp_file_desc = tempfile.TemporaryFile()
+            ### print "TMP:!!!!!",temp_file_desc
+            ### # Get partial mar from cache into temp file
+            ### print identifier,
+            ### print cacheo.__dict__
+            ### cacheo.retrieve(identifier, output_file=mar_to_return)
+            ### # Copy contents into temp desc
+            ### with open(mar_to_return, 'rb') as f:
+            ###     print "FILE DESC", f
+            ###     shutil.copyfileobj(f , temp_file_desc)
+            ### temp_file_desc.seek(0,0)
+            ### # Cleanup file
+            ### #os.remove(mar_to_return)
+            ### # Let flask return the file from the temp desc
+            ### print "TYPE:", type(temp_file_desc)
+            ### #flask.send_file(temp_file_desc)
+            ### flask.send_file(mar_to_return)
+            return cacheo.retrieve(identifier, )
 
         elif status == db.status_code['ABORTED']:
             # Something went wrong, what do we do?

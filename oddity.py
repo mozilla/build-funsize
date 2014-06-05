@@ -21,3 +21,7 @@ class CacheCollisionError(Exception):
 class CacheError(Exception):
     """ Class for generic cache related errors """
     pass
+
+class NotImplementedError(Exception):
+    """ Exception raised for functions/classes not implemented yet """
+    pass

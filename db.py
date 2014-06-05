@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError # importing errors to make them availble too
 from sqlalchemy.orm import sessionmaker
 import logging
+import oddity
 
 class Database(object):
 
@@ -25,7 +26,7 @@ class Database(object):
 
         if not (identifier or url or status or location):
             logging.warning('Could not insert record because all fields are blank')
-            raise DBError('All fields of the record cannot be empty')
+            raise oddity.DBError('All fields of the record cannot be empty')
 
         temp_record = Partial(identifier=identifier, url=url, status=status, location=location)
 
@@ -49,6 +50,7 @@ class Database(object):
 
 
     def lookup(self, identifier=None):
+        #Why is the identifier optional?!
         """ Lookup by identifier. Return record if found, else None. """
         # FIXME: return a "copy" of the object and not the object from that
         # lookup itself because that causes the object to be modified for the
@@ -56,17 +58,22 @@ class Database(object):
 
         try:
             partial = self.session.query(Partial).filter(Partial.identifier == identifier).first()
-            return partial
 
         except:
             # Probably needs to be handled much better than this.
             # What is the error raise when record doesn't exist
-            logging.log('Lookup for record with identifier %s failed' % identifier)
-            raise DBError('Lookup for identifier %s failed' % identifier)
+            logging.info('Lookup for record with identifier %s failed' % identifier)
+            raise oddity.DBError('Lookup for identifier %s failed' % identifier)
+        else:
+            if partial is None:
+                logging.debug('Record with identifier %s does not exist' % 
+                              identifier)
+                raise oddity.DBError('Record with identifier %s does not exist' % identifier)
+            return partial
 
     def update(self, identifier, url=None, status=None, location=None):
         # If none of the fields are given it's an error
-        if not (url is None or status is None or location is None):
+        if all(x is None for x in (url, status, location)):
             raise oddity.DBError('No paramters detected for update.'
                                  'The params given are: %s' % locals())
 
