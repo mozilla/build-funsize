@@ -107,6 +107,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     try: 
         local_pmar_location = generate_partial_mar(new_cmar_path, old_cmar_path,
                                     TMP_TOOL_STORAGE, working_dir=TMP_WORKING_DIR)
+        print "The pmar location after generation is %s" % local_pmar_location
     except:
         # Something definitely went wrong.
         # Update DB to reflect abortion
@@ -118,13 +119,15 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     else:
 # Cache related stuff ##########################################################
         try:
-            pmar_location = cacheo.save(local_pmar_location, isfile=True)
+            print "Saving PMAR %s to cache with key %s" % (local_pmar_location, identifier)
+            pmar_location = cacheo.save(local_pmar_location, isfile=True, key=identifier)
         except:
             # If there are porblems in caching, handle them here.
             raise
 ################################################################################
 
 # DB Updates and related stuff? ################################################
+        logging.info('Updating db: Partial with %s is available at %s' % (identifier, pmar_location))
         dbo.update(identifier, status=db.status_code['COMPLETED'],
                 location=pmar_location)
 ################################################################################

@@ -1,3 +1,4 @@
+import api
 import flask
 import os
 import shutil
@@ -10,9 +11,6 @@ class TestAPI_GET(unittest.TestCase):
         TODO: Concretize the 'return' format.
     """
 
-    def setUpClass(cls):
-
-    import api
 
     def setUp(self):
 
@@ -22,6 +20,7 @@ class TestAPI_GET(unittest.TestCase):
         #shutil.copyfile('test_data/test.db', self.test_db)
         # Use the temp database. How do we do this?
 
+    @unittest.skip("Skipping API Tests")
     def test_db_lookup(self):
         with mock.patch('api.db.lookup') as m:
             m.return_value = mock.MagicMock(status=0)
@@ -30,7 +29,8 @@ class TestAPI_GET(unittest.TestCase):
             rv = self.app.get('/partial/test')
             m.assert_called_once_with(identfier=u'test')
 
-    def test_completed
+    @unittest.skip("Skipping API Tests")
+    def test_completed(self):
         with mock.patch('api.db.lookup') as m:
             m.return_value = mock.MagicMock(status=0)
             mock_partial = m.return_value

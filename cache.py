@@ -26,7 +26,7 @@ class Cache(object):
 
         self.cache_dir = cache_uri
 
-    def save(self, string, isfile=False):
+    def save(self, string, isfile=False, key=None):
         # FIXME: How do we deal with the race condition where the file is still
         # being written to cache, but since it exists is returned as is (most
         # likely corrupted).
@@ -53,7 +53,7 @@ class Cache(object):
         else:
             data = string
 
-        identifier = csum.getmd5(data)
+        identifier = key if key else csum.getmd5(data)
         file_cache_path = os.path.join(self.cache_dir, identifier)
 
         if self.find(identifier):
@@ -69,7 +69,7 @@ class Cache(object):
             return identifier
 
     def find(self, identifier):
-        """ Checks if file with specified hash is in cache 
+        """ Checks if file with specified hash is in cache
             returns True or False depending on whether the file exists
         """
 
