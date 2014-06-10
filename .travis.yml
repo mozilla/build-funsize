@@ -1,9 +1,13 @@
 language: python
 python:
-    - "2.6"
+    #    - "2.6" #unittest.skip N/A in py2.6
     - "2.7"
 
 install:
     - pip install -r requirements.txt
 
 script: nosetests -v
+
+notifications:
+    email: ffledgling+travis@gmail.com
+    irc: irc.mozilla.org#ffledgling
