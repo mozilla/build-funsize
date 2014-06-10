@@ -68,7 +68,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
     # Create the directories to work in.
     TMP_MAR_STORAGE = tempfile.mkdtemp(prefix='cmar_storage_')
-    TMP_TOOL_STORAGE='/tmp/tools/' # Using static location, till we figure out tooling.
+    TMP_TOOL_STORAGE='/perma/tools/' # Using static location, till we figure out tooling.
     TMP_WORKING_DIR = tempfile.mkdtemp(prefix='working_dir_')
 
     print "Locals:", '*'*50
