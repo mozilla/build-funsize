@@ -1,6 +1,8 @@
 Senbonzakura
 ============
 
+[![Build Status](https://travis-ci.org/ffledgling/Senbonzakura.svg?branch=master)](https://travis-ci.org/ffledgling/Senbonzakura)
+
 This service (I'm calling it [Senbonzakura](http://en.wikipedia.org/wiki/Byakuya_Kuchiki#Senbonzakura)
 for now) will generate partial .mar (Mozilla ARchive) files for updates from 
 Version A to Version B on demand.
