@@ -1,0 +1,7 @@
+Flask
+SQLAlchemy
+amqp
+celery
+mock
+nose
+requests
