@@ -1,4 +1,5 @@
 import hashlib
+import base64
 
 def getmd5(string, isfile=False):
     """ Computes the md5 hash of the string.
@@ -22,7 +23,7 @@ def getmd5(string, isfile=False):
 def getsha256(string, isfile=False):
     """ Computes the sha256 hash of the string.
         If the isfile flag is true, treats string as filepath to a binary file
-        and computes the md5 hash of the file.
+        and computes the sha512 hash of the file.
     """
 
     m = hashlib.sha256()
@@ -41,7 +42,7 @@ def getsha256(string, isfile=False):
 def getsha512(string, isfile=False):
     """ Computes the sha512 hash of the string.
         If the isfile flag is true, treats string as filepath to a binary file
-        and computes the md5 hash of the file.
+        and computes the sha512 hash of the file.
     """
 
     m = hashlib.sha512()
@@ -57,6 +58,25 @@ def getsha512(string, isfile=False):
 
     return str(m.hexdigest())
 
+def getsha512b64(string, isfile=False):
+    """ Computes the sha512 hash encoded to base64 of the string.
+        If the isfile flag is true, treats string as filepath to a binary file
+        and computes the sha512 hash of the file.
+    """
+
+    m = hashlib.sha512()
+    if isfile:
+        with open(string, 'rb') as f:
+            while True:
+                chunk = f.read(1024*1024) #read in chunks of 1MB
+                if not chunk:
+                    break
+                m.update(chunk)
+    else:
+        m.update(string)
+
+    return base64.b64encode(m.digest(), '+@')
+
 def verify(string, checksum, algorithm='md5', isfile=False):
     """ Given a string or a filepath and it's expected checksum, verifies if it
         is correct.
@@ -70,5 +90,7 @@ def verify(string, checksum, algorithm='md5', isfile=False):
         csum = getsha256(string, isfile=isfile)
     elif algorithm == 'sha512':
         csum = getsha512(string, isfile=isfile)
+    elif algorithm == 'sha512b64':
+        csum = getsha512b64(string, isfile=isfile)
 
     return True if csum == checksum else False
