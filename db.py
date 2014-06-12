@@ -22,13 +22,13 @@ class Database(object):
         logging.info('DB session started')
 
 
-    def insert(self, identifier=None, url=None, status=None, location=None):
+    def insert(self, identifier=None, status=None, start_timestamp=None, finish_timestamp=None):
 
-        if not (identifier or url or status or location):
+        if not (identifier or status or start_timestamp or finish_timestamp):
             logging.warning('Could not insert record because all fields are blank')
             raise oddity.DBError('All fields of the record cannot be empty')
 
-        temp_record = Partial(identifier=identifier, url=url, status=status, location=location)
+        temp_record = Partial(identifier=identifier, start_timestamp=start_timestamp, status=status, finish_timestamp=finish_timestamp)
 
         try:
             logging.info('Inserting record %s into db' % (temp_record,))
@@ -43,10 +43,10 @@ class Database(object):
 
 
     def reset_db(self):
-        pass
+        raise oddity.NotImplementedError()
 
     def query_db(self):
-        pass
+        raise oddity.NotImplementedError()
 
 
     def lookup(self, identifier=None):
@@ -71,9 +71,9 @@ class Database(object):
                 raise oddity.DBError('Record with identifier %s does not exist' % identifier)
             return partial
 
-    def update(self, identifier, url=None, status=None, location=None):
+    def update(self, identifier, status=None, finish_timestamp=None):
         # If none of the fields are given it's an error
-        if all(x is None for x in (url, status, location)):
+        if all(x is None for x in (status, finish_timestamp)):
             raise oddity.DBError('No paramters detected for update.'
                                  'The params given are: %s' % locals())
 
@@ -84,11 +84,8 @@ class Database(object):
         #for field in args.keys() if not args[field]:
         #    record.__dict__[field] = args[field]
 
-        if url is not None:
-            record.url = url
-
-        if location is not None:
-            record.location = location
+        if finish_timestamp is not None:
+            record.finish_timestamp = finish_timestamp
 
         if status is not None:
             record.status = status
@@ -97,7 +94,7 @@ class Database(object):
             self.session.add(record)
             self.session.commit()
         except:
-            logging.warning('Couldn\'t update log')
+            logging.warning('Couldn\'t update record')
             raise
         finally: 
             logging.info('Record with identifier %s updated' % identifier)

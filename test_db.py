@@ -5,6 +5,7 @@ import oddity
 import shutil
 import tempfile
 import unittest
+import time
 
 
 class TestDB(unittest.TestCase):
@@ -16,9 +17,10 @@ class TestDB(unittest.TestCase):
         shutil.copyfile('test_data/test.db', self.DB_FILE)
         self.DB_URI = 'sqlite:///' + self.DB_FILE
         self.dbo = db.Database(self.DB_URI)
-        self.static_identifier = 'd7f65cf5002a1dfda88a33b7a31b65eb-cd757aa3cfed6f0a117fa16f33250f74'
+        self.static_identifier = 'NiuRlVVSYqqSFYWK184RJMvf7jJ3uHXaV+ydgjb2cmG@SX60VW8d71lY6jKXNl8i13QcNnAVFppsXzNfdfwzVw=='
+        self.start_timestamp = time.time()
+        self.finish_timestamp = time.time() + 300
         self.test_identifier = 'test'
-        self.test_url = '/partial/test'
         self.test_status = db.status_code['COMPLETED']
         self.wrong_status = 'stringcannotbestatus'
 
@@ -30,11 +32,11 @@ class TestDB(unittest.TestCase):
                           identifier='nonexistant')
 
     def test_insert(self):
-        self.dbo.insert(identifier=self.test_identifier, status=self.test_status, url=self.test_url)
+        self.dbo.insert(identifier=self.test_identifier, status=self.test_status, start_timestamp=self.start_timestamp)
         partial = self.dbo.lookup(identifier=self.test_identifier)
         self.assertEqual(partial.identifier, self.test_identifier)
-        self.assertEqual(partial.url, self.test_url)
-        self.assertEqual(partial.location, None)
+        self.assertEqual(partial.start_timestamp, self.start_timestamp)
+        self.assertEqual(partial.finish_timestamp, -1)
 
     def test_insert_error(self):
         # Empty Insert
@@ -45,7 +47,7 @@ class TestDB(unittest.TestCase):
 
 
     def test_update(self):
-        self.dbo.update(self.static_identifier, url=self.test_url)
+        self.dbo.update(self.static_identifier, finish_timestamp=self.finish_timestamp)
 
     def test_update_error(self):
         # Blank update
