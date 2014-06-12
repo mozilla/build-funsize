@@ -9,6 +9,7 @@ import os
 import pprint
 import subprocess
 import tempfile
+import time
 
 DB_URI = 'sqlite:///test.db'
 CACHE_URI = '/perma/cache/'
@@ -111,7 +112,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     except:
         # Something definitely went wrong.
         # Update DB to reflect abortion
-        dbo.update(identifier, status=db.status_code['ABORTED'])
+        dbo.update(identifier, status=db.status_code['ABORTED'], finish_timestamp=time.time())
         #return None
         raise
 
@@ -129,7 +130,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 # DB Updates and related stuff? ################################################
         logging.info('Updating db: Partial with %s is available at %s' % (identifier, pmar_location))
         dbo.update(identifier, status=db.status_code['COMPLETED'],
-                location=pmar_location)
+                finish_timestamp=time.time())
 ################################################################################
 
 # Cleanup

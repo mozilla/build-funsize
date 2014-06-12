@@ -4,12 +4,14 @@ import logging
 import os
 import shutil
 import tempfile
+import time
 
 import core
 import cache
 import flasktask
 import db
 import tasks
+import oddity
 
 # FIXME: Load this from a preference file
 DB_URI = 'sqlite:///test.db'
@@ -57,7 +59,7 @@ def trigger_partial():
         # existence
         #db.insert(identifier=None, url=url, status=db.status_code['IN_PROGRESS'])
 
-        dbo.insert(identifier=identifier, url=url, status=db.status_code['IN_PROGRESS'])
+        dbo.insert(identifier=identifier, status=db.status_code['IN_PROGRESS'], start_timestamp=time.time())
     except db.IntegrityError, e:
         #print "Couldn't insert, got error: %s" % e
         # Lookup and get url and return it
@@ -66,7 +68,7 @@ def trigger_partial():
         print partial
         print "**"*10
         resp = flask.Response(
-                "{'result': '%s'}" % partial.url,
+                "{'result': '%s'}" % url,
                 status=201,
                 mimetype='application/json'
                 )
@@ -102,9 +104,9 @@ def get_partial(identifier):
 
     logging.debug('Request recieved with headers : %s' % flask.request.headers)
     logging.info('Request recieved for identifier %s' % identifier)
-    partial = dbo.lookup(identifier=identifier)
-
-    if not partial:
+    try:
+        partial = dbo.lookup(identifier=identifier)
+    except oddity.DBError:
         logging.info('Record corresponding to identifier %s does not exist.' % identifier)
         resp = flask.Response("{'result':'partial does not exist'}", status=404)
     else:
