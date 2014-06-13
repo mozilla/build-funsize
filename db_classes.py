@@ -52,7 +52,7 @@ class Partial(Base):
     id = Column(Integer, primary_key=True)
     start_timestamp = Column(BigInteger, default=-1, nullable=False)
     finish_timestamp = Column(BigInteger, default=-1)
-    identifier = Column(String(255), nullable=False, unique=True) # 255 based on filesystem limit for filename lengths
+    identifier = Column(String(500), nullable=False, unique=True) # Any arbitrary number over 257(128+1+128)
     status = Column(Integer, nullable=False, default=-1) # is it okay to use enum like stuff?
 
 if __name__ == '__main__':

@@ -59,4 +59,4 @@ class TestDB(unittest.TestCase):
         os.remove(self.DB_FILE)
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=3)

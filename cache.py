@@ -7,7 +7,11 @@ import logging
 import oddity
 
 class Cache(object):
-    """ Class that provides access to cache """
+    """ Class that provides access to cache
+        Assumes all keys are hex-encoded SHA512s
+        Internally converts  hex to base64 encoding
+    """
+
 
 # FIXME: Typically caches are given Key-Value pairs, our cache generates the key
 #        on it's own, this is not how it should be
@@ -17,16 +21,26 @@ class Cache(object):
                         Just a filepath for the time being
         """
 
-        try:
-            os.makedirs(cache_uri)
-        except OSError:
-            if not os.path.isdir(cache_uri):
-                logging.warning('could not initalize cache')
-                raise
-
         self.cache_dir = cache_uri
+        self.cache_complete_dir = os.path.join(self.cache_dir, 'complete') # For complete Mars/files
+        self.cache_diffs_dir = os.path.join(self.cache_dir, 'diff') # For diffs
+        self.cache_partials_dir = os.path.join(self.cache_dir, 'partial') # for partials
 
-    def save(self, string, isfile=False, key=None):
+        for directory in (self.cache_dir, self.cache_complete_dir,
+                self.cache_diffs_dir, self.cache_partials_dir):
+            try:
+                os.makedirs(directory)
+            except OSError:
+                if not os.path.isdir(directory):
+                    logging.warning('could not initalize cache')
+                    logging.info('could not create required dir %s' % directory)
+                    raise oddity.CacheError('Could not initalize Cache')
+
+    def _generate_identifier(self, key):
+        return '-'.join(csum.hexto64(x) if len(x)==128 else x for x in key.split('-'))
+
+
+    def save(self, string, isfile=False, key=None, category=None):
         # FIXME: How do we deal with the race condition where the file is still
         # being written to cache, but since it exists is returned as is (most
         # likely corrupted).
@@ -41,6 +55,9 @@ class Cache(object):
             #returns URI/Identifier for cache
         """
 
+        if not key:
+            raise oddity.CacheError('Trying to save object to cache without key')
+
         if isfile:
             try:
                 with open(string, 'rb') as f:
@@ -49,39 +66,62 @@ class Cache(object):
                 # Could not read file or is not a file or something
                 logging.warning('Could not read file source %s ' %string +
                                 'to insert into cache')
-                raise CacheError('Error reading input %s' % string)
+                raise oddity.CacheError('Error reading input %s' % string)
         else:
             data = string
+        
+        identifier = self._generate_identifier(key)
+        #identifier = key if key else csum.getmd5(data)
+        id_path = os.path.join(*[d for d in identifier[:5]] + [d[5:]])
 
-        identifier = key if key else csum.getmd5(data)
-        file_cache_path = os.path.join(self.cache_dir, identifier)
+
+        if category == None:
+            file_cache_path = os.path.join(self.cache_dir, id_path)
+        elif category == 'complete':
+            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
+        elif category == 'diff':
+            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
+        elif category == 'partial':
+            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+
+        try:
+            os.makedirs(os.path.dirname(file_cache_path))
+        except OSError:
+            if not os.path.isdir(os.path.dirname(file_cache_path)):
+                logging.warning('could not create required dir %s' % directory)
+                raise oddity.CacheError('Could not insert in Cache')
+
 
         if self.find(identifier):
-            raise CacheCollisionError('identifier %s collision' % identifier)
+            raise oddity.CacheCollisionError('identifier %s collision' % identifier)
 
         try:
             with open(file_cache_path, 'wb') as f:
                 f.write(data)
         except:
+            raise
             # couldn't open file or other error
-            raise CacheError('Error saving input %s to cache' % string)
+            raise oddity.CacheError('Error saving input %s to cache' % string)
         else:
             return identifier
 
-    def find(self, identifier):
-        """ Checks if file with specified hash is in cache
+    def find(self, key):
+        """ Checks if file with specified key is in cache
             returns True or False depending on whether the file exists
         """
 
+        identifier = self._generate_identifier(key)
         file_cache_path = os.path.join(self.cache_dir, identifier)
         return os.path.isfile(file_cache_path)
 
-    def retrieve(self, identifier, output_file=None):
-        """ retrieve file with the given identifier
+    def retrieve(self, key, output_file=None):
+        """ retrieve file with the given key
             writes the file to the path specified by output_file if present
             otherwise returns the file as a binary string/file object
         """
         # Multiples in case of collisions, might want to handle that
+
+        identifier = self._generate_identifier(key)
         
         file_path = os.path.join(self.cache_dir, identifier)
         if output_file:

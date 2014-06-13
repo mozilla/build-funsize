@@ -10,17 +10,21 @@ DEFAULT_DB='./test.db'
 
 
 # Nightly related variables
-DEFAULT_SRC_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014-05-12-03-02-02-mozilla-central/firefox-32.0a1.en-US.mac.complete.mar'
-DEFAULT_DST_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014-05-13-03-02-01-mozilla-central/firefox-32.0a1.en-US.mac.complete.mar'
-DEFAULT_SRC_HASH='da0ecd3c65f3f333ee42ca332b97e925'
-DEFAULT_DST_HASH='c738c5f2d719ef0e00041b6df6a987fe'
+DEFAULT_SRC_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/05/2014-05-12-03-02-02-mozilla-central/firefox-32.0a1.en-US.mac.checksums'
+DEFAULT_DST_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/05/2014-05-13-03-02-01-mozilla-central/firefox-32.0a1.en-US.mac.complete.mar'
+DEFAULT_SRC_HASH_MD5='da0ecd3c65f3f333ee42ca332b97e925'
+DEFAULT_DST_HASH_MD5='c738c5f2d719ef0e00041b6df6a987fe'
+DEFAULT_SRC_HASH='1a6bec1dd103f8aacbd450ec0787c94ccf07f5e100d7c356bf2fb75c8181998563e0ded4556c9fb050ee1e7451c1ac765bc1547c8c6ec6bcffdf62ae0daf1150'
+DEFAULT_DST_HASH='2d7fb432484f2b0354b7f1df503b329cc3063b44d894a06606b6ee692d3b22679dc0c80eb29426d2a6e6dba3e34242ca1bf0a5e6d6dc6c159092cb0becc7e80f'
 DEFAULT_IDENTIFIER="$DEFAULT_SRC_HASH-$DEFAULT_DST_HASH"
 
 # Release related variables
 FF29="http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/29.0/update/mac/en-US/firefox-29.0.complete.mar"
-FF29_HASH="cd757aa3cfed6f0a117fa16f33250f74"
+FF29_HASH_MD5="cd757aa3cfed6f0a117fa16f33250f74"
+FF29_HASH="3933dc4b3abe6e07fc62bf4821d52fc87e442dadf84aed9a28e2671fc60f3a85232d84a529d4089058d9ad3fd9af98d0b9d8482c9ca9a585770c0dcd288b0937"
 FF28="http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/28.0/update/mac/en-US/firefox-28.0.complete.mar"
-FF28_HASH="d7f65cf5002a1dfda88a33b7a31b65eb"
+FF28_HASH_MD5="d7f65cf5002a1dfda88a33b7a31b65eb"
+FF28_HASH="4d5bcce9c29f04daae9af1868997ce26c71bc836fc0f403d4800746379610a5ef83a390eb3037d356033b4bf627e922a71c9fba5ee645b70b980aef90e6c8ff9"
 RELEASE_IDENTIFIER="$FF28_HASH-$FF29_HASH"
 
 
@@ -143,7 +147,7 @@ clobber(){
 
     debug "clobber function called with $@"
 
-    rm $1/*
+    rm -rf $1/* #Hope this doesn't mess things up. Fingers crossed.
     if [ $? -eq 0 ]
     then
         info "Cache Cleaned"

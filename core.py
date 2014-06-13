@@ -14,7 +14,7 @@ import time
 DB_URI = 'sqlite:///test.db'
 CACHE_URI = '/perma/cache/'
 
-def get_complete_mar(url, checksum, output_file=None):
+def get_complete_mar(url, identifier, output_file=None):
 
     """ Return binary string if no output_file specified """
 
@@ -22,20 +22,20 @@ def get_complete_mar(url, checksum, output_file=None):
 
     # Check if file is in cache
     # If we find it retrieve it from cache
-    logging.info('Request for complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
-    if cacheo.find(checksum): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
-        logging.debug('Found complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
+    logging.info('Request for complete MAR %s with Identifer %s in cache' % (url, identifier))
+    if cacheo.find(identifier): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
+        logging.debug('Found complete MAR %s with Identifer %s in cache' % (url, identifier))
         logging.debug('retriving MAR from cache')
-        mar = cacheo.retrieve(checksum, output_file=output_file)
+        mar = cacheo.retrieve(identifier, output_file=output_file)
     # Otherwise we download it and cache it
     else:
-        logging.debug('Did not find complete MAR %s with MD5/Identifer %s in cache' % (url, checksum))
-        logging.debug('Downloading complete MAR %s with MD5/Identifer %s' % (url, checksum))
-        mar = fetch.downloadmar(url, checksum, output_file=output_file)
+        logging.debug('Did not find complete MAR %s with Identifer %s in cache' % (url, identifier))
+        logging.debug('Downloading complete MAR %s with Identifer %s' % (url, identifier))
+        mar = fetch.downloadmar(url, identifier, output_file=output_file)
         # If output_file is specified, use that, else use the mar binary string
-        cacheo.save(output_file or mar, isfile=bool(output_file))
+        cacheo.save(output_file or mar, isfile=bool(output_file), key=identifier)
 
-    logging.info('Request for complete MAR %s with MD5/Identifer %s satisfied' % (url, checksum))
+    logging.info('Request for complete MAR %s with Identifer %s satisfied' % (url, identifier))
     return mar
 
 def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
