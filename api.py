@@ -140,7 +140,7 @@ def get_partial(identifier):
             ### print "TYPE:", type(temp_file_desc)
             ### #flask.send_file(temp_file_desc)
             ### flask.send_file(mar_to_return)
-            return cacheo.retrieve(identifier, )
+            return cacheo.retrieve(identifier, 'partial')
 
         elif status == db.status_code['ABORTED']:
             # Something went wrong, what do we do?

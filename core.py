@@ -23,17 +23,17 @@ def get_complete_mar(url, identifier, output_file=None):
     # Check if file is in cache
     # If we find it retrieve it from cache
     logging.info('Request for complete MAR %s with Identifer %s in cache' % (url, identifier))
-    if cacheo.find(identifier): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
+    if cacheo.find(identifier, 'complete'): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
         logging.debug('Found complete MAR %s with Identifer %s in cache' % (url, identifier))
         logging.debug('retriving MAR from cache')
-        mar = cacheo.retrieve(identifier, output_file=output_file)
+        mar = cacheo.retrieve(identifier, 'complete', output_file=output_file)
     # Otherwise we download it and cache it
     else:
         logging.debug('Did not find complete MAR %s with Identifer %s in cache' % (url, identifier))
         logging.debug('Downloading complete MAR %s with Identifer %s' % (url, identifier))
         mar = fetch.downloadmar(url, identifier, output_file=output_file)
         # If output_file is specified, use that, else use the mar binary string
-        cacheo.save(output_file or mar, isfile=bool(output_file), key=identifier)
+        cacheo.save(output_file or mar, identifier, 'complete', isfile=bool(output_file))
 
     logging.info('Request for complete MAR %s with Identifer %s satisfied' % (url, identifier))
     return mar
@@ -121,7 +121,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 # Cache related stuff ##########################################################
         try:
             print "Saving PMAR %s to cache with key %s" % (local_pmar_location, identifier)
-            pmar_location = cacheo.save(local_pmar_location, isfile=True, key=identifier)
+            pmar_location = cacheo.save(local_pmar_location, identifier, 'partial', isfile=True)
         except:
             # If there are porblems in caching, handle them here.
             raise

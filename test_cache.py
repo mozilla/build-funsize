@@ -17,6 +17,7 @@ class TestCache(unittest.TestCase):
         self.test_string = 'This is a test string\n'
         _, self.output_file = tempfile.mkstemp()
         self.key = 'thisisatestkey'
+        self.category = 'complete'
         with open(self.test_file, 'wb') as f:
             f.write(self.test_string)
 
@@ -24,19 +25,19 @@ class TestCache(unittest.TestCase):
         """ Full test of a successful insert, lookup retrieval """
         # This doesn't sound right, but this is the best I can think of
 
-        self.cache_object.save(self.test_file, isfile=True, key=self.key)
-        self.assertTrue(self.cache_object.find(key=self.key))
-        self.cache_object.retrieve(output_file=self.output_file, key=self.key)
+        self.cache_object.save(self.test_file, self.key, self.category, isfile=True)
+        self.assertTrue(self.cache_object.find(self.key, self.category))
+        self.cache_object.retrieve(self.key, self.category, output_file=self.output_file)
         with open(self.output_file, 'rb') as f:
             self.assertEqual(self.test_string, f.read())
 
     def test_find(self):
         """ Check the find method works """
-        self.assertFalse(self.cache_object.find('nonexistantid'))
+        self.assertFalse(self.cache_object.find('nonexistantid', self.category))
 
     def test_retrieve(self):
         self.assertRaises(oddity.CacheMissError, self.cache_object.retrieve,
-                'nonexistantid', output_file=False)
+                'nonexistantid', self.category, output_file=False)
 
     @unittest.skip('Skipping test till we figure out what should go in it')
     def test_save(self):

@@ -40,7 +40,7 @@ class Cache(object):
         return '-'.join(csum.hexto64(x) if len(x)==128 else x for x in key.split('-'))
 
 
-    def save(self, string, isfile=False, key=None, category=None):
+    def save(self, string, key, category, isfile=False):
         # FIXME: How do we deal with the race condition where the file is still
         # being written to cache, but since it exists is returned as is (most
         # likely corrupted).
@@ -93,7 +93,7 @@ class Cache(object):
                 raise oddity.CacheError('Could not insert in Cache')
 
 
-        if self.find(identifier):
+        if self.find(key, category):
             raise oddity.CacheCollisionError('identifier %s collision' % identifier)
 
         try:
@@ -106,7 +106,7 @@ class Cache(object):
         else:
             return identifier
 
-    def find(self, key, category=None):
+    def find(self, key, category):
         """ Checks if file with specified key is in cache
             returns True or False depending on whether the file exists
         """
@@ -126,7 +126,7 @@ class Cache(object):
         #file_cache_path = os.path.join(self.cache_dir, identifier)
         return os.path.isfile(file_cache_path)
 
-    def retrieve(self, key, output_file=None, category=None):
+    def retrieve(self, key, category, output_file=None):
         """ retrieve file with the given key
             writes the file to the path specified by output_file if present
             otherwise returns the file as a binary string/file object
