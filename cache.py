@@ -71,8 +71,8 @@ class Cache(object):
             data = string
         
         identifier = self._generate_identifier(key)
-        #identifier = key if key else csum.getmd5(data)
-        id_path = os.path.join(*[d for d in identifier[:5]] + [d[5:]])
+        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
+        print "ID-PATH", id_path
 
 
         if category == None:
@@ -83,6 +83,9 @@ class Cache(object):
             file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
         elif category == 'partial':
             file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+
+        logging.info('Writing to cache in dir %s' % file_cache_path)
+        print 'Writing to cache in dir %s' % file_cache_path
 
         try:
             os.makedirs(os.path.dirname(file_cache_path))
@@ -105,16 +108,29 @@ class Cache(object):
         else:
             return identifier
 
-    def find(self, key):
+    def find(self, key, category=None):
         """ Checks if file with specified key is in cache
             returns True or False depending on whether the file exists
         """
-
         identifier = self._generate_identifier(key)
-        file_cache_path = os.path.join(self.cache_dir, identifier)
+        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
+        print "ID-PATH", id_path
+
+
+        if category == None:
+            file_cache_path = os.path.join(self.cache_dir, id_path)
+        elif category == 'complete':
+            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
+        elif category == 'diff':
+            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
+        elif category == 'partial':
+            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+
+        #identifier = self._generate_identifier(key)
+        #file_cache_path = os.path.join(self.cache_dir, identifier)
         return os.path.isfile(file_cache_path)
 
-    def retrieve(self, key, output_file=None):
+    def retrieve(self, key, output_file=None, category=None):
         """ retrieve file with the given key
             writes the file to the path specified by output_file if present
             otherwise returns the file as a binary string/file object
@@ -122,11 +138,22 @@ class Cache(object):
         # Multiples in case of collisions, might want to handle that
 
         identifier = self._generate_identifier(key)
+        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
+        print "ID-PATH", id_path
+
+
+        if category == None:
+            file_cache_path = os.path.join(self.cache_dir, id_path)
+        elif category == 'complete':
+            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
+        elif category == 'diff':
+            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
+        elif category == 'partial':
+            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
         
-        file_path = os.path.join(self.cache_dir, identifier)
         if output_file:
             try:
-                shutil.copyfile(file_path, output_file)
+                shutil.copyfile(file_cache_path, output_file)
             except:
                 logging.warning('could not retrieve file from cache')
                 raise oddity.CacheMissError('File with identifier %s not found' 
@@ -135,7 +162,7 @@ class Cache(object):
                 return
         else:
             try:
-                with open(file_path, 'rb') as f:
+                with open(file_cache_path, 'rb') as f:
                     data = f.read()
             except:
                 logging.warning('could not retrieve file from cache')

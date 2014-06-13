@@ -42,7 +42,6 @@ def trigger_partial():
         flask.abort(400)
 
     # TODO: Validate params and values in form Ideally
-    #pprint.pprint(flask.request.form)
     mar_from = flask.request.form['mar_from']
     mar_to = flask.request.form['mar_to']
     mar_from_hash = flask.request.form['mar_from_hash']
@@ -57,11 +56,9 @@ def trigger_partial():
     try:
         # error testing and parameter validation, maybe do this up close to checking
         # existence
-        #db.insert(identifier=None, url=url, status=db.status_code['IN_PROGRESS'])
 
         dbo.insert(identifier=identifier, status=db.status_code['IN_PROGRESS'], start_timestamp=time.time())
     except db.IntegrityError, e:
-        #print "Couldn't insert, got error: %s" % e
         # Lookup and get url and return it
         partial = dbo.lookup(identifier=identifier)
         print "**"*10
@@ -74,7 +71,7 @@ def trigger_partial():
                 )
         return resp
     else:
-        print "calling generation functions"
+        logging.info('calling generation functions')
         # Call generation functions here
         resp = flask.Response("{'result' : '%s'}" % url, status=202, mimetype='application/json')
 
