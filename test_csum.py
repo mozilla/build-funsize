@@ -23,13 +23,13 @@ class TestCsum(unittest.TestCase):
 
     def test_verify(self):
         self.assertTrue(csum.verify(self.test_string, self.correct_md5,
-            algorithm='md5'))
+            cipher='md5'))
         self.assertTrue(csum.verify(self.test_string, self.correct_sha256,
-            algorithm='sha256'))
+            cipher='sha256'))
         self.assertTrue(csum.verify(self.test_string, self.correct_sha512,
-            algorithm='sha512'))
+            cipher='sha512'))
         self.assertTrue(csum.verify(self.test_string, self.correct_sha512b64,
-            algorithm='sha512b64'))
+            cipher='sha512b64'))
 
 if __name__ == '__main__':
     unittest.main(verbosity=3)

@@ -16,6 +16,7 @@ class TestCache(unittest.TestCase):
         _, self.test_file = tempfile.mkstemp()
         self.test_string = 'This is a test string\n'
         _, self.output_file = tempfile.mkstemp()
+        self.key = 'thisisatestkey'
         with open(self.test_file, 'wb') as f:
             f.write(self.test_string)
 
@@ -23,10 +24,9 @@ class TestCache(unittest.TestCase):
         """ Full test of a successful insert, lookup retrieval """
         # This doesn't sound right, but this is the best I can think of
 
-        identifier = self.cache_object.save(self.test_file, isfile=True)
-        logging.info('Identifier: %s' % identifier)
-        self.assertTrue(self.cache_object.find(identifier))
-        self.cache_object.retrieve(identifier, output_file=self.output_file)
+        self.cache_object.save(self.test_file, isfile=True, key=self.key)
+        self.assertTrue(self.cache_object.find(key=self.key))
+        self.cache_object.retrieve(output_file=self.output_file, key=self.key)
         with open(self.output_file, 'rb') as f:
             self.assertEqual(self.test_string, f.read())
 

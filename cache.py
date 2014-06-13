@@ -72,8 +72,6 @@ class Cache(object):
         
         identifier = self._generate_identifier(key)
         id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-        print "ID-PATH", id_path
-
 
         if category == None:
             file_cache_path = os.path.join(self.cache_dir, id_path)
@@ -114,8 +112,6 @@ class Cache(object):
         """
         identifier = self._generate_identifier(key)
         id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-        print "ID-PATH", id_path
-
 
         if category == None:
             file_cache_path = os.path.join(self.cache_dir, id_path)
@@ -139,8 +135,6 @@ class Cache(object):
 
         identifier = self._generate_identifier(key)
         id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-        print "ID-PATH", id_path
-
 
         if category == None:
             file_cache_path = os.path.join(self.cache_dir, id_path)
