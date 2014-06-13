@@ -1,7 +1,12 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash         # To allow using Bash 4.x on OSX via homebrew
 # Author: Anhad Jai Singh
 
+set -eu # stricter error checking
+
 SCRIPT_NAME=$(basename $0)
+DEBUG=false
+
+#alias curl='curl -s -o /dev/null -w "%{http_code}"'
 
 # General variables
 DEFAULT_URL='http://127.0.0.1:5000'
@@ -9,7 +14,7 @@ DEFAULT_CACHE='/perma/cache'
 DEFAULT_DB='./test.db'
 
 
-# Nightly related variables
+# Using Nightly for default variables
 DEFAULT_SRC_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/05/2014-05-12-03-02-02-mozilla-central/firefox-32.0a1.en-US.mac.checksums'
 DEFAULT_DST_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/05/2014-05-13-03-02-01-mozilla-central/firefox-32.0a1.en-US.mac.complete.mar'
 DEFAULT_SRC_HASH_MD5='da0ecd3c65f3f333ee42ca332b97e925'
@@ -31,22 +36,22 @@ RELEASE_IDENTIFIER="$FF28_HASH-$FF29_HASH"
 # Coloured output
 error(){
     # Red
-    str=$1
-    echo -e "\e[0;31m"$str"\e[0m" >&2
+    str=$@
+    echo -e "\e[0;31m${str}\e[0m" >&2
 }
 
 info(){
     # Yellow
-    str=$1
-    echo -e "\e[0;33m"$str"\e[0m" >&2
+    str=$@
+    echo -e "\e[0;33m${str}\e[0m" >&2
 }
 
 debug(){
     # Purple
     str=$1
-    if [ $DEBUG ]
+    if $DEBUG
     then
-        echo -e "\e[0;35m"$str"\e[0m" >&2
+        echo -e "\e[0;35m${str}\e[0m" >&2
     fi
 }
 
@@ -70,10 +75,21 @@ usage(){
 
 
 count=0
-while getopts ":u:hd" option
+while getopts ":c:u:v:dh" option
 do
     case $option in
-        d)
+        c) 
+            debug "Using $OPTARG as cache"
+            DEFAULT_CACHE=${OPTARG}
+            count=$(expr $count + 1)
+            ;;
+
+        d) 
+            debug "Using $OPTARG as database"
+            DEFAULT_DB=${OPTARG}
+            count=$(expr $count + 1)
+            ;;
+        v)
             DEBUG=true;
             debug "Debug logging enabled";
             count=$(expr $count + 1);
@@ -94,6 +110,7 @@ do
             exit 1;
             ;;
     esac
+    echo "optind $OPTIND"
 done
 shift $count
 
@@ -103,8 +120,11 @@ trigger_partial_build(){
     SRC_HASH=$3
     DST_HASH=$4
 
-    debug "CMD: curl -X POST" "$DEFAULT_URL/partial" -d "mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
-    curl -X POST "$DEFAULT_URL/partial" -d "mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH" && echo
+    cmd="curl -i -X POST $DEFAULT_URL/partial -d mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
+    debug "CMD: $cmd"
+    $cmd && echo
+    #debug "CMD: curl -X POST" "$DEFAULT_URL/partial" -d "mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
+    #curl -X POST "$DEFAULT_URL/partial" -d "mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH" && echo
     if [ $? -eq 0 ]
     then
         debug "Trigger succeeded"
@@ -116,8 +136,11 @@ trigger_partial_build(){
 
 get_partial_build(){
     IDENTIFIER=$1
-    debug "CMD: curl -X GET ""$DEFAULT_URL/partial/""$IDENTIFIER"
-    curl -X GET "$DEFAULT_URL/partial/$IDENTIFIER" && echo
+    cmd="curl -i -X GET $DEFAULT_URL/partial/$IDENTIFIER"
+    debug "$cmd"
+    $cmd && echo
+    #debug "CMD: curl -X GET ""$DEFAULT_URL/partial/""$IDENTIFIER"
+    #curl -X GET "$DEFAULT_URL/partial/$IDENTIFIER" && echo
     if [ $? -eq 0 ]
     then
         debug "GET succeeded"
@@ -129,8 +152,11 @@ get_partial_build(){
 
 trigger_partial_error(){
     # Posting with no params should give an error
-    debug "curl -X POST $DEFAULT_URL/partial"
-    curl -X POST $DEFAULT_URL'/partial' && echo
+    cmd="curl -i -X POST $DEFAULT_URL/partial"
+    debug "$cmd"
+    $cmd && echo
+    #debug "curl -X POST $DEFAULT_URL/partial"
+    #curl -X POST $DEFAULT_URL'/partial' && echo
     if [ $? -eq 0 ]
     then
         debug "Trigged"
@@ -144,10 +170,17 @@ clobber(){
     CACHE=$1
     DB=$2
 
+    if [ -z $CACHE ]
+    then
+        error "No Cache speficied for clobber, this will delete / !"
+    fi
+
+
 
     debug "clobber function called with $@"
 
-    rm -rf $1/* #Hope this doesn't mess things up. Fingers crossed.
+    debug "Deleteing $CACHE/*"
+    rm -rf $CACHE/* #Hope this doesn't mess things up. Fingers crossed.
     if [ $? -eq 0 ]
     then
         info "Cache Cleaned"
@@ -168,33 +201,33 @@ clobber(){
 case $1 in
 
     "trigger") 
+        debug "Calling trigger_partial_build"
         trigger_partial_build $DEFAULT_SRC_MAR $DEFAULT_DST_MAR $DEFAULT_SRC_HASH $DEFAULT_DST_HASH
-        debug "Called trigger_partial_build"
         exit 0 ;;
 
     "trigger-release") 
+        debug "Calling: trigger_partial_build"
         trigger_partial_build $FF28 $FF29 $FF28_HASH $FF29_HASH
-        debug "Called: trigger_partial_build"
         exit 0 ;;
 
     "error")
+        debug "Calling: trigger_partial_error"
         trigger_partial_error
-        debug "Called: trigger_partial_error"
         exit 0;;
 
     "get")
+        debug "Calling: get_partial_build $DEFAULT_IDENTIFIER"
         get_partial_build $DEFAULT_IDENTIFIER
-        debug "Called: get_partial_build $DEFAULT_IDENTIFIER"
         exit 0 ;;
 
     "get-release")
+        debug "Calling: get_partial_build $RELEASE_IDENTIFIER"
         get_partial_build $RELEASE_IDENTIFIER
-        debug "Called: get_partial_build $RELEASE_IDENTIFIER"
         exit 0 ;;
 
     "clobber")
+        debug "Calling: clobber $DEFAULT_CACHE $DEFAULT_DB"
         clobber $DEFAULT_CACHE $DEFAULT_DB
-        debug "Called: clobber $DEFAULT_CACHE $DEFAULT_DB"
         exit 0 ;;
 
     *)
