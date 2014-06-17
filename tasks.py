@@ -1,8 +1,8 @@
 from celery import Celery
 import core
+import ConfigParser
 
 # All celery stuff goes in here
-
 app = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
 @app.task

@@ -3,6 +3,7 @@ import fetch
 import cache
 import db
 
+import ConfigParser
 import errno
 import logging
 import os
@@ -11,8 +12,20 @@ import subprocess
 import tempfile
 import time
 
-DB_URI = 'sqlite:///test.db'
-CACHE_URI = '/perma/cache/'
+config = ConfigParser.ConfigParser()
+config.read('configs/worker.ini')
+
+if config.items('db') and config.items('cache'):
+    #app.config['DB_URI'] = config.get('db', 'uri')
+    #app.config['CACHE_URI'] = config.get('cache', 'uri')
+    DB_URI = config.get('db', 'uri')
+    CACHE_URI = config.get('cache', 'uri')
+else:
+    raise oddity.ConfigError('Configuration parameters missing')
+
+
+#DB_URI = 'sqlite:///test.db'
+#CACHE_URI = '/perma/cache/'
 
 def get_complete_mar(url, identifier, output_file=None):
 

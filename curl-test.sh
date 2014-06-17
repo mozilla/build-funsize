@@ -1,10 +1,12 @@
 #!/usr/bin/env bash         # To allow using Bash 4.x on OSX via homebrew
 # Author: Anhad Jai Singh
 
-set -eu # stricter error checking
+#set -eu # stricter error checking
+set -e # stricter error checking
 
 SCRIPT_NAME=$(basename $0)
 DEBUG=false
+CURL_INCLUDE=false
 
 #alias curl='curl -s -o /dev/null -w "%{http_code}"'
 
@@ -59,8 +61,11 @@ usage(){
     echo "$SCRIPT_NAME [-h] [-d] [-u SERVER-URL] SUB-COMMAND"
     echo "Script that tests the GET and POST requests"
     echo ""
+    echo "-c: Cache URI"
+    echo "-d: Database URI"
+    echo "-i: Add the curl -I flag to fetch just the headers"
     echo "-h: This help"
-    echo "-d: Enable debug logging"
+    echo "-v: Enable debug logging"
     echo "-u: Base server URL to use for all requests"
     echo ""
     echo "SUB-COMMANDS : trigger, trigger-release, get, get-release, clobber, error"
@@ -73,32 +78,40 @@ usage(){
     echo "error             : Send a POST to the SERVER-URL without params to trigger an error"
 }
 
+# Curl Include option
+curl_i(){
+    if $CURL_INCLUDE
+    then
+        echo "-I"
+    fi
+}
 
 count=0
-while getopts ":c:u:v:dh" option
+while getopts ":c:u:d:vih" option
 do
     case $option in
         c) 
             debug "Using $OPTARG as cache"
             DEFAULT_CACHE=${OPTARG}
-            count=$(expr $count + 1)
             ;;
 
         d) 
-            debug "Using $OPTARG as database"
+            debug "Using ${OPTARG} as database"
             DEFAULT_DB=${OPTARG}
-            count=$(expr $count + 1)
+            ;;
+
+        i)
+            debug "Using the -i flag on curl for extra information"
+            CURL_INCLUDE=true
             ;;
         v)
             DEBUG=true;
             debug "Debug logging enabled";
-            count=$(expr $count + 1);
             ;;
 
         u)
             echo "OPTARG" $OPTARG
             #DEFAULT_URL=
-            count=$(expr $count + 2);
             ;;
 
         h)
@@ -110,9 +123,8 @@ do
             exit 1;
             ;;
     esac
-    echo "optind $OPTIND"
 done
-shift $count
+shift $((OPTIND - 1))
 
 trigger_partial_build(){
     SRC_MAR=$1
@@ -120,7 +132,7 @@ trigger_partial_build(){
     SRC_HASH=$3
     DST_HASH=$4
 
-    cmd="curl -i -X POST $DEFAULT_URL/partial -d mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
+    cmd="curl -s -S $(curl_i) -X POST $DEFAULT_URL/partial -d mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
     debug "CMD: $cmd"
     $cmd && echo
     #debug "CMD: curl -X POST" "$DEFAULT_URL/partial" -d "mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
@@ -136,9 +148,9 @@ trigger_partial_build(){
 
 get_partial_build(){
     IDENTIFIER=$1
-    cmd="curl -i -X GET $DEFAULT_URL/partial/$IDENTIFIER"
+    cmd="curl -s -S $(curl_i) -X GET $DEFAULT_URL/partial/$IDENTIFIER"
     debug "$cmd"
-    $cmd && echo
+    $cmd && echo >&2
     #debug "CMD: curl -X GET ""$DEFAULT_URL/partial/""$IDENTIFIER"
     #curl -X GET "$DEFAULT_URL/partial/$IDENTIFIER" && echo
     if [ $? -eq 0 ]
@@ -152,7 +164,7 @@ get_partial_build(){
 
 trigger_partial_error(){
     # Posting with no params should give an error
-    cmd="curl -i -X POST $DEFAULT_URL/partial"
+    cmd="curl -s -S $(curl_i) -X POST $DEFAULT_URL/partial"
     debug "$cmd"
     $cmd && echo
     #debug "curl -X POST $DEFAULT_URL/partial"

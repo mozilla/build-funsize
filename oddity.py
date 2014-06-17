@@ -25,3 +25,7 @@ class CacheError(Exception):
 class NotImplementedError(Exception):
     """ Exception raised for functions/classes not implemented yet """
     pass
+
+class ConfigError(Exception):
+    """ Exception raised for missing or invalid configuration """
+    pass

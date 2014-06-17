@@ -1,8 +1,11 @@
 #from flask import Flask, request, Response
+import argparse
+import ConfigParser
 import flask
 import logging
 import os
 import shutil
+import sys
 import tempfile
 import time
 
@@ -14,11 +17,10 @@ import tasks
 import oddity
 
 # FIXME: Load this from a preference file
-DB_URI = 'sqlite:///test.db'
-CACHE_URI = '/perma/cache/'
-
-dbo = db.Database(DB_URI)
-cacheo = cache.Cache(CACHE_URI)
+#DB_URI = 'sqlite:///test.db'
+#CACHE_URI = '/perma/cache/'
+DB_URI = None
+CACHE_URI = None
 
 app = flask.Flask(__name__)
 
@@ -32,6 +34,8 @@ def trigger_partial():
     """
     Needs params: mar_from, mar_to, mar_from_hash, mar_to_hash
     """
+    cacheo = cache.Cache(app.config['CACHE_URI'])
+    dbo = db.Database(app.config['DB_URI'])
 
     logging.debug('Parameters passed in : %s' % flask.request.form)
 
@@ -83,6 +87,7 @@ def trigger_partial():
     # If record exists, just say done
     # If other major error, do something else
     # TODO: Hook responses up with relengapi -- https://api.pub.build.mozilla.org/docs/development/api_methods/
+    dbo.close()
     return resp
 
 @app.route('/cache/<identifier>', methods=['GET'])
@@ -93,6 +98,13 @@ def get_from_cache(identifier):
 
 @app.route('/partial/<identifier>', methods=['GET'])
 def get_partial(identifier):
+
+    app.config['count']+=1
+    print "Count -- %s" % app.config['count']
+
+    cacheo = cache.Cache(app.config['CACHE_URI'])
+    dbo = db.Database(app.config['DB_URI'])
+
     # Check DB state corresponding to URL
     # if "Completed", return blob and hash
     # if "Started", stall by inprogress error code
@@ -163,7 +175,29 @@ def get_partial(identifier):
                                   "Status of this partial is unknown",
                                   status=400)
 
+    dbo.close()
     return resp
 
+def main(argv):
+    print argv
+    parser = argparse.ArgumentParser(description='Some description')
+    parser.add_argument('-c', '--config-file', type=str,
+                        default='configs/default.ini',
+                        required=False, dest='config_file',
+                        help='The application config file. INI format')
+    args = parser.parse_args(argv)
+    config_file = args.config_file
+
+    config = ConfigParser.ConfigParser()
+    config.read(config_file)
+    print config.items('db')
+    print "Type: %s" % type(app.config)
+    app.config['DB_URI']=config.get('db', 'uri')
+    app.config['CACHE_URI']=config.get('cache', 'uri')
+    print app.config
+    
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    main(sys.argv[1:])
+    app.config['count'] = 0
+    app.run(debug=False)
