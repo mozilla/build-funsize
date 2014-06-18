@@ -24,6 +24,11 @@ CACHE_URI = None
 
 app = flask.Flask(__name__)
 
+# Turn off werkzeug logging
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 @app.route('/')
 def index():
     return "Welcome Senbonzakura, the Partial MAR on demand Web-Service."\
@@ -112,7 +117,7 @@ def get_partial(identifier):
     # if "does not exist", return different error code
 
     logging.debug('Request recieved with headers : %s' % flask.request.headers)
-    logging.info('Request recieved for identifier %s' % identifier)
+    #logging.info('Request recieved for identifier %s' % identifier) # This is actually logged by werkzeug already.
     try:
         partial = dbo.lookup(identifier=identifier)
     except oddity.DBError:
@@ -198,7 +203,7 @@ def main(argv):
     
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.WARNING)
     main(sys.argv[1:])
     app.config['count'] = 0
     app.run(debug=False)

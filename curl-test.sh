@@ -148,7 +148,7 @@ trigger_partial_build(){
 
 get_partial_build(){
     IDENTIFIER=$1
-    cmd="curl -s -S $(curl_i) -X GET $DEFAULT_URL/partial/$IDENTIFIER"
+    cmd="curl -s -S $(curl_i) $DEFAULT_URL/partial/$IDENTIFIER"
     debug "$cmd"
     $cmd && echo >&2
     #debug "CMD: curl -X GET ""$DEFAULT_URL/partial/""$IDENTIFIER"

@@ -4,7 +4,7 @@
 req=0
 
 TRAVIS=false
-FF28_FF29_PARTIAL_MD5='7fd45462e32a4d1486d7cda7b8bb6c4a'
+FF28_FF29_PARTIAL_MD5='7db10de649864c45d2da6559cf2ca766'
 
 cleanup() {
     killall python2.7
@@ -50,7 +50,7 @@ echo $PWD
 while true
 do
     #POLL=$( bash curl-test.sh -i get-release | head -1 | awk '{print $2}')
-    POLL=$( bash curl-test.sh -i get-release | awk '{print $2}'| head -1 )
+    POLL=$( bash curl-test.sh -i get-release | awk '{print $2}' | head -1 )
     req=$(($req + 1))
     if [[ $POLL -eq 200 ]]
     then
@@ -65,7 +65,8 @@ do
     sleep 1
 done
 
-if [ $(bash curl-test.sh -i get-release | md5sum | cut -d ' ' -f 1) == $FF28_FF29_PARTIAL_MD5 ]
+echo "$(bash curl-test.sh get-release | md5sum | cut -d ' ' -f 1)"
+if [ $(bash curl-test.sh get-release | md5sum | cut -d ' ' -f 1) == $FF28_FF29_PARTIAL_MD5 ]
 then
     echo "TEST PASSED, W00t"
     cleanup
