@@ -3,12 +3,18 @@ python:
     #    - "2.6" #unittest.skip N/A in py2.6
     - "2.7"
 
+services:
+    - rabbitmq
+
 install:
     - pip install -r requirements.txt
 
+beforescript:
+    - 
+
 script:
     - nosetests -v
-    - bash integration-test.sh
+    - bash integration-test.sh -t
 
 notifications:
     email: ffledgling+travis@gmail.com

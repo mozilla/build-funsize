@@ -28,7 +28,7 @@ done
 
 if $TRAVIS
 then
-    mv configs/test.ini configs/celery.ini
+    mv configs/test.ini configs/worker.ini
     mv configs/test.ini configs/default.ini
 fi
 
