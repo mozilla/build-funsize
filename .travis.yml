@@ -6,7 +6,9 @@ python:
 install:
     - pip install -r requirements.txt
 
-script: nosetests -v
+script:
+    - nosetests -v
+    - bash integration-test.sh
 
 notifications:
     email: ffledgling+travis@gmail.com

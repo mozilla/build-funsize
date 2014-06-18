@@ -2,6 +2,7 @@
 import fetch
 import cache
 import db
+import tools
 
 import ConfigParser
 import errno
@@ -20,6 +21,7 @@ if config.items('db') and config.items('cache'):
     #app.config['CACHE_URI'] = config.get('cache', 'uri')
     DB_URI = config.get('db', 'uri')
     CACHE_URI = config.get('cache', 'uri')
+    TOOLS_DIR = config.get('tools', 'dir')
 else:
     raise oddity.ConfigError('Configuration parameters missing')
 
@@ -82,8 +84,25 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
     # Create the directories to work in.
     TMP_MAR_STORAGE = tempfile.mkdtemp(prefix='cmar_storage_')
-    TMP_TOOL_STORAGE='/perma/tools/' # Using static location, till we figure out tooling.
     TMP_WORKING_DIR = tempfile.mkdtemp(prefix='working_dir_')
+
+    new_cmar_path = os.path.join(TMP_MAR_STORAGE, 'new.mar')
+    old_cmar_path = os.path.join(TMP_MAR_STORAGE, 'old.mar')
+
+
+    # Fetch the complete MARs here. ################################################
+    get_complete_mar(new_cmar_url, new_cmar_hash, output_file=new_cmar_path)
+    get_complete_mar(old_cmar_url, old_cmar_hash, output_file=old_cmar_path)
+
+################################################################################
+
+# Tool fetching and related things go in here. #################################
+# Nothing here, right now, TODO: Tooling after issue resolved
+    TMP_TOOL_STORAGE='/perma/tools/' # Using static location, till we figure out tooling.
+
+    tmo = tools.ToolManager(TOOLS_DIR, 'configs/verification_file.csv')
+
+    TMP_TOOL_STORAGE = tmo.get_path()
 
     print "Locals:", '*'*50
     pprint.pprint(locals())
@@ -94,21 +113,6 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     print TMP_TOOL_STORAGE
     print TMP_WORKING_DIR
     print "*"*80
-
-    new_cmar_path = os.path.join(TMP_MAR_STORAGE, 'new.mar')
-    old_cmar_path = os.path.join(TMP_MAR_STORAGE, 'old.mar')
-
-
-    # Fetch the complete MARs here. ################################################
-
-    get_complete_mar(new_cmar_url, new_cmar_hash, output_file=new_cmar_path)
-    get_complete_mar(old_cmar_url, old_cmar_hash, output_file=old_cmar_path)
-
-################################################################################
-
-# Tool fetching and related things go in here. #################################
-# Nothing here, right now, TODO: Tooling after issue resolved
-
 # If there are very few, might as well dump them all in the cache before hand?
 # Keeping it all in the dir statically for now.
 

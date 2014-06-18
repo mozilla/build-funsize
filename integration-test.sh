@@ -4,10 +4,16 @@
 req=0
 
 TRAVIS=false
+FF28_FF29_PARTIAL_MD5='7fd45462e32a4d1486d7cda7b8bb6c4a'
 
 cleanup() {
     killall python2.7
     killall python
+}
+
+killeverything(){
+    killall -9 python
+    killall -9 python2.7
 }
 
 while getopts "t" opt
@@ -59,9 +65,13 @@ do
     sleep 1
 done
 
-echo "JUS BEFO"
-bash curl-test.sh -i get-release | md5sum
-echo "JUS AFTA"
-
-echo "WHAAAAAAAAAAAA"
-#cleanup
+if [ $(bash curl-test.sh -i get-release | md5sum | cut -d ' ' -f 1) == $FF28_FF29_PARTIAL_MD5 ]
+then
+    echo "TEST PASSED, W00t"
+    cleanup
+    exit 0 # imply success
+else
+    cleanup
+    killeverything
+    exit 1
+fi

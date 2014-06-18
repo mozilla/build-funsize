@@ -41,5 +41,5 @@ echo $file_list
 for FILENAME in $file_list
 do
     URL="http://hg.mozilla.org/mozilla-central/raw-file/$CHANGESET/tools/update-packaging/$FILENAME"
-    curl -o $OUTPUT_DIR/$FILENAME $URL
+    curl -s -o $OUTPUT_DIR/$FILENAME $URL
 done

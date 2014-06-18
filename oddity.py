@@ -29,3 +29,6 @@ class NotImplementedError(Exception):
 class ConfigError(Exception):
     """ Exception raised for missing or invalid configuration """
     pass
+class ToolError(Exception):
+    """ Exception raised for problems during tooling setup """
+    pass

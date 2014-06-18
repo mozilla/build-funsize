@@ -1,8 +1,8 @@
 #!/usr/bin/env bash         # To allow using Bash 4.x on OSX via homebrew
 # Author: Anhad Jai Singh
 
-#set -eu # stricter error checking
-set -e # stricter error checking
+set -eu # stricter error checking
+#set -e # stricter error checking
 
 SCRIPT_NAME=$(basename $0)
 DEBUG=false
