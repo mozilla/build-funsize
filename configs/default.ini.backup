@@ -1,0 +1,9 @@
+; Default config file used by Flask App
+[db]
+uri = sqlite:///test.db
+
+[cache]
+uri = /perma/cache
+
+[tools]
+dir = /perma/tools
