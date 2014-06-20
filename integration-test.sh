@@ -4,7 +4,10 @@
 req=0
 
 TRAVIS=false
-FF28_FF29_PARTIAL_MD5='7db10de649864c45d2da6559cf2ca766'
+MD5_OSX='7db10de649864c45d2da6559cf2ca766'
+MD5_LINUX='97c403cc1d7375f2f1efee3731f85f4c'
+FF28_FF29_PARTIAL_MD5=$MD5_OSX #Default to OSX because that's the dev machine.
+
 
 cleanup() {
     killall python2.7
@@ -22,6 +25,7 @@ do
 
         t)
             TRAVIS=true
+            FF28_FF29_PARTIAL_MD5=$MD5_LINUX
             ;;
     esac
 done
