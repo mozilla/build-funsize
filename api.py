@@ -16,16 +16,12 @@ import db
 import tasks
 import oddity
 
-# FIXME: Load this from a preference file
-#DB_URI = 'sqlite:///test.db'
-#CACHE_URI = '/perma/cache/'
 DB_URI = None
 CACHE_URI = None
 
 app = flask.Flask(__name__)
 
 # Turn off werkzeug logging
-
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -70,9 +66,6 @@ def trigger_partial():
     except db.IntegrityError, e:
         # Lookup and get url and return it
         partial = dbo.lookup(identifier=identifier)
-        print "**"*10
-        print partial
-        print "**"*10
         resp = flask.Response(
                 "{'result': '%s'}" % url,
                 status=201,
@@ -104,9 +97,6 @@ def get_from_cache(identifier):
 @app.route('/partial/<identifier>', methods=['GET'])
 def get_partial(identifier):
 
-    app.config['count']+=1
-    print "Count -- %s" % app.config['count']
-
     cacheo = cache.Cache(app.config['CACHE_URI'])
     dbo = db.Database(app.config['DB_URI'])
 
@@ -117,7 +107,6 @@ def get_partial(identifier):
     # if "does not exist", return different error code
 
     logging.debug('Request recieved with headers : %s' % flask.request.headers)
-    #logging.info('Request recieved for identifier %s' % identifier) # This is actually logged by werkzeug already.
     try:
         partial = dbo.lookup(identifier=identifier)
     except oddity.DBError:
@@ -126,7 +115,6 @@ def get_partial(identifier):
     else:
         logging.info('Record corresponding to identifier %s found.' % identifier)
         status = partial.status
-        print status
         if status == db.status_code['COMPLETED']:
             # Lookup DB and return blob
             # Call relevant functions from the core section.
@@ -184,7 +172,6 @@ def get_partial(identifier):
     return resp
 
 def main(argv):
-    print argv
     parser = argparse.ArgumentParser(description='Some description')
     parser.add_argument('-c', '--config-file', type=str,
                         default='configs/default.ini',
@@ -195,15 +182,12 @@ def main(argv):
 
     config = ConfigParser.ConfigParser()
     config.read(config_file)
-    print config.items('db')
-    print "Type: %s" % type(app.config)
     app.config['DB_URI']=config.get('db', 'uri')
     app.config['CACHE_URI']=config.get('cache', 'uri')
-    print app.config
+    logging.info('Flask config at startup: %s' % app.config)
     
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING)
     main(sys.argv[1:])
-    app.config['count'] = 0
     app.run(debug=False)
