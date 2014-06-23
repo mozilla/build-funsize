@@ -42,8 +42,11 @@ class TestDB(unittest.TestCase):
         # Empty Insert
         self.assertRaises(oddity.DBError, self.dbo.insert)
         # Overwriting insert
-        self.assertRaises(oddity.DBError, self.dbo.insert,
-                    identifier=self.static_identifier)
+        try:
+            self.dbo.insert(identifier=self.static_identifier)
+        except:
+            self.fail('Inserting duplicate record raised an error,'
+                      'This should no happen.')
 
 
     def test_update(self):
