@@ -62,13 +62,19 @@ def trigger_partial():
         # error testing and parameter validation, maybe do this up close to checking
         # existence
 
+        # If record already exists it makes no difference and the insert
+        # 'proceeds' as expected. (It is logged at the DB level)
         dbo.insert(identifier=identifier, status=db.status_code['IN_PROGRESS'], start_timestamp=time.time())
-    except db.IntegrityError, e:
-        # Lookup and get url and return it
-        partial = dbo.lookup(identifier=identifier)
+    #except oddity.DBError, e:
+    except: # Any sort of error should result in a 500 on the client side and
+            # nothing more, do we retry in such a situation or do we raise
+            # warning bells? Ideally no error should reach this place.
+            # Going with warning bells.
+        logging.error('Error raised while processing trigger request for URL:',
+                    '%s\n' % url)
         resp = flask.Response(
-                "{'result': '%s'}" % url,
-                status=201,
+                "{'result': 'Error processing request'}" % url,
+                status=500,
                 mimetype='application/json'
                 )
         return resp

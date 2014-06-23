@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 import logging
 import oddity
 
+import pdb
+
 class Database(object):
 
     def __init__(self, db_uri):
@@ -30,16 +32,26 @@ class Database(object):
 
         temp_record = Partial(identifier=identifier, start_timestamp=start_timestamp, status=status, finish_timestamp=finish_timestamp)
 
+        #pdb.set_trace()
+
         try:
             logging.info('Inserting record %s into db' % (temp_record,))
             self.session.add(temp_record)
             self.session.commit()
 
         except IntegrityError, e:
+            print "Caught integrity error"
+            self.session.rollback()
+            # Integrity Error is thrown when 'Unique' constraint is violated.
+            if self.lookup(identifier=identifier):
+                logging.info('Record already exists')
+                print 'Record already exists'
+            else:
             # What is the error?
             # One of the specific ones will mean record already exists
             # if so handle appropriately
-            raise oddity.DBError('Couldn\'t insert into DB, error: %s' % e)
+                logging.warning('IntegrityError: %s' % e)
+                raise oddity.DBError('Couldn\'t insert into DB, error: %s' % e)
 
 
     def reset_db(self):
