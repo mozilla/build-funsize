@@ -25,10 +25,6 @@ if config.items('db') and config.items('cache'):
 else:
     raise oddity.ConfigError('Configuration parameters missing')
 
-
-#DB_URI = 'sqlite:///test.db'
-#CACHE_URI = '/perma/cache/'
-
 def get_complete_mar(url, identifier, output_file=None):
 
     """ Return binary string if no output_file specified """
@@ -56,8 +52,6 @@ def get_complete_mar(url, identifier, output_file=None):
 def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
         identifier):
 
-    #import pdb
-    #pdb.set_trace()
     #""" Function that returns the partial MAR file to transition from the mar
     #given by old_cmar_url to new_cmar_url
     #"""

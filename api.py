@@ -23,18 +23,30 @@ app = flask.Flask(__name__)
 
 # Turn off werkzeug logging
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+log.setLevel(logging.INFO)
 
 @app.route('/')
 def index():
-    return "Welcome Senbonzakura, the Partial MAR on demand Web-Service."\
+    return "Welcome to Senbonzakura, the Partial MAR on demand Web-Service."\
            "Please see https://wiki.mozilla.org/User:Ffledgling/Senbonzakura"
 
 @app.route('/partial', methods=['POST'])
-def trigger_partial():
+def trigger_partial(version='latest'):
     """
     Needs params: mar_from, mar_to, mar_from_hash, mar_to_hash
     """
+
+    print "Version: %s" % version
+    if version in app.config['unsupported_versions']:
+        return flask.Response("{'result': 'Version %s of API is no longer supported'}" % version, status=410)
+    # Flask's URL routing should prevent this from happening.
+    if version not in app.config['supported_versions']:
+        return flask.Response("{'result': 'Version %s of API does not exist'}" % version, status=400)
+    else:
+        # Some version specific code here?
+        # We have nothing at the moment so leaving it as a stub
+        pass
+
     cacheo = cache.Cache(app.config['CACHE_URI'])
     dbo = db.Database(app.config['DB_URI'])
 
@@ -101,7 +113,18 @@ def get_from_cache(identifier):
 
 
 @app.route('/partial/<identifier>', methods=['GET'])
-def get_partial(identifier):
+def get_partial(identifier, version='latest'):
+
+    print "Version %s" % version
+    if version in app.config['unsupported_versions']:
+        return flask.Response("{'result': 'Version %s of API is no longer supported'}" % version, status=410)
+    # Flask's URL routing should prevent this from happening.
+    if version not in app.config['supported_versions']:
+        return flask.Response("{'result': 'Version %s of API does not exist'}" % version, status=400)
+    else:
+        # Some version specific code here?
+        # We have nothing at the moment so leaving it as a stub
+        pass
 
     cacheo = cache.Cache(app.config['CACHE_URI'])
     dbo = db.Database(app.config['DB_URI'])
@@ -190,10 +213,18 @@ def main(argv):
     config.read(config_file)
     app.config['DB_URI']=config.get('db', 'uri')
     app.config['CACHE_URI']=config.get('cache', 'uri')
+    app.config['supported_versions']=[x.strip() for x in config.get('version', 'supported_versions').split(',')]
+    app.config['unsupported_versions']=[x.strip() for x in config.get('version', 'unsupported_versions').split(',')]
     logging.info('Flask config at startup: %s' % app.config)
     
 
 if __name__ == '__main__':
+
     logging.basicConfig(level=logging.WARNING)
     main(sys.argv[1:])
-    app.run(debug=False)
+
+    for version in app.config['unsupported_versions'] + app.config['supported_versions']:
+        app.add_url_rule('/%s/partial' % version, 'trigger_partial', trigger_partial, methods=['POST'], defaults={'version':version})
+        app.add_url_rule('/%s/partial/<identifier>' % version, 'get_partial', view_func=get_partial, methods=['GET'], defaults={'version':version})
+
+    app.run(debug=True)

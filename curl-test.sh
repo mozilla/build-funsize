@@ -111,7 +111,7 @@ do
 
         u)
             echo "OPTARG" $OPTARG
-            #DEFAULT_URL=
+            DEFAULT_URL=$OPTARG
             ;;
 
         h)

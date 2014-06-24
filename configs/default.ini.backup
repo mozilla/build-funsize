@@ -7,3 +7,8 @@ uri = /perma/cache
 
 [tools]
 dir = /perma/tools
+
+[version]
+; Use a comma separated list to specify versions
+supported_versions = v1,latest
+unsupported_versions =
