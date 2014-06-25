@@ -50,7 +50,7 @@ def get_complete_mar(url, identifier, output_file=None):
     return mar
 
 def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
-        identifier):
+        identifier, channel_id, product_version):
 
     #""" Function that returns the partial MAR file to transition from the mar
     #given by old_cmar_url to new_cmar_url
@@ -92,15 +92,11 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
 # Tool fetching and related things go in here. #################################
 # Nothing here, right now, TODO: Tooling after issue resolved
-    TMP_TOOL_STORAGE='/perma/tools/' # Using static location, till we figure out tooling.
+    #TMP_TOOL_STORAGE='/perma/tools/' # Using static location, till we figure out tooling.
 
     tmo = tools.ToolManager(TOOLS_DIR, 'configs/verification_file.csv')
 
     TMP_TOOL_STORAGE = tmo.get_path()
-
-    print "Locals:", '*'*50
-    pprint.pprint(locals())
-    print '*'*50
 
     print "Working directories:"
     print TMP_MAR_STORAGE
@@ -118,7 +114,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     # If can't generate pmar location properly, then insert ABORTED in DB?
     try: 
         local_pmar_location = generate_partial_mar(new_cmar_path, old_cmar_path,
-                                    TMP_TOOL_STORAGE, working_dir=TMP_WORKING_DIR)
+                                    TMP_TOOL_STORAGE, channel_id, product_version, working_dir=TMP_WORKING_DIR)
         print "The pmar location after generation is %s" % local_pmar_location
     except:
         # Something definitely went wrong.
@@ -152,17 +148,13 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 # What do we want to return?
     return None
 
-def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
+def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id, product_version, working_dir=None):
     """ cmar_new is the path of the newer complete .mar file
         cmar_old is the path of the older complete .mar file
         difftools_path specifies the path of the directory in which
         the difftools, including mar,mbsdiff exist
     """
 
-    print "generate_partial_mar called with :"
-    print locals()
-
-    # Setup defaults and ENV vars
     # Set working directory
     if not working_dir:
         working_dir='.' #set pwd as the working dir
@@ -176,6 +168,8 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
     my_env = os.environ.copy()
     my_env['MAR'] = MAR
     my_env['MBSDIFF'] = MBSDIFF
+    my_env['MOZ_CHANNEL_ID'] = channel_id
+    my_env['MOZ_PRODUCT_VERSION'] = product_version
 
     
     # Create working directory for entire shindig
@@ -189,12 +183,6 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
             raise
     # Move stuff to working dir. # Do we need to? I don't think so.
 
-################################################################################
-
-##generate_partial_mar('/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/current.mar',
-##                      '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/previous.mar',
-##                      '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/',
-##                      working_dir='/tmp/testing-work')
 
 # Unwrap MAR1 ##################################################################
     cmn_name = os.path.basename(cmar_new)
@@ -209,11 +197,9 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
         else:
             raise
 
-    print "unwrapping mar1"
-    print ([UNWRAP, cmar_new], cmn_wd, my_env)
+    logging.info('unwrapping MAR#1')
+    logging.debug('executing ', [UNWRAP, cmar_new], cmn_wd, my_env)
     process = subprocess.call([UNWRAP, cmar_new], cwd=cmn_wd, env=my_env)
-    print process#.communicate()
-    print "Crossed subprocess"
 
 # Unwrap MAR2 ##################################################################
     cmo_name = os.path.basename(cmar_old)
@@ -228,7 +214,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, working_dir=None):
         else:
             raise
 
-    print "unwrapping mar2"
+    logging.info('unwrapping MAR#2')
     subprocess.call([UNWRAP, cmar_old], cwd=cmo_wd, env=my_env)
 
 

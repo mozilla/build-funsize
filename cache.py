@@ -38,6 +38,8 @@ class Cache(object):
                     raise oddity.CacheError('Could not initalize Cache')
 
     def _generate_identifier(self, key):
+        # Identifier to convert SHA512-SHA512 hex encoded key to SHA512-SHA512 base64 encoded key
+        # Because file systems can only handle up to 255 chars 
         return '-'.join(csum.hexto64(x) if len(x)==128 else x for x in key.split('-'))
 
 

@@ -17,12 +17,15 @@ DEFAULT_DB='./test.db'
 
 
 # Using Nightly for default variables
-DEFAULT_SRC_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/05/2014-05-12-03-02-02-mozilla-central/firefox-32.0a1.en-US.mac.checksums'
+# These links are dead
+DEFAULT_SRC_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/05/2014-05-12-03-02-02-mozilla-central/firefox-32.0a1.en-US.mac.complete.mar'
 DEFAULT_DST_MAR='http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/05/2014-05-13-03-02-01-mozilla-central/firefox-32.0a1.en-US.mac.complete.mar'
 DEFAULT_SRC_HASH_MD5='da0ecd3c65f3f333ee42ca332b97e925'
 DEFAULT_DST_HASH_MD5='c738c5f2d719ef0e00041b6df6a987fe'
 DEFAULT_SRC_HASH='1a6bec1dd103f8aacbd450ec0787c94ccf07f5e100d7c356bf2fb75c8181998563e0ded4556c9fb050ee1e7451c1ac765bc1547c8c6ec6bcffdf62ae0daf1150'
 DEFAULT_DST_HASH='2d7fb432484f2b0354b7f1df503b329cc3063b44d894a06606b6ee692d3b22679dc0c80eb29426d2a6e6dba3e34242ca1bf0a5e6d6dc6c159092cb0becc7e80f'
+DEFAULT_PRODUCT_VERSION="32.0a1"
+DEFAULT_CHANNEL_ID="firefox-mozilla-central"
 DEFAULT_IDENTIFIER="$DEFAULT_SRC_HASH-$DEFAULT_DST_HASH"
 
 # Release related variables
@@ -32,6 +35,8 @@ FF29_HASH="3933dc4b3abe6e07fc62bf4821d52fc87e442dadf84aed9a28e2671fc60f3a85232d8
 FF28="http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/28.0/update/mac/en-US/firefox-28.0.complete.mar"
 FF28_HASH_MD5="d7f65cf5002a1dfda88a33b7a31b65eb"
 FF28_HASH="4d5bcce9c29f04daae9af1868997ce26c71bc836fc0f403d4800746379610a5ef83a390eb3037d356033b4bf627e922a71c9fba5ee645b70b980aef90e6c8ff9"
+REL_PRODUCT_VERSION="29.0"
+REL_CHANNEL_ID="firefox-mozilla-release"
 RELEASE_IDENTIFIER="$FF28_HASH-$FF29_HASH"
 
 
@@ -131,8 +136,10 @@ trigger_partial_build(){
     DST_MAR=$2
     SRC_HASH=$3
     DST_HASH=$4
+    CHANNEL_ID=$5
+    PRODUCT_VERSION=$6
 
-    cmd="curl -s -S $(curl_i) -X POST $DEFAULT_URL/partial -d mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
+    cmd="curl -s -S $(curl_i) -X POST $DEFAULT_URL/partial -d mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH&channel_id=$CHANNEL_ID&product_version=$PRODUCT_VERSION"
     debug "CMD: $cmd"
     $cmd && echo
     #debug "CMD: curl -X POST" "$DEFAULT_URL/partial" -d "mar_from=$SRC_MAR&mar_to=$DST_MAR&mar_from_hash=$SRC_HASH&mar_to_hash=$DST_HASH"
@@ -219,7 +226,7 @@ case $1 in
 
     "trigger-release") 
         debug "Calling: trigger_partial_build"
-        trigger_partial_build $FF28 $FF29 $FF28_HASH $FF29_HASH
+        trigger_partial_build $FF28 $FF29 $FF28_HASH $FF29_HASH $REL_CHANNEL_ID $REL_PRODUCT_VERSION
         exit 0 ;;
 
     "error")

@@ -52,17 +52,21 @@ def trigger_partial(version='latest'):
 
     logging.debug('Parameters passed in : %s' % flask.request.form)
 
-    required_params = ('mar_from', 'mar_to', 'mar_from_hash', 'mar_to_hash')
+    required_params = ('mar_from', 'mar_to', 'mar_from_hash', 'mar_to_hash', 'channel_id', 'product_version')
     # Check we have all params
     if not all(param in flask.request.form.keys() for param in required_params):
         logging.info('Parameters could not we validated')
         flask.abort(400)
 
     # TODO: Validate params and values in form Ideally
+    # These params are being pased to shell directly, we should probably sanitize them at some point.
     mar_from = flask.request.form['mar_from']
     mar_to = flask.request.form['mar_to']
     mar_from_hash = flask.request.form['mar_from_hash']
     mar_to_hash = flask.request.form['mar_to_hash']
+    channel_id = flask.request.form['channel_id']
+    product_version = flask.request.form['product_version']
+
     # TODO: Verify hashes and URLs are valid before returning the URL with a 201
     #       or return the concat anyway and just return a 202?
 
@@ -95,8 +99,8 @@ def trigger_partial(version='latest'):
         # Call generation functions here
         resp = flask.Response("{'result' : '%s'}" % url, status=202, mimetype='application/json')
 
-        tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from,
-                mar_from_hash, identifier)
+        tasks.build_partial_mar(mar_to, mar_to_hash, mar_from,
+                mar_from_hash, identifier, channel_id, product_version)
 
         return resp
 
@@ -227,4 +231,4 @@ if __name__ == '__main__':
         app.add_url_rule('/%s/partial' % version, 'trigger_partial', trigger_partial, methods=['POST'], defaults={'version':version})
         app.add_url_rule('/%s/partial/<identifier>' % version, 'get_partial', view_func=get_partial, methods=['GET'], defaults={'version':version})
 
-    app.run(debug=True)
+    app.run(debug=False)
