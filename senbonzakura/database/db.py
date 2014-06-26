@@ -1,9 +1,10 @@
-from db_classes import Partial,Base,status_code
+from senbonzakura.database.db_classes import Partial,Base,status_code
+import senbonzakura.utils.oddity as oddity
+
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError # importing errors to make them availble too
 from sqlalchemy.orm import sessionmaker
 import logging
-import oddity
 
 import pdb
 

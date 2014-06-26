@@ -2,8 +2,8 @@ import os
 import tempfile
 import unittest
 
-import fetch
-import oddity
+import senbonzakura.utils.fetch as fetch
+import senbonzakura.utils.oddity as oddity
 
 TEST_URL='https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/29.0/KEY'
 TEST_MD5='ab3ef84fb7437659c5fd34a793cad0f2'

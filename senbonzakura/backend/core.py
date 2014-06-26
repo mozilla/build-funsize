@@ -1,8 +1,8 @@
 # What should go into core and what shouldn't?
-import fetch
-import cache
-import db
-import tools
+import senbonzakura.utils.fetch as fetch
+import senbonzakura.cache.cache as cache
+import senbonzakura.database.db as db
+import senbonzakura.backend.tools as tools
 
 import ConfigParser
 import errno
@@ -13,8 +13,12 @@ import subprocess
 import tempfile
 import time
 
+__here__ = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE_PATH = os.path.join(__here__, '../configs/worker.ini')
+VERIFICATION_FILE = os.path.join(__here__, '../configs/verification_file.csv')
+
 config = ConfigParser.ConfigParser()
-config.read('configs/worker.ini')
+config.read(CONFIG_FILE_PATH)
 
 if config.items('db') and config.items('cache'):
     #app.config['DB_URI'] = config.get('db', 'uri')
@@ -94,7 +98,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 # Nothing here, right now, TODO: Tooling after issue resolved
     #TMP_TOOL_STORAGE='/perma/tools/' # Using static location, till we figure out tooling.
 
-    tmo = tools.ToolManager(TOOLS_DIR, 'configs/verification_file.csv')
+    tmo = tools.ToolManager(TOOLS_DIR, VERIFICATION_FILE)
 
     TMP_TOOL_STORAGE = tmo.get_path()
 

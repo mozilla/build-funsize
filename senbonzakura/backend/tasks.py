@@ -1,5 +1,5 @@
 from celery import Celery
-import core
+import senbonzakura.backend.core as core
 import ConfigParser
 
 # All celery stuff goes in here

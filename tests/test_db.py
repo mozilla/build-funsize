@@ -1,7 +1,7 @@
-import db
+import senbonzakura.database.db as db
+import senbonzakura.utils.oddity as oddity
 import logging
 import os
-import oddity
 import shutil
 import tempfile
 import unittest

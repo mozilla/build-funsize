@@ -1,6 +1,6 @@
 import unittest
 
-import csum
+import senbonzakura.utils.csum as csum
 
 class TestCsum(unittest.TestCase):
     """ Tests for csum.py

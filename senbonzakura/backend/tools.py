@@ -1,5 +1,6 @@
-import fetch
-import csum
+import senbonzakura.utils.csum as csum
+import senbonzakura.utils.fetch as fetch
+
 import stat
 import os
 import shutil
@@ -7,6 +8,7 @@ import platform
 import logging
 import subprocess
 
+VERIFICATION_FILE='../configs/verification.csv'
 
 class ToolManager(object):
     """ Class to manage the tools required by the service """
@@ -77,5 +79,5 @@ class ToolManager(object):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    tm = ToolManager('/perma/tooltest', 'configs/verification_file.csv')
+    tm = ToolManager('/perma/tooltest', '../configs/verification_file.csv')
     print tm.get_path()

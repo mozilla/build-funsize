@@ -1,10 +1,10 @@
 # Stub, structure only
-import csum
+import senbonzakura.utils.oddity as oddity
+import senbonzakura.utils.csum as csum
+
 import os
 import shutil
 import logging
-
-import oddity
 
 class Cache(object):
     """ Class that provides access to cache

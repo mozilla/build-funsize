@@ -4,8 +4,8 @@ import shutil
 import tempfile
 import unittest
 
-import cache
-import oddity
+import senbonzakura.cache.cache as cache
+import senbonzakura.utils.oddity as oddity
 
 class TestCache(unittest.TestCase):
     """ Tests for the Cache """
@@ -23,7 +23,7 @@ class TestCache(unittest.TestCase):
 
     def test_cache(self):
         """ Full test of a successful insert, lookup retrieval """
-        # This doesn't sound right, but this is the best I can think of
+        # This doesn't sound right as a unittest, but this is the best I can think of
 
         self.cache_object.save(self.test_file, self.key, self.category, isfile=True)
         self.assertTrue(self.cache_object.find(self.key, self.category))

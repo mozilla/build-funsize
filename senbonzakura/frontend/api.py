@@ -9,15 +9,16 @@ import sys
 import tempfile
 import time
 
-import core
-import cache
-import flasktask
-import db
-import tasks
-import oddity
+import senbonzakura.backend.core as core
+import senbonzakura.cache.cache as cache
+import senbonzakura.database.db as db
+import senbonzakura.backend.tasks as tasks
+import senbonzakura.utils.oddity as oddity
 
 DB_URI = None
 CACHE_URI = None
+
+__here__ = os.path.dirname(os.path.abspath(__file__))
 
 app = flask.Flask(__name__)
 
@@ -207,11 +208,11 @@ def get_partial(identifier, version='latest'):
 def main(argv):
     parser = argparse.ArgumentParser(description='Some description')
     parser.add_argument('-c', '--config-file', type=str,
-                        default='configs/default.ini',
+                        default='../configs/default.ini',
                         required=False, dest='config_file',
                         help='The application config file. INI format')
     args = parser.parse_args(argv)
-    config_file = args.config_file
+    config_file = os.path.join(__here__, args.config_file)
 
     config = ConfigParser.ConfigParser()
     config.read(config_file)
