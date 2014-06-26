@@ -38,7 +38,7 @@ fi
 
 cleanup
 
-celery -A tasks worker &
+celery -A senbonzakura.backend.tasks worker &
 celery_pid=$!
 python ../frontend/api.py &
 flask_pid=$!
