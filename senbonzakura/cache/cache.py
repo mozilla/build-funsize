@@ -22,6 +22,7 @@ class Cache(object):
         """
 
         logging.info('Creating cache interface for cache %s' % cache_uri)
+        print 'Creating cache interface for cache %s' % cache_uri
         self.cache_dir = cache_uri
         self.cache_complete_dir = os.path.join(self.cache_dir, 'complete') # For complete Mars/files
         self.cache_diffs_dir = os.path.join(self.cache_dir, 'diff') # For diffs
