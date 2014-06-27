@@ -8,6 +8,8 @@ import platform
 import logging
 import subprocess
 
+__here__ = os.path.dirname(os.path.abspath(__file__))
+
 VERIFICATION_FILE='../configs/verification.csv'
 
 class ToolManager(object):
@@ -64,7 +66,7 @@ class ToolManager(object):
             raise oddity.ToolError('Could not determine platform')
         mar_tools_url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/%s/latest-mozilla-central/mar-tools/%s/" % (self.channel, platform_version)
         logging.info('downloading tools from %s' % mar_tools_url)
-        subprocess.call([os.path.abspath('download-tools.sh'), '-o', self.folder])
+        subprocess.call([os.path.abspath(os.path.join(__here__, 'download-tools.sh')), '-o', self.folder])
         subprocess.call(['wget', '-O', self.mar, mar_tools_url+'mar'])
         subprocess.call(['wget', '-O', self.mbsdiff, mar_tools_url+'mbsdiff'])
         os.chmod(self.mar, os.stat(self.mar).st_mode | stat.S_IEXEC)
