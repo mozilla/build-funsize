@@ -3,6 +3,9 @@
 
 req=0
 
+script_dir=$(dirname $0)
+echo $script_dir
+
 TRAVIS=false
 MD5_OSX='7db10de649864c45d2da6559cf2ca766'
 MD5_LINUX='97c403cc1d7375f2f1efee3731f85f4c'
@@ -32,20 +35,24 @@ done
 
 if $TRAVIS
 then
-  cp ../configs/test.ini ../configs/worker.ini
-  cp ../configs/test.ini ../configs/default.ini
+  cp $script_dir/../configs/test.ini $script_dir/../configs/worker.ini
+  cp $script_dir/../configs/test.ini $script_dir/../configs/default.ini
 fi
 
 cleanup
 
+echo "Lanching celery"
 celery -A senbonzakura.backend.tasks worker &
 celery_pid=$!
-python ../frontend/api.py &
+echo "Lanching Flask"
+python $script_dir/../senbonzakura/frontend/api.py &
 flask_pid=$!
 
 sleep 2 # wait for python and celery to get started.
 
-bash curl-test.sh trigger-release
+echo "Starting tests"
+bash $script_dir/curl-test.sh trigger-release
+echo "Crossed the curl-test call"
 start_time=$(date +%s)
 sleep 5
 echo "Hum drum"
@@ -54,7 +61,7 @@ echo $PWD
 while true
 do
   #POLL=$( bash curl-test.sh -i get-release | head -1 | awk '{print $2}')
-  POLL=$( bash curl-test.sh -i get-release | awk '{print $2}' | head -1 )
+  POLL=$( bash $script_dir/curl-test.sh -i get-release | awk '{print $2}' | head -1 )
   req=$(($req + 1))
   if [[ $POLL -eq 200 ]]
   then
@@ -69,8 +76,8 @@ do
   sleep 1
 done
 
-echo "$(bash curl-test.sh get-release | md5sum | cut -d ' ' -f 1)"
-if [ $(bash curl-test.sh get-release | md5sum | cut -d ' ' -f 1) == $FF28_FF29_PARTIAL_MD5 ]
+echo "$(bash $script_dir/curl-test.sh get-release | md5sum | cut -d ' ' -f 1)"
+if [ $(bash $script_dir/curl-test.sh get-release | md5sum | cut -d ' ' -f 1) == $FF28_FF29_PARTIAL_MD5 ]
 then
   echo "TEST PASSED, W00t"
   cleanup
