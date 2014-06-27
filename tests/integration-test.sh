@@ -44,11 +44,11 @@ cleanup
 echo "Lanching celery"
 celery -A senbonzakura.backend.tasks worker &
 celery_pid=$!
+sleep 5 # Wait for celery to launch
 echo "Lanching Flask"
 python $script_dir/../senbonzakura/frontend/api.py &
 flask_pid=$!
-
-sleep 2 # wait for python and celery to get started.
+sleep 5 # wait for python and celery to get started.
 
 echo "Starting tests"
 bash $script_dir/curl-test.sh trigger-release
