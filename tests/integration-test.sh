@@ -1,6 +1,8 @@
 #!/bin/bash
 # Author: Anhad Jai Singh
 
+#set -e
+
 req=0
 
 script_dir=$(dirname $0)
@@ -35,8 +37,8 @@ done
 
 if $TRAVIS
 then
-  cp $script_dir/../configs/test.ini $script_dir/../configs/worker.ini
-  cp $script_dir/../configs/test.ini $script_dir/../configs/default.ini
+  cp $script_dir/../senbonzakura/configs/test.ini $script_dir/../senbonzakura/configs/worker.ini
+  cp $script_dir/../senbonzakura/configs/test.ini $script_dir/../senbonzakura/configs/default.ini
 fi
 
 cleanup
