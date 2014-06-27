@@ -7,6 +7,8 @@ import tempfile
 import unittest
 import time
 
+__here__ = os.path.dirname(os.path.abspath(__file__))
+
 
 class TestDB(unittest.TestCase):
     """ Test class for Database Interface """
@@ -14,7 +16,7 @@ class TestDB(unittest.TestCase):
     def setUp(self):
 
         self.DB_FILE = 'unittest.db'
-        shutil.copyfile('test_data/test.db', self.DB_FILE)
+        shutil.copyfile(os.path.join(__here__, 'test_data/test.db'), self.DB_FILE)
         self.DB_URI = 'sqlite:///' + self.DB_FILE
         self.dbo = db.Database(self.DB_URI)
         self.static_identifier = 'NiuRlVVSYqqSFYWK184RJMvf7jJ3uHXaV+ydgjb2cmG@SX60VW8d71lY6jKXNl8i13QcNnAVFppsXzNfdfwzVw=='
