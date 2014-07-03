@@ -225,7 +225,7 @@ def main(argv):
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     main(sys.argv[1:])
 
     for version in app.config['unsupported_versions'] + app.config['supported_versions']:

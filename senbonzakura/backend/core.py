@@ -40,12 +40,12 @@ def get_complete_mar(url, identifier, output_file=None):
     logging.info('Request for complete MAR %s with Identifer %s in cache' % (url, identifier))
     if cacheo.find(identifier, 'complete'): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
         logging.debug('Found complete MAR %s with Identifer %s in cache' % (url, identifier))
-        logging.debug('retriving MAR from cache')
+        logging.info('retriving MAR from cache')
         mar = cacheo.retrieve(identifier, 'complete', output_file=output_file)
     # Otherwise we download it and cache it
     else:
         logging.debug('Did not find complete MAR %s with Identifer %s in cache' % (url, identifier))
-        logging.debug('Downloading complete MAR %s with Identifer %s' % (url, identifier))
+        logging.info('Downloading complete MAR %s with Identifer %s' % (url, identifier))
         mar = fetch.downloadmar(url, identifier, output_file=output_file)
         # If output_file is specified, use that, else use the mar binary string
         cacheo.save(output_file or mar, identifier, 'complete', isfile=bool(output_file))
@@ -70,25 +70,23 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 # Some global config here
 
 # FIXME: Need to move the DBO stuff into celery logic
+    logging.info('creating database and cache connections')
     dbo = db.Database(DB_URI)
     cacheo = cache.Cache(CACHE_URI)
 
-# Do we really need this? Why not use python's inbuilt Random folder generator?
-# Unless we have better reason, we probably should, but lets keep the option
-# open to configuration
-#TMP_MAR_STORAGE='/tmp/something/'
-#TMP_TOOL_STORAGE='tmp/tools/'
-#TMP_WORKING_DIR='/tmp/working/'
-
     # Create the directories to work in.
+    logging.info('creating tempordary working directories')
     TMP_MAR_STORAGE = tempfile.mkdtemp(prefix='cmar_storage_')
+    logging.debug('MAR storage: %s' % TMP_MAR_STORAGE)
     TMP_WORKING_DIR = tempfile.mkdtemp(prefix='working_dir_')
+    logging.debug('Working dir storage: %s' % TMP_WORKING_DIR)
 
     new_cmar_path = os.path.join(TMP_MAR_STORAGE, 'new.mar')
     old_cmar_path = os.path.join(TMP_MAR_STORAGE, 'old.mar')
 
 
-    # Fetch the complete MARs here. ################################################
+# Fetch the complete MARs here. ################################################
+    logging.info('Looking up the complete MARs required')
     get_complete_mar(new_cmar_url, new_cmar_hash, output_file=new_cmar_path)
     get_complete_mar(old_cmar_url, old_cmar_hash, output_file=old_cmar_path)
 
@@ -219,6 +217,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id, product
             raise
 
     logging.info('unwrapping MAR#2')
+    logging.debug('subprocess call to %s', str(([UNWRAP, cmar_old], cwd=cmo_wd, env=my_env)))
     subprocess.call([UNWRAP, cmar_old], cwd=cmo_wd, env=my_env)
 
 
@@ -227,21 +226,14 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id, product
     pmar_name = cmo_name + '-' + cmn_name # partial mar name
     pmar_path = os.path.join(working_dir, pmar_name)
 
-    print "Generating partial mar @ %s" % pmar_path
+    logging.info('Generating partial mar @ %s' % pmar_path)
+    logging.debug('subprocess call to %s', str(([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], cwd=working_dir, env=my_env)))
     subprocess.call([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], cwd=working_dir, env=my_env)
 
     print "Path:",pmar_path
+    logging.info('Partial now available at path: %s' % pmar_path)
     return pmar_path
 
 
 if __name__ == '__main__':
-    # Why does this break with relative paths? probably cwd arg
-    ##generate_partial_mar('/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/current.mar',
-    ##                     '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/previous.mar',
-    ##                     '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/',
-    ##                     working_dir='/tmp/testing-work')
-    generate_partial_mar('/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/current.mar',
-                         '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/previous.mar',
-                         '/Users/mozilla/Work/Senbonzakura/senbonzakura/dump/',
-                         working_dir='/tmp/testing-work')
-
+    print "Not to be run standalone"
