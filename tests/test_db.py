@@ -29,9 +29,8 @@ class TestDB(unittest.TestCase):
     def test_lookup(self):
         self.assertTrue(self.dbo.lookup(identifier=self.static_identifier))
 
-    def test_lookup_error(self):
-        self.assertRaises(oddity.DBError, self.dbo.lookup,
-                          identifier='nonexistant')
+    def test_lookup_failure(self):
+        self.assertIsNone(self.dbo.lookup(identifier='nonexistant'))
 
     def test_insert(self):
         self.dbo.insert(identifier=self.test_identifier, status=self.test_status, start_timestamp=self.start_timestamp)
