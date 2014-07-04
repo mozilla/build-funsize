@@ -75,6 +75,15 @@ def trigger_partial(version='latest'):
     identifier = mar_from_hash+'-'+mar_to_hash
     url = flask.url_for('get_partial', identifier=identifier)
 
+    if dbo.lookup(identifier=identifier):
+        logging.info('Partial has already been triggered')
+        resp = flask.Response(
+                "{'result': '%s'}" % url,
+                status=201,
+                mimetype='application/json'
+                )
+        return resp
+
     try:
         # error testing and parameter validation, maybe do this up close to checking
         # existence
@@ -100,8 +109,10 @@ def trigger_partial(version='latest'):
         # Call generation functions here
         resp = flask.Response("{'result' : '%s'}" % url, status=202, mimetype='application/json')
 
+        logging.critical('Calling build, should see immediate return after this')
         tasks.build_partial_mar(mar_to, mar_to_hash, mar_from,
                 mar_from_hash, identifier, channel_id, product_version)
+        logging.critical('Called and moved on')
 
         return resp
 
@@ -206,6 +217,9 @@ def get_partial(identifier, version='latest'):
     return resp
 
 def main(argv):
+    """
+    Parse args, config files and perform configuration
+    """
     parser = argparse.ArgumentParser(description='Some description')
     parser.add_argument('-c', '--config-file', type=str,
                         default='../configs/default.ini',
@@ -225,11 +239,21 @@ def main(argv):
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.DEBUG)
     main(sys.argv[1:])
 
+    # Setup version handling based on versions specified in config file
     for version in app.config['unsupported_versions'] + app.config['supported_versions']:
         app.add_url_rule('/%s/partial' % version, 'trigger_partial', trigger_partial, methods=['POST'], defaults={'version':version})
         app.add_url_rule('/%s/partial/<identifier>' % version, 'get_partial', view_func=get_partial, methods=['GET'], defaults={'version':version})
 
-    app.run(debug=False)
+    # Configure logging
+    # TODO: Make logging configurabe from config file instead
+    logging.basicConfig(level=logging.DEBUG)
+    file_handler = logging.FileHandler('/perma/test.log', mode='a', encoding='UTF-8', delay=False)
+    formatter = logging.Formatter('%(asctime)s %(levelname)-8s: %(message)s '
+                                 '[in %(pathname)s:%(lineno)d]')
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
+
+    # Start the application
+    app.run(debug=False, processes=6)

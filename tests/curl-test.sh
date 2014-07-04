@@ -39,50 +39,6 @@ REL_PRODUCT_VERSION="29.0"
 REL_CHANNEL_ID="firefox-mozilla-release"
 RELEASE_IDENTIFIER="$FF28_HASH-$FF29_HASH"
 
-
-# Coloured output
-error(){
-    # Red
-    str=$@
-    echo -e "\e[0;31m${str}\e[0m" >&2
-}
-
-info(){
-    # Yellow
-    str=$@
-    echo -e "\e[0;33m${str}\e[0m" >&2
-}
-
-debug(){
-    # Purple
-    str=$1
-    if $DEBUG
-    then
-        echo -e "\e[0;35m${str}\e[0m" >&2
-    fi
-}
-
-usage(){
-    echo "$SCRIPT_NAME [-h] [-d] [-u SERVER-URL] SUB-COMMAND"
-    echo "Script that tests the GET and POST requests"
-    echo ""
-    echo "-c: Cache URI"
-    echo "-d: Database URI"
-    echo "-i: Add the curl -I flag to fetch just the headers"
-    echo "-h: This help"
-    echo "-v: Enable debug logging"
-    echo "-u: Base server URL to use for all requests"
-    echo ""
-    echo "SUB-COMMANDS : trigger, trigger-release, get, get-release, clobber, error"
-    echo ""
-    echo "trigger           : Send a POST to trigger building partial for Firefox Release v28 -> v29"
-    echo "trigger-release   : Send a POST to trigger building partial for Firefox Nightly 2014-05-12-03-02-02 -> 2014-05-13-03-02-01"
-    echo "get               : Send a GET to poll/fetch the partial for Firefox Nightly 2014-05-12-03-02-02 -> 2014-05-13-03-02-01"
-    echo "get-release       : Send a GET to poll/fetch the Nightly partial for Firefox Release v28 -> v29"
-    echo "clobber           : Wipe Cache and Database to for a clean start"
-    echo "error             : Send a POST to the SERVER-URL without params to trigger an error"
-}
-
 # Curl Include option
 curl_i(){
     if $CURL_INCLUDE
@@ -90,46 +46,6 @@ curl_i(){
         echo "-I"
     fi
 }
-
-count=0
-while getopts ":c:u:d:vih" option
-do
-    case $option in
-        c) 
-            debug "Using $OPTARG as cache"
-            DEFAULT_CACHE=${OPTARG}
-            ;;
-
-        d) 
-            debug "Using ${OPTARG} as database"
-            DEFAULT_DB=${OPTARG}
-            ;;
-
-        i)
-            debug "Using the -i flag on curl for extra information"
-            CURL_INCLUDE=true
-            ;;
-        v)
-            DEBUG=true;
-            debug "Debug logging enabled";
-            ;;
-
-        u)
-            echo "OPTARG" $OPTARG
-            DEFAULT_URL=$OPTARG
-            ;;
-
-        h)
-            usage;
-            exit 0;
-            ;;
-        ?)
-            usage;
-            exit 1;
-            ;;
-    esac
-done
-shift $((OPTIND - 1))
 
 trigger_partial_build(){
     SRC_MAR=$1
@@ -216,6 +132,97 @@ clobber(){
     fi
 }
 
+# Coloured output
+error(){
+    # Red
+    str=$@
+    echo -e "\e[0;31m${str}\e[0m" >&2
+}
+
+info(){
+    # Yellow
+    str=$@
+    echo -e "\e[0;33m${str}\e[0m" >&2
+}
+
+debug(){
+    # Purple
+    str=$1
+    if $DEBUG
+    then
+        echo -e "\e[0;35m${str}\e[0m" >&2
+    fi
+}
+
+usage(){
+    echo "$SCRIPT_NAME [-h] [-d] [-u SERVER-URL] SUB-COMMAND"
+    echo "Script that tests the GET and POST requests"
+    echo ""
+    echo "-c: Cache URI"
+    echo "-d: Database URI"
+    echo "-i: Add the curl -I flag to fetch just the headers"
+    echo "-h: This help"
+    echo "-v: Enable debug logging"
+    echo "-u: Base server URL to use for all requests"
+    echo ""
+    echo "SUB-COMMANDS : trigger, trigger-release, get, get-release, clobber, error"
+    echo ""
+    echo "trigger           : Send a POST to trigger building partial for Firefox Release v28 -> v29"
+    echo "trigger-release   : Send a POST to trigger building partial for Firefox Nightly 2014-05-12-03-02-02 -> 2014-05-13-03-02-01"
+    echo "trigger-release   : Alternate usage with as params passed to trigger-release [src url] [dst url] [src hash] [dst hash] [channel id] [product version]"
+    echo "get               : Send a GET to poll/fetch the partial for Firefox Nightly 2014-05-12-03-02-02 -> 2014-05-13-03-02-01"
+    echo "get-release       : Send a GET to poll/fetch the Nightly partial for Firefox Release v28 -> v29"
+    echo "clobber           : Wipe Cache and Database to for a clean start"
+    echo "error             : Send a POST to the SERVER-URL without params to trigger an error"
+}
+
+
+if [ $# -lt 2 ]
+then
+  usage;
+  exit 0;
+fi
+
+while getopts ":c:u:d:vih" option
+do
+    case $option in
+        c) 
+            debug "Using $OPTARG as cache"
+            DEFAULT_CACHE=${OPTARG}
+            ;;
+
+        d) 
+            debug "Using ${OPTARG} as database"
+            DEFAULT_DB=${OPTARG}
+            ;;
+
+        i)
+            debug "Using the -i flag on curl for extra information"
+            CURL_INCLUDE=true
+            ;;
+        v)
+            DEBUG=true;
+            debug "Debug logging enabled";
+            ;;
+
+        u)
+            echo "OPTARG" $OPTARG
+            DEFAULT_URL=$OPTARG
+            ;;
+
+        h)
+            usage;
+            exit 0;
+            ;;
+        ?)
+            usage;
+            exit 1;
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+
 #TODO: Add long form command line args for MAR URLs and Hashes
 case $1 in
 
@@ -225,8 +232,22 @@ case $1 in
         exit 0 ;;
 
     "trigger-release") 
-        debug "Calling: trigger_partial_build"
-        trigger_partial_build $FF28 $FF29 $FF28_HASH $FF29_HASH $REL_CHANNEL_ID $REL_PRODUCT_VERSION
+        shift 
+        if [ $# -gt 0 ]
+        then
+          if [ $# -eq 6 ]
+          then
+            debug "Calling: trigger_partial_build with cli params"
+            #trigger_partial_build $FF28 $FF29 $FF28_HASH $FF29_HASH $REL_CHANNEL_ID $REL_PRODUCT_VERSION
+            trigger_partial_build $1 $2 $3 $4 $5 $6
+          else
+            error "Incorrect number of args";
+            exit 1;
+          fi
+        else
+          debug "Calling: trigger_partial_build with defaults"
+          trigger_partial_build $FF28 $FF29 $FF28_HASH $FF29_HASH $REL_CHANNEL_ID $REL_PRODUCT_VERSION
+        fi
         exit 0 ;;
 
     "error")

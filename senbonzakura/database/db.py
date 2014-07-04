@@ -81,7 +81,9 @@ class Database(object):
             if partial is None:
                 logging.debug('Record with identifier %s does not exist' % 
                               identifier)
-                raise oddity.DBError('Record with identifier %s does not exist' % identifier)
+                # Do we really want to raise an error if a lookup fails?
+                #raise oddity.DBError('Record with identifier %s does not exist' % identifier)
+                return None
             return partial
 
     def update(self, identifier, status=None, finish_timestamp=None):

@@ -217,7 +217,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id, product
             raise
 
     logging.info('unwrapping MAR#2')
-    logging.debug('subprocess call to %s', str(([UNWRAP, cmar_old], cwd=cmo_wd, env=my_env)))
+    logging.debug('subprocess call to %s', str(([UNWRAP, cmar_old], 'cwd:', cmo_wd, 'env:', my_env)))
     subprocess.call([UNWRAP, cmar_old], cwd=cmo_wd, env=my_env)
 
 
@@ -227,7 +227,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id, product
     pmar_path = os.path.join(working_dir, pmar_name)
 
     logging.info('Generating partial mar @ %s' % pmar_path)
-    logging.debug('subprocess call to %s', str(([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], cwd=working_dir, env=my_env)))
+    logging.debug('subprocess call to %s', str(([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], 'cwd=', working_dir, 'env=', my_env)))
     subprocess.call([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], cwd=working_dir, env=my_env)
 
     print "Path:",pmar_path
