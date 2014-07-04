@@ -12,3 +12,6 @@ dir = /perma/tools
 ; Use a comma separated list to specify versions
 supported_versions = v1,latest
 unsupported_versions =
+
+[log]
+file_path = /perma/app.log

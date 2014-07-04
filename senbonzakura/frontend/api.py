@@ -230,6 +230,7 @@ def main(argv):
 
     config = ConfigParser.ConfigParser()
     config.read(config_file)
+    app.config['LOG_FILE']=config.get('log', 'file_path')
     app.config['DB_URI']=config.get('db', 'uri')
     app.config['CACHE_URI']=config.get('cache', 'uri')
     app.config['supported_versions']=[x.strip() for x in config.get('version', 'supported_versions').split(',')]
@@ -249,10 +250,11 @@ if __name__ == '__main__':
     # Configure logging
     # TODO: Make logging configurabe from config file instead
     logging.basicConfig(level=logging.DEBUG)
-    file_handler = logging.FileHandler('/perma/test.log', mode='a', encoding='UTF-8', delay=False)
+    file_handler = logging.FileHandler(app.config['LOG_FILE'], mode='a', encoding='UTF-8', delay=False)
     formatter = logging.Formatter('%(asctime)s %(levelname)-8s: %(message)s '
                                  '[in %(pathname)s:%(lineno)d]')
     file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.DEBUG)
     app.logger.addHandler(file_handler)
 
     # Start the application
