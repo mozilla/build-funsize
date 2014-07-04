@@ -177,7 +177,8 @@ usage(){
 }
 
 
-if [ $# -lt 2 ]
+echo $#
+if [ $# -lt 1 ]
 then
   usage;
   exit 0;
@@ -215,6 +216,7 @@ do
             exit 0;
             ;;
         ?)
+            echo "Hitting usage from getopts"
             usage;
             exit 1;
             ;;
@@ -271,6 +273,7 @@ case $1 in
         exit 0 ;;
 
     *)
+        echo "Hitting usage from sub-command parser"
         usage
         exit 1 ;;
 esac
