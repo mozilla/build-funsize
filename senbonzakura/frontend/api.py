@@ -110,7 +110,7 @@ def trigger_partial(version='latest'):
         resp = flask.Response("{'result' : '%s'}" % url, status=202, mimetype='application/json')
 
         logging.critical('Calling build, should see immediate return after this')
-        tasks.build_partial_mar(mar_to, mar_to_hash, mar_from,
+        tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from,
                 mar_from_hash, identifier, channel_id, product_version)
         logging.critical('Called and moved on')
 
