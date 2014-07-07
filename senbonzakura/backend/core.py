@@ -75,7 +75,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     cacheo = cache.Cache(CACHE_URI)
 
     # Create the directories to work in.
-    logging.info('creating tempordary working directories')
+    logging.info('creating temporary working directories')
     TMP_MAR_STORAGE = tempfile.mkdtemp(prefix='cmar_storage_')
     logging.debug('MAR storage: %s' % TMP_MAR_STORAGE)
     TMP_WORKING_DIR = tempfile.mkdtemp(prefix='working_dir_')
@@ -138,6 +138,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
 # DB Updates and related stuff? ################################################
         logging.info('Updating db: Partial with %s is available at %s' % (identifier, pmar_location))
+        print "Updaing DB"
         dbo.update(identifier, status=db.status_code['COMPLETED'],
                 finish_timestamp=time.time())
 ################################################################################
@@ -200,7 +201,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id, product
             raise
 
     logging.info('unwrapping MAR#1')
-    logging.debug('executing ', [UNWRAP, cmar_new], cmn_wd, my_env)
+    logging.debug('subprocess call to %s', str(([UNWRAP, cmar_new], 'cwd:', cmn_wd, 'env:', my_env)))
     process = subprocess.call([UNWRAP, cmar_new], cwd=cmn_wd, env=my_env)
 
 # Unwrap MAR2 ##################################################################

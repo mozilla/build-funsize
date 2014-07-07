@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 import logging
 
 import pdb
+import pprint
 
 class Database(object):
 
@@ -94,6 +95,9 @@ class Database(object):
 
         record = self.lookup(identifier=identifier)
 
+        print "RECORD:"
+        pprint.pprint(record.__dict__)
+
         # Pretty code or ugly hack?
         #args = locals().copy()
         #for field in args.keys() if not args[field]:
@@ -113,6 +117,7 @@ class Database(object):
             raise
         finally: 
             logging.info('Record with identifier %s updated' % identifier)
+        print(record.__dict__)
 
     def close(self):
         self.session.close()

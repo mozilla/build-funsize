@@ -17,7 +17,7 @@ def build_partial_mar(*args):
     logging.info('STARTING TASK')
     start_time = time.time()
     core.build_partial_mar(*args)
-    total_time = time.time() - start.time()
+    total_time = time.time() - start_time
     print "Backup TOTAL TIME: %s min %s sec" % divmod(total_time, 60)
     logging.info('TOTAL TIME TAKEN: {0:.0f}m :{1:.3f}'.format(total_time/60, total_time%60),
                  '\nRequested PARTIAL: {0}'.format(*args[5]))
