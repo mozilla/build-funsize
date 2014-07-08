@@ -121,7 +121,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     else:
 # Cache related stuff ##########################################################
         try:
-            logging.info('Saving PMAR %s to cache with key %s' % (local_pmar_location, identifier)
+            logging.info('Saving PMAR %s to cache with key %s' % (local_pmar_location, identifier))
             pmar_location = cacheo.save(local_pmar_location, identifier, 'partial', isfile=True)
         except:
             # If there are porblems in caching, handle them here.
