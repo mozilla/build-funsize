@@ -70,6 +70,7 @@ do
     echo "Why the hell does the pipe break"
     break
   fi
+  # Timeout within 600 seconds
   if [ $(expr $(date +%s) - $start_time) -gt 600 ]
   then
     break
@@ -78,14 +79,21 @@ do
   sleep 1
 done
 
-echo "$(bash $script_dir/curl-test.sh get-release | md5sum | cut -d ' ' -f 1)"
-if [ $(bash $script_dir/curl-test.sh get-release | md5sum | cut -d ' ' -f 1) == $FF28_FF29_PARTIAL_MD5 ]
+# Essentially doing the following, but using files incase we need to confirm headers
+#GENERATED_HASH=$(bash $script_dir/curl-test.sh get-release | md5sum | cut -d ' ' -f 1)
+tmp_file="/tmp/temp$(echo $RANDOM).mar"
+bash $script_dir/curl-test.sh get-release > $tmp_file
+GENERATED_HASH=$(md5sum $tmp_file | cut -d ' ' -f 1)
+echo "Gen Hash: $GENERATED_HASH"
+#rm $tmp_file
+if [ $GENERATED_HASH == $FF28_FF29_PARTIAL_MD5 ]
 then
   echo "TEST PASSED, W00t"
   cleanup
   exit 0 # imply success
 else
   echo "Test failed :("
+  echo "Expected hash: $FF28_FF29_PARTIAL_MD5"
   cleanup
   killeverything
   exit 1

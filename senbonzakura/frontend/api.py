@@ -162,7 +162,7 @@ def get_partial(identifier, version='latest'):
         logging.warning('Record lookup for identifier %s failed' % identifier)
         resp = flask.Response("{'result':'partial does not exist'}", status=404)
     else:
-        logging.debug('Record ID:' % identifier)
+        logging.debug('Record ID: %s' % identifier)
 
         status = partial.status
         if status == db.status_code['COMPLETED']:

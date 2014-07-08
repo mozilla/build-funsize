@@ -13,7 +13,7 @@ CURL_INCLUDE=false
 # General variables
 DEFAULT_URL='http://127.0.0.1:5000'
 DEFAULT_CACHE='/perma/cache'
-DEFAULT_DB='./test.db'
+DEFAULT_DB='/perma/funsize.db'
 
 
 # Using Nightly for default variables
@@ -180,7 +180,6 @@ usage(){
 }
 
 
-echo $#
 if [ $# -lt 1 ]
 then
   usage;
