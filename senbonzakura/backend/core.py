@@ -129,7 +129,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 ################################################################################
 
 # DB Updates and related stuff? ################################################
-        logging.info('Updating DB for %s' % (identifier, pmar_location))
+        logging.info('Updating DB for %s' % identifier)
         dbo.update(identifier, status=db.status_code['COMPLETED'],
                 finish_timestamp=time.time())
 ################################################################################

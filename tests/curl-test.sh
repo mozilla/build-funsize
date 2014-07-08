@@ -81,6 +81,7 @@ get_partial_build(){
         debug "GET succeeded"
     else
         error "GET Failed"
+        exit 1;
     fi
 
 }
@@ -97,6 +98,7 @@ trigger_partial_error(){
         debug "Trigged"
     else
         error "Trigger Failed"
+        exit 1;
     fi
 }
 
@@ -108,6 +110,7 @@ clobber(){
     if [ -z $CACHE ]
     then
         error "No Cache speficied for clobber, this will delete / !"
+        exit 1;
     fi
 
 

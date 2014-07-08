@@ -34,7 +34,7 @@ class ToolManager(object):
         # There is probably a better/more consistent way to do this as well
         logging.info('Checking integrity')
         if not os.path.isdir(self.folder):
-            logging.info('Integrity check failed for dir  %s', self.folder)
+            logging.info('Integrity check failed for dir %s', self.folder)
             return False
         for f, checksum in self.verification_list.items():
             filepath = os.path.join(self.folder, f)

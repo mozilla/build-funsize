@@ -19,6 +19,7 @@ do
     case $opt in
         h)
             help
+            exit 0;
             ;;
         o)
             OUTPUT_DIR=$OPTARG
@@ -30,6 +31,7 @@ do
             ;;
         ?)
             echo "Unrecognized option"
+            exit 1;
             ;;
     esac
 done

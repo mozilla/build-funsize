@@ -131,7 +131,7 @@ def get_from_cache(identifier):
 def get_partial(identifier, version='latest'):
 
     logging.debug('Request recieved with headers : %s' % flask.request.headers)
-    logging.debug('Got request with version %s' % version
+    logging.debug('Got request with version %s' % version)
 
     if version in app.config['unsupported_versions']:
         return flask.Response("{'result': 'Version %s of API is no longer supported'}" % version, status=410)
