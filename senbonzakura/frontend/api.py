@@ -15,8 +15,6 @@ import senbonzakura.database.db as db
 import senbonzakura.backend.tasks as tasks
 import senbonzakura.utils.oddity as oddity
 
-import pprint
-
 DB_URI = None
 CACHE_URI = None
 
@@ -24,11 +22,9 @@ __here__ = os.path.dirname(os.path.abspath(__file__))
 
 app = flask.Flask(__name__)
 
-# Turn off werkzeug logging
+# Werkzeug logging
 #log = logging.getLogger('werkzeug')
 #log.setLevel(logging.INFO)
-#print "werkzeug logger state:"
-#pprint.pprint(log.__dict__)
 
 @app.route('/')
 def index():
@@ -134,7 +130,9 @@ def get_from_cache(identifier):
 @app.route('/partial/<identifier>', methods=['GET'])
 def get_partial(identifier, version='latest'):
 
-    print "Version %s" % version
+    logging.debug('Request recieved with headers : %s' % flask.request.headers)
+    logging.debug('Got request with version %s' % version
+
     if version in app.config['unsupported_versions']:
         return flask.Response("{'result': 'Version %s of API is no longer supported'}" % version, status=410)
     # Flask's URL routing should prevent this from happening.
@@ -145,10 +143,11 @@ def get_partial(identifier, version='latest'):
         # We have nothing at the moment so leaving it as a stub
         pass
 
+    # Should these be in a try catch?
     cacheo = cache.Cache(app.config['CACHE_URI'])
     dbo = db.Database(app.config['DB_URI'])
 
-    print 'crossed cache and db setup'
+    logging.debug('Cache and DB setup done')
 
     # Check DB state corresponding to URL
     # if "Completed", return blob and hash
@@ -156,68 +155,46 @@ def get_partial(identifier, version='latest'):
     # if "Invalid", return error code
     # if "does not exist", return different error code
 
-    logging.debug('Request recieved with headers : %s' % flask.request.headers)
     try:
+        logging.debug('looking up record with identifier %s' % identifier)
         partial = dbo.lookup(identifier=identifier)
     except oddity.DBError:
-        logging.info('Record corresponding to identifier %s does not exist.' % identifier)
+        logging.warning('Record lookup for identifier %s failed' % identifier)
         resp = flask.Response("{'result':'partial does not exist'}", status=404)
     else:
-        print 'in else'
-        pprint.pprint(partial.__dict__)
-        logging.info('Record corresponding to identifier %s found.' % identifier)
+        logging.debug('Record ID:' % identifier)
+
         status = partial.status
         if status == db.status_code['COMPLETED']:
+            logging.info('Record found, status: COMPLETED')
             # Lookup DB and return blob
-            # Call relevant functions from the core section.
             # We'll want to stream the data to the client eventually, right now,
             # we can just throw it at the client just like that.
 
-            # Our older way of sending the file
-            #identifier = partial.identifier
-            #resp = flask.Response("{'result': '%s'}" % identifier, status=200)
-
-            # Testing some stuff, see -- http://stackoverflow.com/questions/7877282/how-to-send-image-generated-by-pil-to-browser
-            ### # Generate temp file and a temp file desc
-            ### _, mar_to_return = tempfile.mkstemp()
-            ### temp_file_desc = tempfile.TemporaryFile()
-            ### print "TMP:!!!!!",temp_file_desc
-            ### # Get partial mar from cache into temp file
-            ### print identifier,
-            ### print cacheo.__dict__
-            ### cacheo.retrieve(identifier, output_file=mar_to_return)
-            ### # Copy contents into temp desc
-            ### with open(mar_to_return, 'rb') as f:
-            ###     print "FILE DESC", f
-            ###     shutil.copyfileobj(f , temp_file_desc)
-            ### temp_file_desc.seek(0,0)
-            ### # Cleanup file
-            ### #os.remove(mar_to_return)
-            ### # Let flask return the file from the temp desc
-            ### print "TYPE:", type(temp_file_desc)
-            ### #flask.send_file(temp_file_desc)
-            ### flask.send_file(mar_to_return)
+            # See -- http://stackoverflow.com/questions/7877282/how-to-send-image-generated-by-pil-to-browser
             return cacheo.retrieve(identifier, 'partial')
 
         elif status == db.status_code['ABORTED']:
-            print 'Aborted status'
+            logging.info('Record found, status: ABORTED')
             # Something went wrong, what do we do?
             resp = flask.Response("{'result': '%s'}" %
                         "Something went wrong while generating this partial",
                         status=204)
 
         elif status == db.status_code['IN_PROGRESS']:
-            print 'Status still in progress'
+            logging.info('Record found, status: IN PROGRESS')
             # Stall still status changes
             resp = flask.Response("{'result': '%s'}" % "wait", status=202)
 
         elif status == db.status_code['INVALID']:
+            logging.info('Record found, status: INVALID')
             # Not sure what this status code is even for atm.
             resp = flask.Response("{'result': '%s'}" % "invalid partial", status=204)
 
 
         else:
             # This should not happen
+            logging.error('Record found, status: UNKNOWN')
             resp = flask.Response("{'result':'%s'}" % 
                                   "Status of this partial is unknown",
                                   status=400)
@@ -258,26 +235,27 @@ if __name__ == '__main__':
 
     # Configure logging
     # TODO: Make logging configurabe from config file instead
-    #logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
-    formatter = logging.Formatter('%(asctime)s %(levelname)-8s: %(message)s '
-                                 '[in %(pathname)s:%(lineno)d]')
-    file_handler = logging.FileHandler(app.config['LOG_FILE'], mode='a', encoding='UTF-8', delay=False)
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.DEBUG)
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.DEBUG)
-    app.logger.addHandler(file_handler)
-    app.logger.addHandler(console_handler)
+    #formatter = logging.Formatter('%(asctime)s %(levelname)-8s: %(message)s '
+    #                             '[in %(pathname)s:%(lineno)d]')
+    #file_handler = logging.FileHandler(app.config['LOG_FILE'], mode='a', encoding='UTF-8', delay=False)
+    #file_handler.setFormatter(formatter)
+    #file_handler.setLevel(logging.DEBUG)
+    #console_handler = logging.StreamHandler()
+    #console_handler.setFormatter(formatter)
+    #console_handler.setLevel(logging.DEBUG)
+    #app.logger.addHandler(file_handler)
+    #app.logger.addHandler(console_handler)
 
-    rlogger = logging.getLogger('root')
-    print "Root logger state: "
-    pprint.pprint(rlogger.__dict__) #, rlogger.disabled#, rlogger.propogate
+    #rlogger = logging.getLogger('root')
+    #print "Root logger state: "
+    #pprint.pprint(rlogger.__dict__) #, rlogger.disabled#, rlogger.propogate
 
-    print "file_logger"
-    pprint.pprint(file_handler.__dict__)
-    pprint.pprint(app.logger.__dict__)
+    #print "file_logger"
+    #pprint.pprint(file_handler.__dict__)
+    #pprint.pprint(app.logger.__dict__)
 
+    # No of processes should also probably be configurable from a file
     # Start the application
     app.run(debug=False, processes=6)

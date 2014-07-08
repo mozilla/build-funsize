@@ -43,6 +43,7 @@ class Database(object):
 
         except IntegrityError, e:
             print "Caught integrity error"
+            logging.warning('Caught Integrity Error')
             self.session.rollback()
             # Integrity Error is thrown when 'Unique' constraint is violated.
             if self.lookup(identifier=identifier):
@@ -52,7 +53,7 @@ class Database(object):
             # What is the error?
             # One of the specific ones will mean record already exists
             # if so handle appropriately
-                logging.warning('IntegrityError: %s' % e)
+                logging.error('IntegrityError: %s' % e)
                 raise oddity.DBError('Couldn\'t insert into DB, error: %s' % e)
 
 
@@ -95,9 +96,6 @@ class Database(object):
 
         record = self.lookup(identifier=identifier)
 
-        print "RECORD:"
-        pprint.pprint(record.__dict__)
-
         # Pretty code or ugly hack?
         #args = locals().copy()
         #for field in args.keys() if not args[field]:
@@ -117,7 +115,6 @@ class Database(object):
             raise
         finally: 
             logging.info('Record with identifier %s updated' % identifier)
-        print(record.__dict__)
 
     def close(self):
         self.session.close()

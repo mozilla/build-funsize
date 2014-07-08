@@ -17,7 +17,7 @@ def downloadmar(url, checksum, cipher='sha512', output_file=None):
         `csum.py`
     """
 
-    logging.debug("Starting download for %s with checksum: %s" % (url, checksum))
+    logging.debug('Starting download for %s with checksum: %s' % (url, checksum))
     response = requests.get(url)
     if response.status_code != requests.codes.ok:
         logging.debug('HTTP Request to %s failed with error code %d' % (url, response.status_code))
@@ -26,10 +26,10 @@ def downloadmar(url, checksum, cipher='sha512', output_file=None):
 
     # Verify hash
     if not csum.verify(mar, checksum, cipher='sha512'):
-        logging.debug("verification of checksumsfailed")
+        logging.warning('verification of %s with checksum %s failed' % (url, checksum))
         raise oddity.DownloadError('checksums do not match')
     else:
-        print "Verified"
+        logging.info('Verified download of %s' % url)
 
     if output_file:
         # write mar to file
@@ -61,7 +61,7 @@ def downloadmar2(url, checksum, output_file):
         Chunking version
     """
 
-    print "Starting download for %s with checksum: %s" % (url, checksum)
+    logging.info('Starting download for %s with checksum: %s' % (url, checksum))
 
     response = requests.get(url, stream=True)
 

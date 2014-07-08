@@ -8,7 +8,6 @@ import ConfigParser
 import errno
 import logging
 import os
-import pprint
 import subprocess
 import tempfile
 import time
@@ -93,21 +92,14 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 ################################################################################
 
 # Tool fetching and related things go in here. #################################
-# Nothing here, right now, TODO: Tooling after issue resolved
-    #TMP_TOOL_STORAGE='/perma/tools/' # Using static location, till we figure out tooling.
 
     tmo = tools.ToolManager(TOOLS_DIR, VERIFICATION_FILE)
 
     TMP_TOOL_STORAGE = tmo.get_path()
 
-    print "Working directories:"
-    print TMP_MAR_STORAGE
-    print TMP_TOOL_STORAGE
-    print TMP_WORKING_DIR
-    print "*"*80
+    logging.info('Tool storage: %s' % TMP_TOOL_STORAGE)
 # If there are very few, might as well dump them all in the cache before hand?
 # Keeping it all in the dir statically for now.
-
 
 ################################################################################
 
@@ -117,7 +109,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     try: 
         local_pmar_location = generate_partial_mar(new_cmar_path, old_cmar_path,
                                     TMP_TOOL_STORAGE, channel_id, product_version, working_dir=TMP_WORKING_DIR)
-        print "The pmar location after generation is %s" % local_pmar_location
+        logging.debug('Partial Mar generated at %s' % local_pmar_location)
     except:
         # Something definitely went wrong.
         # Update DB to reflect abortion
@@ -129,7 +121,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     else:
 # Cache related stuff ##########################################################
         try:
-            print "Saving PMAR %s to cache with key %s" % (local_pmar_location, identifier)
+            logging.info('Saving PMAR %s to cache with key %s' % (local_pmar_location, identifier)
             pmar_location = cacheo.save(local_pmar_location, identifier, 'partial', isfile=True)
         except:
             # If there are porblems in caching, handle them here.
@@ -137,8 +129,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 ################################################################################
 
 # DB Updates and related stuff? ################################################
-        logging.info('Updating db: Partial with %s is available at %s' % (identifier, pmar_location))
-        print "Updaing DB"
+        logging.info('Updating DB for %s' % (identifier, pmar_location))
         dbo.update(identifier, status=db.status_code['COMPLETED'],
                 finish_timestamp=time.time())
 ################################################################################
@@ -231,10 +222,5 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id, product
     logging.debug('subprocess call to %s', str(([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], 'cwd=', working_dir, 'env=', my_env)))
     subprocess.call([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd], cwd=working_dir, env=my_env)
 
-    print "Path:",pmar_path
     logging.info('Partial now available at path: %s' % pmar_path)
     return pmar_path
-
-
-if __name__ == '__main__':
-    print "Not to be run standalone"
