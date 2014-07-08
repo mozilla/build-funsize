@@ -9,8 +9,10 @@ script_dir=$(dirname $0)
 echo $script_dir
 
 TRAVIS=false
-MD5_OSX='7db10de649864c45d2da6559cf2ca766'
-MD5_LINUX='97c403cc1d7375f2f1efee3731f85f4c'
+#MD5_OSX='7db10de649864c45d2da6559cf2ca766' # Old Hash without channelID and product Version
+MD5_OSX='b6d74f5283420d83f788711bdd6722d1' # New hash with channelID and product Version
+#MD5_LINUX='97c403cc1d7375f2f1efee3731f85f4c' # Old Hash without channelID and product Version
+MD5_LINUX='9da1d36ebcb6473b2cf260f37ddd60e7' # New hash with channelID and product Version
 FF28_FF29_PARTIAL_MD5=$MD5_OSX #Default to OSX because that's the dev machine.
 
 
