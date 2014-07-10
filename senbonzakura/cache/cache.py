@@ -110,9 +110,15 @@ class Cache(object):
             raise oddity.CacheError('Error saving input %s to cache, write failed' % string)
         else:
             try:
-                os.rename(tmp_location, file_cache_path)
-            except:
-                raise oddity.CacheError('Error saving input %s to cache, rename failed' % string)
+                os.link(tmp_location, file_cache_path)
+                logging.info('Worker won race to save %s first, file created' % file_cache_path)
+            except OSError:
+                if os.path.isfile(file_cache_path):
+                    logging.info('Worker lost race to save %s first, file already exists' % file_cache_path)
+                else:
+                    raise oddity.CacheError('Error saving input %s to cache, rename failed' % string)
+            else:
+                os.unlink(tmp_location)
             return identifier
 
     def find(self, key, category):
