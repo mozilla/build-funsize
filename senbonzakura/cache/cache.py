@@ -86,7 +86,6 @@ class Cache(object):
             file_cache_path = os.path.join(self.cache_partials_dir, id_path)
 
         logging.info('Writing to cache in dir %s' % file_cache_path)
-        print 'Writing to cache in dir %s' % file_cache_path
 
         try:
             os.makedirs(os.path.dirname(file_cache_path))
@@ -99,14 +98,21 @@ class Cache(object):
         if self.find(key, category):
             raise oddity.CacheCollisionError('identifier %s collision' % identifier)
 
+        # We use the write to tempfile then rename to file to
+        # prevent file corruption when multiple workers are writing to the cache.
+        tmp_location = file_cache_path + str(os.getpid())
         try:
-            with open(file_cache_path, 'wb') as f:
+            # Write to tmp first
+            with open(tmp_location, 'wb') as f:
                 f.write(data)
         except:
-            raise
             # couldn't open file or other error
-            raise oddity.CacheError('Error saving input %s to cache' % string)
+            raise oddity.CacheError('Error saving input %s to cache, write failed' % string)
         else:
+            try:
+                os.rename(tmp_location, file_cache_path)
+            except:
+                raise oddity.CacheError('Error saving input %s to cache, rename failed' % string)
             return identifier
 
     def find(self, key, category):

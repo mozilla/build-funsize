@@ -37,7 +37,7 @@ def get_complete_mar(url, identifier, output_file=None):
     # Check if file is in cache
     # If we find it retrieve it from cache
     logging.info('Request for complete MAR %s with Identifer %s in cache' % (url, identifier))
-    if cacheo.find(identifier, 'complete'): #Replying on Cache using MD5 as identifier for the file here. Probably not a good idea.
+    if cacheo.find(identifier, 'complete'):
         logging.debug('Found complete MAR %s with Identifer %s in cache' % (url, identifier))
         logging.info('retriving MAR from cache')
         mar = cacheo.retrieve(identifier, 'complete', output_file=output_file)
