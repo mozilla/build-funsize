@@ -23,7 +23,7 @@ from_list = [
             #('26.0', 'win32', 'fi'),
             #('28.0', 'linux-i686', 'fi'),
             #('29.0', 'linux-x86_64', 'hi-IN'),
-            ('26.0', 'mac', 'en-GB'),
+            ('27.0', 'mac', 'en-GB'),
         ]
 to_list = [
             ('29.0', 'mac', 'en-GB'),
