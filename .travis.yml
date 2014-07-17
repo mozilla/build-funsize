@@ -20,3 +20,6 @@ script:
 notifications:
     email: ffledgling+travis@gmail.com
     irc: irc.mozilla.org#ffledgling
+
+matrix:
+    fast_finish: true
