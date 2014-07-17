@@ -78,7 +78,7 @@ do
     break
   fi
   echo "REQUEST #:$req"
-  sleep 1
+  sleep 5
 done
 
 # Essentially doing the following, but using files incase we need to confirm headers
