@@ -258,4 +258,4 @@ if __name__ == '__main__':
 
     # No of processes should also probably be configurable from a file
     # Start the application
-    app.run(debug=False, processes=6)
+    app.run(debug=False, host='0.0.0.0', processes=6)
