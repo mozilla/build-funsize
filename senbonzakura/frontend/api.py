@@ -155,6 +155,8 @@ def get_partial(identifier, version='latest'):
     # if "Invalid", return error code
     # if "does not exist", return different error code
 
+    # FIXME: This try-except doesn't work anymore since we changed the
+    # behaviour on lookup failure from raising a DBError to simply returning # None
     try:
         logging.debug('looking up record with identifier %s' % identifier)
         partial = dbo.lookup(identifier=identifier)
