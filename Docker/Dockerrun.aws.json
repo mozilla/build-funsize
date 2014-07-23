@@ -11,5 +11,5 @@
       "ContainerDirectory": "/perma"
     }
   ],
-  "Logging": "/var/log/celerylog.log"
+  "Logging": "/var/log/"
 }

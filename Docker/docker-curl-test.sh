@@ -13,7 +13,8 @@ CURL_INCLUDE=false
 #alias curl='curl -s -o /dev/null -w "%{http_code}"'
 
 # General variables
-DEFAULT_URL='http://192.168.59.103:5000'
+# DEFAULT_URL='http://192.168.59.103:5000'
+DEFAULT_URL='http://funsize-env-testing.elasticbeanstalk.com'
 DEFAULT_CACHE='/perma/cache'
 DEFAULT_DB='/perma/funsize.db'
 
