@@ -23,10 +23,10 @@ from_list = [
             #('26.0', 'win32', 'fi'),
             #('28.0', 'linux-i686', 'fi'),
             #('29.0', 'linux-x86_64', 'hi-IN'),
-            ('27.0', 'mac', 'en-GB'),
+            ('27.0', 'mac', 'en-US'),
         ]
 to_list = [
-            ('29.0', 'mac', 'en-GB'),
+            ('29.0', 'mac', 'en-US'),
         ]
 
 for src in from_list:
