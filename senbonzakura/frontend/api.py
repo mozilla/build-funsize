@@ -174,7 +174,8 @@ def get_partial(identifier, version='latest'):
             # we can just throw it at the client just like that.
 
             # See -- http://stackoverflow.com/questions/7877282/how-to-send-image-generated-by-pil-to-browser
-            return cacheo.retrieve(identifier, 'partial')
+            resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
+                                  status=200, mimetype='application/octet-stream')
 
         elif status == db.status_code['ABORTED']:
             logging.info('Record found, status: ABORTED')
