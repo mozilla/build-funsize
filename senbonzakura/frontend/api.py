@@ -162,8 +162,17 @@ def get_partial(identifier, version='latest'):
         partial = dbo.lookup(identifier=identifier)
     except oddity.DBError:
         logging.warning('Record lookup for identifier %s failed' % identifier)
-        resp = flask.Response("{'result':'partial does not exist'}", status=404)
+        flask.abort(500)
     else:
+        # No record found with this identifier
+        if partial is None:
+            logging.info('Request for invalid partial')
+            resp = flask.Response("{result: '%s'}" %
+                        "Partial with identifier %s not found" % identifier,
+                         status=400)
+            dbo.close()
+            return resp
+
         logging.debug('Record ID: %s' % identifier)
 
         status = partial.status
