@@ -10,8 +10,6 @@ import subprocess
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
 
-VERIFICATION_FILE='../configs/verification.csv'
-
 class ToolManager(object):
     """ Class to manage the tools required by the service """
 
@@ -29,22 +27,6 @@ class ToolManager(object):
         self.mbsdiff = os.path.join(self.folder, 'mbsdiff')
         self.unwrap = os.path.join(self.folder, 'unwrap_full_update.pl')
         self.make_incremental = os.path.join(self.folder, 'make_incremental_update.sh')
-
-    def check_integrity(self):
-        # There is probably a better/more consistent way to do this as well
-        logging.info('Checking integrity')
-        if not os.path.isdir(self.folder):
-            logging.info('Integrity check failed for dir %s', self.folder)
-            return False
-        for f, checksum in self.verification_list.items():
-            filepath = os.path.join(self.folder, f)
-            if not (os.path.isfile(filepath) and csum.getmd5(filepath, isfile=True) == checksum):
-                    logging.info('Integrity check failed for file %s', filepath)
-                    return False
-            else:
-                logging.debug('Verfied file %s with checksum %s' % (filepath, checksum))
-        logging.info('Integrity check passed')
-        return True
 
     def setup_tools(self):
         # Bomb everything and redownload (there probably is a better way)
@@ -75,8 +57,7 @@ class ToolManager(object):
         os.chmod(self.make_incremental, os.stat(self.make_incremental).st_mode | stat.S_IEXEC)
 
     def get_path(self):
-        if not self.check_integrity():
-            self.setup_tools()
+        self.setup_tools()
         return self.folder
 
 if __name__ == '__main__':
