@@ -1,6 +1,7 @@
 set -e
 echo "Starting RabbitMQ"
-rabbitmq-server -detached
+echo "Already started right after installation."
+# rabbitmq-server -detached
 #echo AMQ pid: $!
 echo "Starting celery as a daemon"
 celery worker --detach -f /var/log/celerylog.log -l DEBUG -A senbonzakura.backend.tasks
