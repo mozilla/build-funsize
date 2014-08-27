@@ -1,0 +1,16 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.define "funsizeapp" do |v|
+
+    v.vm.provider "docker" do |d|
+      d.build_dir = "."
+      d.ports = ["8080:5000"]
+      d.remains_running = true
+    end
+  end
+
+end
