@@ -16,7 +16,7 @@ setup(name=PACKAGE_NAME,
         'Flask==0.10.1',
         #'Flask-WTF==0.9.5',
         'SQLAlchemy==0.9.4',
-        'amqp==1.4.5',
+        'amqp==1.4.6',
         'celery==3.1.11',
         'nose==1.3.3',
         'redo==1.0',
@@ -36,5 +36,5 @@ setup(name=PACKAGE_NAME,
         ],
       )
 
-      
+
 
