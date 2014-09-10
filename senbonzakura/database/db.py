@@ -58,10 +58,10 @@ class Database(object):
 
 
     def reset_db(self):
-        raise oddity.NotImplementedError()
+        raise oddity.FunsizeNotImplementedError()
 
     def query_db(self):
-        raise oddity.NotImplementedError()
+        raise oddity.FunsizeNotImplementedError()
 
 
     def lookup(self, identifier=None):
@@ -81,7 +81,7 @@ class Database(object):
             raise oddity.DBError('Lookup for identifier %s failed' % identifier)
         else:
             if partial is None:
-                logging.debug('Record with identifier %s does not exist' % 
+                logging.debug('Record with identifier %s does not exist' %
                               identifier)
                 # Do we really want to raise an error if a lookup fails?
                 #raise oddity.DBError('Record with identifier %s does not exist' % identifier)
@@ -113,7 +113,7 @@ class Database(object):
         except:
             logging.warning('Couldn\'t update record')
             raise
-        finally: 
+        finally:
             logging.info('Record with identifier %s updated' % identifier)
 
     def close(self):

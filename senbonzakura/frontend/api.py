@@ -124,7 +124,7 @@ def trigger_partial(version='latest'):
 @app.route('/cache/<identifier>', methods=['GET'])
 def get_from_cache(identifier):
     """ URL to allow direct access to cache """
-    raise oddity.NotImplementedError()
+    raise oddity.FunsizeNotImplementedError()
 
 
 @app.route('/partial/<identifier>', methods=['GET'])
@@ -207,7 +207,7 @@ def get_partial(identifier, version='latest'):
         else:
             # This should not happen
             logging.error('Record found, status: UNKNOWN')
-            resp = flask.Response("{'result':'%s'}" % 
+            resp = flask.Response("{'result':'%s'}" %
                                   "Status of this partial is unknown",
                                   status=400)
 
@@ -234,7 +234,7 @@ def main(argv):
     app.config['supported_versions']=[x.strip() for x in config.get('version', 'supported_versions').split(',')]
     app.config['unsupported_versions']=[x.strip() for x in config.get('version', 'unsupported_versions').split(',')]
     logging.info('Flask config at startup: %s' % app.config)
-    
+
 
 if __name__ == '__main__':
 
