@@ -71,22 +71,12 @@ class Database(object):
         # lookup itself because that causes the object to be modified for the
         # session
 
-        try:
-            partial = self.session.query(Partial).filter(Partial.identifier == identifier).first()
+        partial = self.session.query(Partial).filter(Partial.identifier == identifier).first()
 
-        except:
-            # Probably needs to be handled much better than this.
-            # What is the error raise when record doesn't exist
-            logging.info('Lookup for record with identifier %s failed' % identifier)
-            raise oddity.DBError('Lookup for identifier %s failed' % identifier)
-        else:
-            if partial is None:
-                logging.debug('Record with identifier %s does not exist' %
-                              identifier)
-                # Do we really want to raise an error if a lookup fails?
-                #raise oddity.DBError('Record with identifier %s does not exist' % identifier)
-                return None
-            return partial
+        if partial is None:
+            logging.debug('Record with identifier %s does not exist' %
+                          identifier)
+        return partial
 
     def update(self, identifier, status=None, finish_timestamp=None):
         # If none of the fields are given it's an error
@@ -95,6 +85,7 @@ class Database(object):
                                  'The params given are: %s' % locals())
 
         record = self.lookup(identifier=identifier)
+        # TODO if record = None ?
 
         # Pretty code or ugly hack?
         #args = locals().copy()
