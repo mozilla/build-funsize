@@ -1,7 +1,7 @@
 # What should go into core and what shouldn't?
 import senbonzakura.utils.fetch as fetch
 import senbonzakura.cache.cache as cache
-import senbonzakura.database.db as db
+import senbonzakura.database.database as db
 import senbonzakura.backend.tools as tools
 
 import ConfigParser
@@ -106,7 +106,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 # Call generate? ###############################################################
 
     # If can't generate pmar location properly, then insert ABORTED in DB?
-    try: 
+    try:
         local_pmar_location = generate_partial_mar(new_cmar_path, old_cmar_path,
                                     TMP_TOOL_STORAGE, channel_id, product_version, working_dir=TMP_WORKING_DIR)
         logging.debug('Partial Mar generated at %s' % local_pmar_location)
@@ -165,7 +165,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id, product
     my_env['MOZ_CHANNEL_ID'] = channel_id
     my_env['MOZ_PRODUCT_VERSION'] = product_version
 
-    
+
     # Create working directory for entire shindig
     # Check if working directory exists, if it doesn't, create it.
     try:

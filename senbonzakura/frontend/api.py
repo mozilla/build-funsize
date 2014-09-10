@@ -1,5 +1,5 @@
 """
-senbonzakura.frontend.
+senbonzakura.frontend.api
 ~~~~~~~~~~~~~~~~~~
 
 This module contains all the Flask related code for routing and handling the
@@ -16,7 +16,7 @@ import sys
 import time
 
 import senbonzakura.cache.cache as cache
-import senbonzakura.database.db as db
+import senbonzakura.database.database as db
 import senbonzakura.backend.tasks as tasks
 import senbonzakura.utils.oddity as oddity
 
