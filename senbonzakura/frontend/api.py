@@ -166,6 +166,7 @@ def get_partial(identifier, version='latest'):
     status = partial.status
     if status == db.status_code['COMPLETED']:
         logging.info('Record found, status: COMPLETED')
+        # TODO ROUGHEDGE stream data to client differently
         resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
                               status=200,
                               mimetype='application/octet-stream')
