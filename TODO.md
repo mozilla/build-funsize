@@ -1,4 +1,4 @@
-- [ ] Clean-Up
+- [x] Clean-Up
 - [ ] Retry Code
 - [ ] Logging
 - [ ] Tests

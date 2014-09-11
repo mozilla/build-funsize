@@ -20,6 +20,8 @@ import senbonzakura.database.database as db
 import senbonzakura.backend.tasks as tasks
 import senbonzakura.utils.oddity as oddity
 
+from senbonzakura.database.models import status_code
+
 DB_URI = None
 CACHE_URI = None
 
@@ -90,7 +92,7 @@ def trigger_partial(version='latest'):
 
     try:
         dbo.insert(identifier=identifier,
-                   status=db.status_code['IN_PROGRESS'],
+                   status=status_code['IN_PROGRESS'],
                    start_timestamp=time.time())
     except oddity.DBError:
         logging.error('Error while processing trigger request for URL: %s\n',
@@ -164,14 +166,14 @@ def get_partial(identifier, version='latest'):
     logging.debug('Record ID: %s', identifier)
 
     status = partial.status
-    if status == db.status_code['COMPLETED']:
+    if status == status_code['COMPLETED']:
         logging.info('Record found, status: COMPLETED')
         # TODO ROUGHEDGE stream data to client differently
         resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
                               status=200,
                               mimetype='application/octet-stream')
 
-    elif status == db.status_code['ABORTED']:
+    elif status == status_code['ABORTED']:
         logging.info('Record found, status: ABORTED')
         resp = flask.Response(str({
             'result': 'Something went wrong while generating this partial',
@@ -179,7 +181,7 @@ def get_partial(identifier, version='latest'):
             status=204,
         )
 
-    elif status == db.status_code['IN_PROGRESS']:
+    elif status == status_code['IN_PROGRESS']:
         logging.info('Record found, status: IN PROGRESS')
         resp = flask.Response(str({
             'result': 'wait',
@@ -187,7 +189,7 @@ def get_partial(identifier, version='latest'):
             status=202,
         )
 
-    elif status == db.status_code['INVALID']:
+    elif status == status_code['INVALID']:
         logging.info('Record found, status: INVALID')
         resp = flask.Response(str({
             'result': 'Invalid partial',

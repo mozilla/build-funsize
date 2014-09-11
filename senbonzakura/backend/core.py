@@ -192,7 +192,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
                   str(([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd],
                        'cwd=', working_dir, 'env=', my_env)))
 
-    subprocess.call([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd],
+    subprocess.call(["bash", "-x", MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd],
                     cwd=working_dir, env=my_env)
     logging.info('Partial now available at path: %s', pmar_path)
 
