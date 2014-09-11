@@ -1,22 +1,26 @@
-import senbonzakura.backend.core as core
-from celery import Celery
-import ConfigParser
+"""
+senbonzakura.backend.tasks
+~~~~~~~~~~~~~~~~~~
+
+This module contains a wrapper for the celery tasks that are to be run
+
+"""
+
 import time
 import logging
+from celery import Celery
 
-# All celery stuff goes in here
+import senbonzakura.backend.core as core
+
 app = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
-@app.task
-def add(x, y):
-    return x+y
 
 @app.task
 def build_partial_mar(*args):
-    # Takes same args as core.build_partial_mar
+    """ Wrapper for actual method, to get timestamps and measurings
+    """
     logging.info('STARTING TASK')
     start_time = time.time()
     core.build_partial_mar(*args)
     total_time = time.time() - start_time
-    print "Backup TOTAL TIME: %s min %s sec" % divmod(total_time, 60)
-    logging.info('Finished generating partial {2} in {0:.0f}m:{1:.3f}'.format(total_time/60, total_time%60, *args[5]))
+    logging.info("Backup TOTAL TIME: %s", divmod(total_time, 60))
