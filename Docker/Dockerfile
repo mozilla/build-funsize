@@ -10,7 +10,7 @@ RUN mkdir -p /perma/cache
 # Create tooling dir
 RUN mkdir -p /perma/tools
 # All this is one line because shell env isn't maintained across "RUN" calls
-RUN git clone https://github.com/ffledgling/Senbonzakura.git /app;
+RUN git clone https://github.com/MihaiTabara/build-funsize /app;
 WORKDIR /app
 ENV C_FORCE_ROOT true
 
