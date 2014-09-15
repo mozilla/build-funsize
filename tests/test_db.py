@@ -1,11 +1,11 @@
-import senbonzakura.database.db as db
-import senbonzakura.utils.oddity as oddity
 import logging
 import os
 import shutil
-import tempfile
 import unittest
 import time
+import senbonzakura.database.db as db
+import senbonzakura.utils.oddity as oddity
+from senbonzakura.database.models import status_code
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,7 +23,7 @@ class TestDB(unittest.TestCase):
         self.start_timestamp = time.time()
         self.finish_timestamp = time.time() + 300
         self.test_identifier = 'test'
-        self.test_status = db.status_code['COMPLETED']
+        self.test_status = status_code['COMPLETED']
         self.wrong_status = 'stringcannotbestatus'
 
     def test_lookup(self):
