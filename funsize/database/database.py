@@ -1,5 +1,5 @@
 """
-senbonzakura.database.database
+funsize.database.database
 ~~~~~~~~~~~~~~~~~~~~~
 
 This file contains the Database utilities, in essence wrapper functions that
@@ -14,8 +14,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from senbonzakura.database.models import Partial, Base
-import senbonzakura.utils.oddity as oddity
+from funsize.database.models import Partial, Base
+import funsize.utils.oddity as oddity
 
 
 class Database(object):

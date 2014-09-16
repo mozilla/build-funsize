@@ -1,5 +1,5 @@
 """
-senbonzakura.database.models
+.database.models
 ~~~~~~~~~~~~~~~~~~~~~
 
 Defines the database schema and provides other convienent excpetions and

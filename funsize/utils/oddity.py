@@ -1,5 +1,5 @@
 """
-senbonzakura.oddity
+funsize.oddity
 ~~~~~~~~~~~~~~~~~~
 
 This module contains custom exceptions encountered in funsize

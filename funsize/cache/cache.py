@@ -1,5 +1,5 @@
 """
-senbonzakura.database.cache
+funsize.database.cache
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is currently a stub file that contains function prototypes for the
@@ -11,8 +11,8 @@ import os
 import shutil
 import logging
 
-import senbonzakura.utils.oddity as oddity
-import senbonzakura.utils.csum as csum
+import funsize.utils.oddity as oddity
+import funsize.utils.csum as csum
 
 
 class Cache(object):

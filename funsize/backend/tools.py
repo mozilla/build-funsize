@@ -1,5 +1,5 @@
 """
-senbonzakura.backend.tools
+funsize.backend.tools
 ~~~~~~~~~~~~~~~~~~
 
 This module contains all funsize related tool things
@@ -13,7 +13,7 @@ import platform
 import logging
 import subprocess
 
-import senbonzakura.utils.oddity as oddity
+import funsize.utils.oddity as oddity
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
 

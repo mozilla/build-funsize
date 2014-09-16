@@ -1,5 +1,5 @@
 """
-senbonzakura.utils
+funsize.utils
 ~~~~~~~~~~~~~~~~~~
 
 This module contains utils functions (e.g. hashing functions)

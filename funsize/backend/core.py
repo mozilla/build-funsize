@@ -1,5 +1,5 @@
 """
-senbonzakura.backend.core
+funsize.backend.core
 ~~~~~~~~~~~~~~~~~~
 
 This module contains the brain of the entire funsize project
@@ -14,13 +14,13 @@ import subprocess
 import tempfile
 import time
 
-import senbonzakura.utils.fetch as fetch
-import senbonzakura.cache.cache as cache
-import senbonzakura.database.database as db
-import senbonzakura.backend.tools as tools
-import senbonzakura.utils.oddity as oddity
+import funsize.utils.fetch as fetch
+import funsize.cache.cache as cache
+import funsize.database.database as db
+import funsize.backend.tools as tools
+import funsize.utils.oddity as oddity
 
-from senbonzakura.database.models import status_code
+from funsize.database.models import status_code
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE_PATH = os.path.join(__here__, '../configs/worker.ini')

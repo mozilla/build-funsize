@@ -1,5 +1,5 @@
 """
-senbonzakura.fetch
+funsize.fetch
 ~~~~~~~~~~~~~~~~~~
 
 This module contains fetch functions

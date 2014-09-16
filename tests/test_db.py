@@ -3,9 +3,9 @@ import os
 import shutil
 import unittest
 import time
-import senbonzakura.database.db as db
-import senbonzakura.utils.oddity as oddity
-from senbonzakura.database.models import status_code
+import funsize.database.database as db
+import funsize.utils.oddity as oddity
+from funsize.database.models import status_code
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
 

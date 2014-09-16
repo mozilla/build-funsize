@@ -1,5 +1,5 @@
 """
-senbonzakura.backend.tasks
+funsize.backend.tasks
 ~~~~~~~~~~~~~~~~~~
 
 This module contains a wrapper for the celery tasks that are to be run
@@ -10,7 +10,7 @@ import time
 import logging
 from celery import Celery
 
-import senbonzakura.backend.core as core
+import funsize.backend.core as core
 
 app = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
