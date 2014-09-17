@@ -127,13 +127,18 @@ def trigger_partial(version='latest'):
 
 
 @app.route('/cache/<identifier>', methods=['GET'])
-def get_from_cache(identifier):
+def get_from_cache():
     """ URL to allow direct access to cache """
     raise oddity.FunsizeNotImplementedError()
 
 
 @app.route('/partial/<identifier>', methods=['GET'])
 def get_partial(identifier, version='latest'):
+    """
+    Function to return a generated partial
+
+    """
+
     logging.debug('Request received with headers : %s', flask.request.headers)
     logging.debug('Got request with version %s', version)
 
@@ -255,5 +260,5 @@ if __name__ == '__main__':
                              'version': version
                          })
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(filename=app.config['LOG_FILE'], level=logging.INFO)
     app.run(debug=False, host='0.0.0.0', processes=6)
