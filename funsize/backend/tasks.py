@@ -11,7 +11,7 @@ from celery import Celery
 from celery.utils.log import get_task_logger
 import funsize.backend.core as core
 
-app = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
+app = Celery('tasks', broker='amqp://guest@localhost//')
 
 logger = get_task_logger(__name__)
 
