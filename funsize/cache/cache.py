@@ -101,10 +101,6 @@ class Cache(object):
             if not os.path.isdir(os.path.dirname(file_cache_path)):
                 raise oddity.CacheError('Could not insert in Cache')
 
-        if self.find(key, category):
-            raise oddity.CacheCollisionError('identifier %s collision',
-                                             identifier)
-
         # We use the write to tempfile then rename to file to
         # prevent file corruption when multiple workers are writing to the cache
         tmp_location = file_cache_path + str(os.getpid())
