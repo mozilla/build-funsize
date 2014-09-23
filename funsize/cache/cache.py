@@ -147,6 +147,63 @@ class Cache(object):
 
         return os.path.isfile(file_cache_path)
 
+    def save_blank_file(self, key, category):
+
+        if not key:
+            raise oddity.CacheError('Tried to save object to cache without key')
+
+        identifier = self._generate_identifier(key)
+        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
+
+        if category is None:
+            file_cache_path = os.path.join(self.cache_dir, id_path)
+        elif category == 'complete':
+            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
+        elif category == 'diff':
+            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
+        elif category == 'partial':
+            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+
+        logging.info('Saving blank file in the dir: %s', file_cache_path)
+
+        try:
+            os.makedirs(os.path.dirname(file_cache_path))
+        except OSError:
+            if not os.path.isdir(os.path.dirname(file_cache_path)):
+                raise oddity.CacheError('Could not save to Cache')
+
+        if self.find(key, category):
+            raise oddity.CacheCollisionError('identifier %s collision',
+                                             identifier)
+
+        try:
+            open(file_cache_path, 'a').close()
+        except:
+            raise oddity.CacheError('Error saving blank file to to cache')
+
+    def is_blank_file(self, key, category):
+        """ Function to check if the file is empty or not. To be used to ensure
+        no second triggering is done for the same partial
+        Returns True is file exists and is blank, False otherwise
+        """
+
+        if not self.find(key, category):
+            return False
+
+        identifier = self._generate_identifier(key)
+        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
+
+        if category is None:
+            file_cache_path = os.path.join(self.cache_dir, id_path)
+        elif category == 'complete':
+            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
+        elif category == 'diff':
+            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
+        elif category == 'partial':
+            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+
+        return os.stat(file_cache_path).st_size == 0
+
     def retrieve(self, key, category, output_file=None):
         """ Retrieve file with the given key
             writes the file to the path specified by output_file if present
@@ -185,3 +242,24 @@ class Cache(object):
                                             identifier)
             else:
                 return data
+
+    def delete_from_cache(self, key, category):
+        """ Method to remove files from cache
+        """
+
+        if not self.find(key, category):
+            pass
+
+        identifier = self._generate_identifier(key)
+        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
+
+        if category is None:
+            file_cache_path = os.path.join(self.cache_dir, id_path)
+        elif category == 'complete':
+            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
+        elif category == 'diff':
+            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
+        elif category == 'partial':
+            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+
+        os.unlink(file_cache_path)

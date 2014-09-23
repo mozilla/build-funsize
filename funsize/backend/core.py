@@ -12,15 +12,11 @@ import logging
 import os
 import subprocess
 import tempfile
-import time
 
 import funsize.utils.fetch as fetch
 import funsize.cache.cache as cache
-import funsize.database.database as db
 import funsize.backend.tools as tools
 import funsize.utils.oddity as oddity
-
-from funsize.database.models import status_code
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE_PATH = os.path.join(__here__, '../configs/worker.ini')
@@ -70,9 +66,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
     """
 
-    # FIXME: Need to move the DBO stuff into celery logic
-    logging.info('Creating database and cache connections')
-    dbo = db.Database(DB_URI)
+    logging.info('Creating cache connections')
     cacheo = cache.Cache(CACHE_URI)
 
     logging.info('Creating temporary working directories')
@@ -100,23 +94,17 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
                                                    working_dir=TMP_WORKING_DIR)
         logging.debug('Partial MAR generated at %s', local_pmar_location)
     except:
-        dbo.update(identifier, status=status_code['ABORTED'],
-                   finish_timestamp=time.time())
+        cacheo.delete_from_cache(identifier, 'partial')
         raise oddity.ToolError('Failed during partial generating...')
-    else:
-        try:
-            logging.info('Saving PMAR %s to cache with key %s',
-                         local_pmar_location, identifier)
-            cacheo.save(local_pmar_location,
-                        identifier, 'partial', isfile=True)
-        except:
-            raise oddity.CacheError('Error while trying to save into cache')
 
-        logging.info('Updating metadata database for %s', identifier)
-        dbo.update(identifier, status=status_code['COMPLETED'],
-                   finish_timestamp=time.time())
-    finally:
-        dbo.close()
+    try:
+        logging.info('Saving PMAR %s to cache with key %s',
+                     local_pmar_location, identifier)
+        cacheo.save(local_pmar_location,
+                    identifier, 'partial', isfile=True)
+    except:
+        raise oddity.CacheError('Error while trying to save into cache')
+
     #FIXME Cleanup temp directories here ?
 
 

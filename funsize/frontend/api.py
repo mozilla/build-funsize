@@ -13,16 +13,11 @@ import flask
 import logging
 import os
 import sys
-import time
 
 import funsize.cache.cache as cache
-import funsize.database.database as db
 import funsize.backend.tasks as tasks
 import funsize.utils.oddity as oddity
 
-from funsize.database.models import status_code
-
-DB_URI = None
 CACHE_URI = None
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
@@ -55,7 +50,7 @@ def trigger_partial(version='latest'):
         api_result['result'] += ' does not exist'
         return flask.Response(str(api_result), status=400)
 
-    dbo = db.Database(app.config['DB_URI'])
+    cacheo = cache.Cache(app.config['CACHE_URI'])
 
     logging.debug('Parameters passed in : %s', flask.request.form)
 
@@ -79,7 +74,7 @@ def trigger_partial(version='latest'):
     identifier = '-'.join([mar_from_hash, mar_to_hash])
     url = flask.url_for('get_partial', identifier=identifier)
 
-    if dbo.lookup(identifier=identifier):
+    if cacheo.find(identifier, 'partial'):
         logging.info('Partial has already been triggered')
         resp = flask.Response(str({
             'result': url
@@ -87,14 +82,11 @@ def trigger_partial(version='latest'):
             status=201,
             mimetype='application/json'
         )
-        dbo.close()
         return resp
 
     try:
-        dbo.insert(identifier=identifier,
-                   status=status_code['IN_PROGRESS'],
-                   start_timestamp=time.time())
-    except oddity.DBError:
+        cacheo.save_blank_file(identifier, 'partial')
+    except Exception:
         logging.error('Error while processing trigger request for URL: %s\n',
                       url)
         resp = flask.Response(str({
@@ -118,8 +110,6 @@ def trigger_partial(version='latest'):
             status=202,
             mimetype='application/json'
         )
-    finally:
-        dbo.close()
 
     # TODO: Hook responses up with relengapi ?
     # https://api.pub.build.mozilla.org/docs/development/api_methods/
@@ -153,64 +143,33 @@ def get_partial(identifier, version='latest'):
         return flask.Response(str(api_result), status=400)
 
     cacheo = cache.Cache(app.config['CACHE_URI'])
-    dbo = db.Database(app.config['DB_URI'])
 
     logging.debug('looking up record with identifier %s', identifier)
-    partial = dbo.lookup(identifier=identifier)
-
-    if partial is None:
+    if not cacheo.find(identifier, 'partial'):
         logging.info('Invalid partial request')
         resp = flask.Response(str({
             'result': 'Partial with identifier %s not found' % identifier,
             }),
             status=400,
         )
-        dbo.close()
         return resp
 
     logging.debug('Record ID: %s', identifier)
 
-    status = partial.status
-    if status == status_code['COMPLETED']:
-        logging.info('Record found, status: COMPLETED')
-        # TODO ROUGHEDGE stream data to client differently
-        resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
-                              status=200,
-                              mimetype='application/octet-stream')
-
-    elif status == status_code['ABORTED']:
-        logging.info('Record found, status: ABORTED')
-        resp = flask.Response(str({
-            'result': 'Something went wrong while generating this partial',
-            }),
-            status=204,
-        )
-
-    elif status == status_code['IN_PROGRESS']:
+    if cacheo.is_blank_file(identifier, 'partial'):
         logging.info('Record found, status: IN PROGRESS')
         resp = flask.Response(str({
             'result': 'wait',
             }),
             status=202,
         )
-
-    elif status == status_code['INVALID']:
-        logging.info('Record found, status: INVALID')
-        resp = flask.Response(str({
-            'result': 'Invalid partial',
-            }),
-            status=204,
-        )
-
     else:
-        logging.error('Record found, status: UNKNOWN')
-        resp = flask.Response(str({
-            'result': 'Status of this partial is unknown',
-            }),
-            status=400,
-        )
+        logging.info('Record found, status: COMPLETED')
+        # TODO ROUGHEDGE stream data to client differently
+        resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
+                              status=200,
+                              mimetype='application/octet-stream')
 
-    dbo.close()
     return resp
 
 
