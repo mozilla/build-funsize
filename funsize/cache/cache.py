@@ -58,7 +58,6 @@ class Cache(object):
             isfile is true. returns hash of file. Returns URI/Identifier for
             cache
         """
-
         # FIXME: How do we deal with the race condition where the file is still
         # being written to cache, but since it exists is returned as is (most
         # likely corrupted).
@@ -104,6 +103,7 @@ class Cache(object):
         # We use the write to tempfile then rename to file to
         # prevent file corruption when multiple workers are writing to the cache
         tmp_location = file_cache_path + str(os.getpid())
+        logging.info('Saving file to %s', tmp_location)
         try:
             with open(tmp_location, 'wb') as fobj:
                 fobj.write(data)
@@ -115,6 +115,7 @@ class Cache(object):
                 logging.info('Worker won race. File %s created',
                              file_cache_path)
             except OSError:
+                logging.info('OSError raised while unlinking tmp file')
                 if os.path.isfile(file_cache_path):
                     logging.info('Worker lost race. File %s exists',
                                  file_cache_path)
