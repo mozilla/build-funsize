@@ -103,7 +103,6 @@ class Cache(object):
         # We use the write to tempfile then rename to file to
         # prevent file corruption when multiple workers are writing to the cache
         tmp_location = file_cache_path + str(os.getpid())
-        logging.info('Saving file to %s', tmp_location)
         try:
             with open(tmp_location, 'wb') as fobj:
                 fobj.write(data)
@@ -111,18 +110,14 @@ class Cache(object):
             raise oddity.CacheError('Error saving input %s to cache', string)
         else:
             try:
-                os.link(tmp_location, file_cache_path)
-                logging.info('Worker won race. File %s created',
+                shutil.copyfile(tmp_location, file_cache_path)
+                logging.info('Worker won race. File %s copied',
                              file_cache_path)
             except OSError:
-                logging.info('OSError raised while unlinking tmp file')
-                if os.path.isfile(file_cache_path):
-                    logging.info('Worker lost race. File %s exists',
-                                 file_cache_path)
-                else:
-                    raise oddity.CacheError('Error, rename %s failed', string)
+                logging.info('OSError raised while copying contents')
             else:
                 os.unlink(tmp_location)
+
             return identifier
 
     def find(self, key, category):
