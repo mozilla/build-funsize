@@ -7,6 +7,7 @@ import unittest
 import funsize.cache.cache as cache
 import funsize.utils.oddity as oddity
 
+
 class TestCache(unittest.TestCase):
     """ Tests for the Cache """
 
