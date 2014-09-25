@@ -53,6 +53,24 @@ class Cache(object):
         return '-'.join(csum.hexto64(x) if len(x) == 128
                         else x for x in key.split('-'))
 
+    def _get_cache_internals(self, key, category):
+        """ Method to return cache identifier and file_cache_path based on key
+        """
+
+        identifier = self._generate_identifier(key)
+        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
+
+        if category is None:
+            file_cache_path = os.path.join(self.cache_dir, id_path)
+        elif category == 'complete':
+            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
+        elif category == 'diff':
+            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
+        elif category == 'partial':
+            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+
+        return (identifier, file_cache_path)
+
     def save(self, string, key, category, isfile=False):
         """ Saves given file to cache, treats string as a local filepath if
             isfile is true. returns hash of file. Returns URI/Identifier for
@@ -80,28 +98,15 @@ class Cache(object):
         else:
             data = string
 
-        identifier = self._generate_identifier(key)
-        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-
-        if category is None:
-            file_cache_path = os.path.join(self.cache_dir, id_path)
-        elif category == 'complete':
-            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
-        elif category == 'diff':
-            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
-        elif category == 'partial':
-            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+        identifier, file_cache_path = self._get_cache_internals(key, category)
 
         logging.info('Writing to cache in dir %s', file_cache_path)
-
         try:
             os.makedirs(os.path.dirname(file_cache_path))
         except OSError:
             if not os.path.isdir(os.path.dirname(file_cache_path)):
                 raise oddity.CacheError('Could not insert in Cache')
 
-        # We use the write to tempfile then rename to file to
-        # prevent file corruption when multiple workers are writing to the cache
         tmp_location = file_cache_path + str(os.getpid())
         try:
             with open(tmp_location, 'wb') as fobj:
@@ -123,41 +128,23 @@ class Cache(object):
     def find(self, key, category):
         """ Checks if file with specified key is in cache
             returns True or False depending on whether the file exists
+
         """
 
-        identifier = self._generate_identifier(key)
-        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-
-        if category is None:
-            file_cache_path = os.path.join(self.cache_dir, id_path)
-        elif category == 'complete':
-            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
-        elif category == 'diff':
-            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
-        elif category == 'partial':
-            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
-
+        _, file_cache_path = self._get_cache_internals(key, category)
         return os.path.isfile(file_cache_path)
 
     def save_blank_file(self, key, category):
+        """ Method to save a blank file to show a partial has been triggered and
+            it is being in progress
+        """
 
         if not key:
             raise oddity.CacheError('Tried to save object to cache without key')
 
-        identifier = self._generate_identifier(key)
-        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-
-        if category is None:
-            file_cache_path = os.path.join(self.cache_dir, id_path)
-        elif category == 'complete':
-            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
-        elif category == 'diff':
-            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
-        elif category == 'partial':
-            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+        identifier, file_cache_path = self._get_cache_internals(key, category)
 
         logging.info('Saving blank file in the dir: %s', file_cache_path)
-
         try:
             os.makedirs(os.path.dirname(file_cache_path))
         except OSError:
@@ -182,18 +169,7 @@ class Cache(object):
         if not self.find(key, category):
             return False
 
-        identifier = self._generate_identifier(key)
-        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-
-        if category is None:
-            file_cache_path = os.path.join(self.cache_dir, id_path)
-        elif category == 'complete':
-            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
-        elif category == 'diff':
-            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
-        elif category == 'partial':
-            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
-
+        _, file_cache_path = self._get_cache_internals(key, category)
         return os.stat(file_cache_path).st_size == 0
 
     def retrieve(self, key, category, output_file=None):
@@ -202,17 +178,7 @@ class Cache(object):
             otherwise returns the file as a binary string/file object
         """
 
-        identifier = self._generate_identifier(key)
-        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-
-        if category is None:
-            file_cache_path = os.path.join(self.cache_dir, id_path)
-        elif category == 'complete':
-            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
-        elif category == 'diff':
-            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
-        elif category == 'partial':
-            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+        identifier, file_cache_path = self._get_cache_internals(key, category)
 
         if output_file:
             try:
@@ -236,22 +202,11 @@ class Cache(object):
                 return data
 
     def delete_from_cache(self, key, category):
-        """ Method to remove files from cache
+        """ Method to remove a file from cache
         """
 
         if not self.find(key, category):
             pass
 
-        identifier = self._generate_identifier(key)
-        id_path = os.path.join(*[d for d in identifier[:5]] + [identifier[5:]])
-
-        if category is None:
-            file_cache_path = os.path.join(self.cache_dir, id_path)
-        elif category == 'complete':
-            file_cache_path = os.path.join(self.cache_complete_dir, id_path)
-        elif category == 'diff':
-            file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
-        elif category == 'partial':
-            file_cache_path = os.path.join(self.cache_partials_dir, id_path)
-
+        _, file_cache_path = self._get_cache_internals(key, category)
         os.unlink(file_cache_path)
