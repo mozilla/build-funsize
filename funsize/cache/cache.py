@@ -73,8 +73,7 @@ class Cache(object):
 
     def save(self, string, key, category, isfile=False):
         """ Saves given file to cache, treats string as a local filepath if
-            isfile is true. returns hash of file. Returns URI/Identifier for
-            cache
+            isfile is true. returns hash of file.
         """
         # FIXME: How do we deal with the race condition where the file is still
         # being written to cache, but since it exists is returned as is (most
@@ -98,7 +97,7 @@ class Cache(object):
         else:
             data = string
 
-        identifier, file_cache_path = self._get_cache_internals(key, category)
+        _, file_cache_path = self._get_cache_internals(key, category)
 
         logging.info('Writing to cache in dir %s', file_cache_path)
         try:
@@ -123,17 +122,6 @@ class Cache(object):
             else:
                 os.unlink(tmp_location)
 
-            return identifier
-
-    def find(self, key, category):
-        """ Checks if file with specified key is in cache
-            returns True or False depending on whether the file exists
-
-        """
-
-        _, file_cache_path = self._get_cache_internals(key, category)
-        return os.path.isfile(file_cache_path)
-
     def save_blank_file(self, key, category):
         """ Method to save a blank file to show a partial has been triggered and
             it is being in progress
@@ -142,7 +130,7 @@ class Cache(object):
         if not key:
             raise oddity.CacheError('Tried to save object to cache without key')
 
-        identifier, file_cache_path = self._get_cache_internals(key, category)
+        _, file_cache_path = self._get_cache_internals(key, category)
 
         logging.info('Saving blank file in the dir: %s', file_cache_path)
         try:
@@ -150,10 +138,6 @@ class Cache(object):
         except OSError:
             if not os.path.isdir(os.path.dirname(file_cache_path)):
                 raise oddity.CacheError('Could not save to Cache')
-
-        if self.find(key, category):
-            raise oddity.CacheCollisionError('identifier %s collision',
-                                             identifier)
 
         try:
             open(file_cache_path, 'a').close()
@@ -171,6 +155,15 @@ class Cache(object):
 
         _, file_cache_path = self._get_cache_internals(key, category)
         return os.stat(file_cache_path).st_size == 0
+
+    def find(self, key, category):
+        """ Checks if file with specified key is in cache
+            returns True or False depending on whether the file exists
+
+        """
+
+        _, file_cache_path = self._get_cache_internals(key, category)
+        return os.path.isfile(file_cache_path)
 
     def retrieve(self, key, category, output_file=None):
         """ Retrieve file with the given key
@@ -192,8 +185,8 @@ class Cache(object):
         else:
             try:
                 # TODO ROUGHEDGE read in chunk 1Mb
-                with open(file_cache_path, 'rb') as f:
-                    data = f.read()
+                with open(file_cache_path, 'rb') as fobj:
+                    data = fobj.read()
             except:
                 logging.warning('Could not retrieve file from cache')
                 raise oddity.CacheMissError('File with identifier %s not found',
