@@ -86,7 +86,7 @@ def trigger_partial(version='latest'):
 
     try:
         cacheo.save_blank_file(identifier, 'partial')
-    except Exception:
+    except oddity.CacheError:
         logging.error('Error while processing trigger request for URL: %s\n',
                       url)
         resp = flask.Response(str({
@@ -95,21 +95,23 @@ def trigger_partial(version='latest'):
             status=500,
             mimetypge='application/json'
         )
-    else:
-        logging.info('Calling generation functions')
-        logging.critical('Call build - should see immediate return after this')
+        return resp
 
-        tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from,
-                                      mar_from_hash, identifier,
-                                      channel_id, product_version)
+    logging.info('Calling generation functions')
 
-        logging.critical('Called build and moved on')
-        resp = flask.Response(str({
-            'result': '%s' % url,
-            }),
-            status=202,
-            mimetype='application/json'
-        )
+    # TODO - here we should get try-except thing to retry + ack late
+    # catch LCA exception
+    tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from,
+                                    mar_from_hash, identifier,
+                                    channel_id, product_version)
+
+    logging.critical('Called build and moved on')
+    resp = flask.Response(str({
+        'result': '%s' % url,
+        }),
+        status=202,
+        mimetype='application/json'
+    )
 
     # TODO: Hook responses up with relengapi ?
     # https://api.pub.build.mozilla.org/docs/development/api_methods/

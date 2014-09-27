@@ -93,19 +93,14 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
                                                    product_version,
                                                    working_dir=TMP_WORKING_DIR)
         logging.debug('Partial MAR generated at %s', local_pmar_location)
-    except:
+    except oddity.ToolError:
         cacheo.delete_from_cache(identifier, 'partial')
-        raise oddity.ToolError('Failed during partial generating...')
+        raise
 
-#try:
     logging.info('Saving PMAR %s to cache with key %s',
-                    local_pmar_location, identifier)
-    # TODO - fails here ! - repeat test without catching error to see where
-    # it fails
+                 local_pmar_location, identifier)
     cacheo.save(local_pmar_location,
                 identifier, 'partial', isfile=True)
-#except:
-    #raise oddity.CacheError('Error while trying to save into cache')
 
     #FIXME Cleanup temp directories here ?
 

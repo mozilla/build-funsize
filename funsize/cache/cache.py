@@ -199,7 +199,7 @@ class Cache(object):
         """
 
         if not self.find(key, category):
-            pass
+            return
 
         _, file_cache_path = self._get_cache_internals(key, category)
         os.unlink(file_cache_path)
