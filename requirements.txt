@@ -1,8 +1,0 @@
-Flask
-SQLAlchemy
-amqp
-celery
-mock
-nose
-redo
-requests
