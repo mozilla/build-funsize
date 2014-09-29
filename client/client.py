@@ -9,6 +9,7 @@ This module contains a client side to call for partials the funsize server
 import argparse
 import requests
 
+
 class IncrementalAction(argparse.Action):
     """ Action class to ensure incremental version partial requesting
     """
@@ -56,7 +57,9 @@ class FunsizeClient(object):
                 if not self.catalogue[version].get(platform):
                     self.catalogue[version][platform] = {}
                 if not self.catalogue[version][platform].get(locale):
-                    self.catalogue[version][platform][locale] = {'hash': sha, 'url': url}
+                    self.catalogue[version][platform][locale] = {
+                        'hash': sha, 'url': url
+                    }
 
     def request_partial(self, iargs):
         """ Method used to request partial from funsize server side
@@ -80,23 +83,28 @@ class FunsizeClient(object):
         print (ret.text)
 
 
-client = FunsizeClient('url_hash.list')
+def main():
+    client = FunsizeClient('url_hash.list')
 
-parser = argparse.ArgumentParser(description='Generate partials with funsize!')
-parser.add_argument('platform', choices=client.platform_choices,
-                    help='platform for the triggered partial', metavar='platform')
-parser.add_argument('locale', choices=client.locale_choices,
-                    help='locale for the triggered partial', metavar='locale')
-parser.add_argument('from_version', choices=client.version_choices,
-                    help='source version to call a partial from',
-                    metavar='from_version')
-parser.add_argument('to_version', action=IncrementalAction,
-                    choices=client.catalogue.keys(),
-                    help='destination version to call a partial to',
-                    metavar='to_version')
-parser.add_argument('funsize_url',
-                    help='funsize server side url',
-                    metavar='funsize_url')
-args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Generate partials with funsize!')
+    parser.add_argument('platform', choices=client.platform_choices,
+                        help='platform for the triggered partial', metavar='platform')
+    parser.add_argument('locale', choices=client.locale_choices,
+                        help='locale for the triggered partial', metavar='locale')
+    parser.add_argument('from_version', choices=client.version_choices,
+                        help='source version to call a partial from',
+                        metavar='from_version')
+    parser.add_argument('to_version', action=IncrementalAction,
+                        choices=client.catalogue.keys(),
+                        help='destination version to call a partial to',
+                        metavar='to_version')
+    parser.add_argument('funsize_url',
+                        help='funsize server side url',
+                        metavar='funsize_url')
+    args = parser.parse_args()
 
-client.request_partial(args)
+    client.request_partial(args)
+
+
+if __name__=="__main__":
+    main()
