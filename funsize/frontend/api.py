@@ -29,7 +29,7 @@ app = flask.Flask(__name__)
 def index():
     """ Mockup message to fill in the index page """
 
-    return "Welcome to Senbonzakura, the Partial MAR on demand Web-Service."\
+    return "Welcome to Funsize, the Partial MAR on demand Web-Service."\
            "Please see https://wiki.mozilla.org/User:Ffledgling/Senbonzakura"
 
 
