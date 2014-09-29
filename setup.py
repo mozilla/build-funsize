@@ -14,10 +14,8 @@ setup(name=PACKAGE_NAME,
       license='MPL',
       install_requires=[
             'Flask==0.10.1',
-            'SQLAlchemy==0.9.4',
             'celery==3.1.11',
             'nose==1.3.3',
-            'redo==1.0',
             'requests==2.2.1',
       ],
       packages=[
