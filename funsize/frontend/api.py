@@ -13,6 +13,10 @@ import flask
 import logging
 import os
 import sys
+try:
+    import simplejson
+except ImportError:
+    import json
 
 import funsize.cache.cache as cache
 import funsize.backend.tasks as tasks
@@ -76,8 +80,8 @@ def trigger_partial(version='latest'):
 
     if cacheo.find(identifier, 'partial'):
         logging.info('Partial has already been triggered')
-        resp = flask.Response(str({
-            'result': url
+        resp = flask.Response(json.dumps({
+            "result": url
             }),
             status=201,
             mimetype='application/json'
@@ -89,8 +93,8 @@ def trigger_partial(version='latest'):
     except oddity.CacheError:
         logging.error('Error while processing trigger request for URL: %s\n',
                       url)
-        resp = flask.Response(str({
-            'result': 'Error while processing request %s' % url,
+        resp = flask.Response(json.dumps({
+            "result": "Error while processing request %s" % url,
             }),
             status=500,
             mimetypge='application/json'
@@ -106,8 +110,8 @@ def trigger_partial(version='latest'):
                                     channel_id, product_version)
 
     logging.critical('Called build and moved on')
-    resp = flask.Response(str({
-        'result': '%s' % url,
+    resp = flask.Response(json.dumps({
+        "result": url,
         }),
         status=202,
         mimetype='application/json'
@@ -149,8 +153,8 @@ def get_partial(identifier, version='latest'):
     logging.debug('looking up record with identifier %s', identifier)
     if not cacheo.find(identifier, 'partial'):
         logging.info('Invalid partial request')
-        resp = flask.Response(str({
-            'result': 'Partial with identifier %s not found' % identifier,
+        resp = flask.Response(json.dumps({
+            "result": "Partial with identifier %s not found" % identifier,
             }),
             status=400,
         )
@@ -160,8 +164,8 @@ def get_partial(identifier, version='latest'):
 
     if cacheo.is_blank_file(identifier, 'partial'):
         logging.info('Record found, status: IN PROGRESS')
-        resp = flask.Response(str({
-            'result': 'wait',
+        resp = flask.Response(json.dumps({
+            "result": "wait",
             }),
             status=202,
         )
