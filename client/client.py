@@ -42,7 +42,7 @@ class FunsizeClient(object):
         ret = self.trigger_partial_request(trigger_resource_uri, args)
 
         if ret.status_code == 500:
-            raise Exception('Encoutered error on funsize server side - 500')
+            raise SystemError('Encoutered error on funsize server side - 500')
 
         _uri = json.loads(ret.content).get('result', None)
         getter_resource_uri = FUNSIZE_SERVER_SIDE + _uri
@@ -69,7 +69,7 @@ class FunsizeClient(object):
 
         ret = requests.get(resource_uri)
         if ret.status_code == 400:
-            raise Exception("Bad identifier request!")
+            raise ValueError("Bad identifier request!")
 
         counter = self.lifecycles
         while counter:
@@ -81,7 +81,7 @@ class FunsizeClient(object):
             time.sleep(self.cycle_sleep)
 
         if not counter:
-            raise Exception("Timeout, could not retrieve file from funsize.")
+            raise OSError.TimeoutError("Timeout, could not retrieve file.")
 
 
 def main():
