@@ -140,8 +140,8 @@ class MarFile:
 
             for member in self.members:
                 digestfp.seek(member._offset)
-                mydata = digestfp.read(member.size)
-                self.digest.update(mydata)
+                data = digestfp.read(member.size)
+                self.digest.update(data)
 
     def __del__(self):
         """Close the file when we're garbage collected"""
