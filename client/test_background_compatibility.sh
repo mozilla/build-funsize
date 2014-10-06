@@ -5,7 +5,7 @@
 
 self=$(basename $0)
 CLIENT_RUNNER="client.py"
-HASH_RUNNER="client_mar.py"
+HASH_RUNNER="mar.py"
 INPUT="$1"
 
 usage(){
