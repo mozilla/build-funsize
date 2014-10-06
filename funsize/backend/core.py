@@ -126,6 +126,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
     my_env['MBSDIFF'] = MBSDIFF
     my_env['MOZ_CHANNEL_ID'] = channel_id
     my_env['MOZ_PRODUCT_VERSION'] = product_version
+    my_env['LC_ALL'] = 'C'
 
     try:
         os.mkdir(working_dir)
