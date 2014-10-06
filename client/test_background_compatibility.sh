@@ -6,25 +6,27 @@
 self=$(basename $0)
 CLIENT_RUNNER="client.py"
 HASH_RUNNER="client_mar.py"
-input="$1"
-output="$2"
+INPUT="$1"
 
 usage(){
-    echo "$self INPUT_FILENAME OUTPUT_FILENAME"
+    echo "$self partials_info_file"
 }
 
 compare_hash(){
   marfile=$1
   correct_hash=$2
+  counter=$3
 
-  echo "Chech hashings ..."
+  echo "Check hashes ..."
   local_hash=$(python $HASH_RUNNER --hash $marfile)
 
   if [ "$local_hash" == "$correct_hash" ]
   then
-    echo "[OK] Test passed"
+    echo 'Hashes match!'
+    pass "===== Test $counter passed ====="
   else
-    echo "[Fail] Test failed"
+    echo 'Hashes differ!'
+    error "===== Test $counter failed ====="
     exit 1;
   fi
 }
@@ -41,42 +43,46 @@ info(){
     echo -e "\e[0;33m${str}\e[0m" >&2
 }
 
+pass(){
+    # colored green test-pass information
+    str=$@
+    echo -e "\e[0;32m${str}\e[0m" >&2
+}
+
 clobber() {
-  if [ -f $output ]
+  if [ -f $1 ]
   then
-    rm $output
+    rm $1
     info "Cleaned the file."
   else
-    error "Nothing to clean, mving on."
+    info "Nothing to clean, mving on."
   fi
 }
 
 process(){
-  clobber
+  echo "Reading partials info line by line from $INPUT ..."
+  counter=1
+  while read from_url to_url from_hash to_hash channel version partial_path partial_hash
+  do
+    clobber $partial_path;
+    echo -e "Requesting from funsize the partial between \n=> $from_url\n=> $to_url"
+    cmd="python $CLIENT_RUNNER --from-url $from_url --to-url $to_url --from-hash $from_hash --to-hash $to_hash --channel $channel --version $version --output $partial_path"
 
-  from_url=`awk '{ print $1 }' $input`
-  to_url=`awk '{ print $2 }' $input`
-  from_hash=`awk '{ print $3 }' $input`
-  to_hash=`awk '{ print $4 }' $input`
-  channel=`awk '{ print $5 }' $input`
-  version=`awk '{ print $NF }' $input`
-  ok_hash="887c50eb11e92e6ea4b515596b23e59f4fdf85d6783920060f0d8bac3c954354333aa9a7575a0c73bb72548b33f213ec079c616a9e8a88041046e894a5245a95"
-  cmd="python $CLIENT_RUNNER --from-url $from_url --to-url $to_url --from-hash $from_hash --to-hash $to_hash --channel $channel --version $version --output $output"
+    $cmd
 
-  echo 'Request partial from funsize ...'
-  $cmd
-
-  if [ $? -eq 0 ]
-  then
-      echo "Partial successfully retrieved at "$output
-      compare_hash $output $ok_hash;
-  else
+    if [ $? -eq 0 ]
+    then
+      echo "Partial successfully retrieved at "$partial_path
+      compare_hash $partial_path $partial_hash $counter;
+    else
       echo "Partial unavailable"
       exit 1;
-  fi
+    fi
+    counter=$((counter+1))
+  done < "$INPUT"
 }
 
-if [ $# -lt 2 ]
+if [ $# -lt 1 ]
 then
   usage;
   exit 0;
