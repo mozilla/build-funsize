@@ -42,13 +42,13 @@ info(){
 }
 
 clobber() {
+  if [ -f $output ]
+  then
     rm $output
-    if [ $? -eq 0 ]
-    then
-        info "Cleaned the file."
-    else
-        error "Nothing to clean, mving on."
-    fi
+    info "Cleaned the file."
+  else
+    error "Nothing to clean, mving on."
+  fi
 }
 
 process(){
