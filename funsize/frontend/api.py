@@ -82,7 +82,7 @@ def save_patch():
     )
 
 
-@app.route('/cache/', methods=['GET'])
+@app.route('/cache', methods=['GET'])
 def get_patch():
     """ Function to return a patch from cache """
     logging.debug('Request received with args : %s', flask.request.args)
