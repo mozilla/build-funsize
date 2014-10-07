@@ -21,6 +21,7 @@ except ImportError:
 import funsize.cache.cache as cache
 import funsize.backend.tasks as tasks
 import funsize.utils.oddity as oddity
+import funsize.utils.csum as csum
 
 CACHE_URI = None
 
@@ -29,12 +30,90 @@ __here__ = os.path.dirname(os.path.abspath(__file__))
 app = flask.Flask(__name__)
 
 
+def _get_patch_identifier(path1, path2):
+    """ Function to generate the identifier of a patch based on two files given
+        by their paths on disk
+    """
+    id1 = csum.getsha512(path1, True)
+    id2 = csum.getsha512(path2, True)
+
+    return '-'.join([id1, id2])
+
+
 @app.route('/')
 def index():
     """ Mockup message to fill in the index page """
-
     return "Welcome to Funsize, the Partial MAR on demand Web-Service."\
            "Please see https://wiki.mozilla.org/User:Ffledgling/Senbonzakura"
+
+
+@app.route('/cache', methods=['POST'])
+def save_patch():
+    """ Function to save a patch based on its different versions in cache """
+    logging.debug('Parameters passed in : %s', flask.request.form)
+
+    required_params = ('path_from', 'path_to', 'path_patch')
+    if not all(param in flask.request.form.keys() for param in required_params):
+        logging.info('Parameters could not be validated')
+        flask.abort(400)
+
+    if not all(os.path.isfile(param) for param in flask.request.form.values()):
+        logging.info('Parameters passed could not be found on disk')
+        flask.abort(400)
+
+    form = flask.request.form
+    path_from, path_to = form['path_from'], form['path_to']
+    identifier = _get_patch_identifier(path_from, path_to)
+
+    cacheo = cache.Cache(app.config['CACHE_URI'])
+    path_patch = flask.request.form['path_patch']
+
+    logging.info('Saving patch file %s to cache with key %s',
+                 path_patch, identifier)
+    cacheo.save(flask.request.form['path_patch'],
+                identifier, 'patch', isfile=True)
+
+    url = flask.url_for('get_patch', path_from=path_from, path_to=path_to)
+    return flask.Response(json.dumps({
+        "result": url,
+        }),
+        status=200,
+        mimetype='application/json'
+    )
+
+
+@app.route('/cache/', methods=['GET'])
+def get_patch():
+    """ Function to return a patch from cache """
+    logging.debug('Request received with args : %s', flask.request.args)
+
+    required_params = ('path_from', 'path_to')
+    if not all(param in flask.request.args.keys() for param in required_params):
+        logging.info('Arguments could not be validated')
+        flask.abort(400)
+
+    if not all(os.path.isfile(param) for param in flask.request.args.values()):
+        logging.info('Arguments paths passed could not be found on disk')
+        flask.abort(400)
+
+    identifier = _get_patch_identifier(flask.request.args['path_from'],
+                                       flask.request.args['path_to'])
+    cacheo = cache.Cache(app.config['CACHE_URI'])
+
+    logging.debug('looking up record with identifier %s', identifier)
+    if not cacheo.find(identifier, 'patch'):
+        logging.info('Invalid partial request')
+        resp = flask.Response(json.dumps({
+            "result": "Patch with identifier %s not found" % identifier,
+            }),
+            status=400,
+        )
+        return resp
+
+    logging.info('Patch found, retrieving ...')
+    return flask.Response(cacheo.retrieve(identifier, 'patch'),
+                          status=200,
+                          mimetype='application/octet-stream')
 
 
 @app.route('/partial', methods=['POST'])
@@ -122,19 +201,9 @@ def trigger_partial(version='latest'):
     return resp
 
 
-@app.route('/cache/<identifier>', methods=['GET'])
-def get_from_cache():
-    """ URL to allow direct access to cache """
-    raise oddity.FunsizeNotImplementedError()
-
-
 @app.route('/partial/<identifier>', methods=['GET'])
 def get_partial(identifier, version='latest'):
-    """
-    Function to return a generated partial
-
-    """
-
+    """ Function to return a generated partial """
     logging.debug('Request received with headers : %s', flask.request.headers)
     logging.debug('Got request with version %s', version)
 
@@ -180,9 +249,7 @@ def get_partial(identifier, version='latest'):
 
 
 def main(argv):
-    """
-    Parse args, config files and perform configuration
-    """
+    """ Parse args, config files and perform configuration """
     parser = argparse.ArgumentParser(description='Some description')
     parser.add_argument('-c', '--config-file', type=str,
                         default='../configs/default.ini',

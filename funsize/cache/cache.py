@@ -34,9 +34,11 @@ class Cache(object):
         self.cache_complete_dir = os.path.join(self.cache_dir, 'complete')
         self.cache_diffs_dir = os.path.join(self.cache_dir, 'diff')
         self.cache_partials_dir = os.path.join(self.cache_dir, 'partial')
+        self.cache_patches_dir = os.path.join(self.cache_dir, 'patch')
 
         for directory in (self.cache_dir, self.cache_complete_dir,
-                          self.cache_diffs_dir, self.cache_partials_dir):
+                          self.cache_diffs_dir, self.cache_partials_dir,
+                          self.cache_patches_dir):
             try:
                 os.makedirs(directory)
             except OSError:
@@ -68,6 +70,8 @@ class Cache(object):
             file_cache_path = os.path.join(self.cache_diffs_dir, id_path)
         elif category == 'partial':
             file_cache_path = os.path.join(self.cache_partials_dir, id_path)
+        elif category == 'patch':
+            file_cache_path = os.path.join(self.cache_patches_dir, id_path)
 
         return (identifier, file_cache_path)
 
