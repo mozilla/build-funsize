@@ -30,14 +30,12 @@ __here__ = os.path.dirname(os.path.abspath(__file__))
 app = flask.Flask(__name__)
 
 
-def _get_patch_identifier(path1, path2):
-    """ Function to generate the identifier of a patch based on two files given
-        by their paths on disk
+def _get_patch_identifier(id_sha1, id_sha2):
+    """ Function to generate the identifier of a patch based on two shas given
+        The reason we keep this function is that in the future we might change
+        the - to something more sophisticated.
     """
-    id1 = csum.getsha512(path1, True)
-    id2 = csum.getsha512(path2, True)
-
-    return '-'.join([id1, id2])
+    return '-'.join([id_sha1, id_sha2])
 
 
 @app.route('/')
@@ -49,31 +47,30 @@ def index():
 
 @app.route('/cache', methods=['POST'])
 def save_patch():
-    """ Function to save a patch based on its different versions in cache """
+    """ Function to cache a patch in funsize """
     logging.debug('Parameters passed in : %s', flask.request.form)
+    logging.debug('Files passed in : %s', flask.request.files.lists())
 
-    required_params = ('path_from', 'path_to', 'path_patch')
+    required_params = ('sha_from', 'sha_to')
     if not all(param in flask.request.form.keys() for param in required_params):
         logging.info('Parameters could not be validated')
         flask.abort(400)
 
-    if not all(os.path.isfile(param) for param in flask.request.form.values()):
+    files = flask.request.files
+    if 'patch_file' not in files.keys():
         logging.info('Parameters passed could not be found on disk')
         flask.abort(400)
+    storage = flask.request.files.get('patch_file')
 
     form = flask.request.form
-    path_from, path_to = form['path_from'], form['path_to']
-    identifier = _get_patch_identifier(path_from, path_to)
+    sha_from, sha_to = form['sha_from'], form['sha_to']
+    identifier = _get_patch_identifier(sha_from, sha_to)
 
+    logging.info('Saving patch file to cache with key %s', identifier)
     cacheo = cache.Cache(app.config['CACHE_URI'])
-    path_patch = flask.request.form['path_patch']
+    cacheo.save(storage.read(), identifier, 'patch')
 
-    logging.info('Saving patch file %s to cache with key %s',
-                 path_patch, identifier)
-    cacheo.save(flask.request.form['path_patch'],
-                identifier, 'patch', isfile=True)
-
-    url = flask.url_for('get_patch', path_from=path_from, path_to=path_to)
+    url = flask.url_for('get_patch', sha_from=sha_from, sha_to=sha_to)
     return flask.Response(json.dumps({
         "result": url,
         }),
@@ -87,20 +84,16 @@ def get_patch():
     """ Function to return a patch from cache """
     logging.debug('Request received with args : %s', flask.request.args)
 
-    required_params = ('path_from', 'path_to')
+    required_params = ('sha_from', 'sha_to')
     if not all(param in flask.request.args.keys() for param in required_params):
         logging.info('Arguments could not be validated')
         flask.abort(400)
 
-    if not all(os.path.isfile(param) for param in flask.request.args.values()):
-        logging.info('Arguments paths passed could not be found on disk')
-        flask.abort(400)
+    identifier = _get_patch_identifier(flask.request.args['sha_from'],
+                                       flask.request.args['sha_to'])
 
-    identifier = _get_patch_identifier(flask.request.args['path_from'],
-                                       flask.request.args['path_to'])
+    logging.debug('Looking up record with identifier %s', identifier)
     cacheo = cache.Cache(app.config['CACHE_URI'])
-
-    logging.debug('looking up record with identifier %s', identifier)
     if not cacheo.find(identifier, 'patch'):
         logging.info('Invalid partial request')
         resp = flask.Response(json.dumps({
