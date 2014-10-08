@@ -9,6 +9,7 @@
 #
 
 . $(dirname "$0")/common.sh
+. $(dirname "$0")/funsize_common.sh
 
 # -----------------------------------------------------------------------------
 
@@ -180,7 +181,12 @@ for ((i=0; $i<$num_oldfiles; i=$i+1)); do
       dir=$(dirname "$workdir/$f")
       mkdir -p "$dir"
       notice "diffing \"$f\""
-      $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
+      if get_patch "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"; then
+        notice "file \"$f\" found in funsize, skipping diffing"
+      else
+        $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
+        upload_patch "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
+      fi
       $BZIP2 -z9 "$workdir/$f.patch"
       $BZIP2 -cz9 "$newdir/$f" > "$workdir/$f"
       copy_perm "$newdir/$f" "$workdir/$f"
