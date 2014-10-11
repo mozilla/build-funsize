@@ -1,6 +1,9 @@
 """%prog [options] -t|-s marfile
 
-Utility for managing mar file"""
+Utility for managing mar file
+
+Author: Mihai Tabara (adaptation of Chris Atlee's mar.py implementation)
+"""
 
 import struct
 import os
