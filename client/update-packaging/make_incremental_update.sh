@@ -184,13 +184,14 @@ for ((i=0; $i<$num_oldfiles; i=$i+1)); do
       if [ -z $MBSDIFF_HOOK ]; then
         $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
       else
-        if [ $MBSDIFF_HOOK -r "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
-            $FUNSIZE_URL ]; then
+        if $MBSDIFF_HOOK -r "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
+            $FUNSIZE_URL; then
           notice "file \"$f\" found in funsize, skipping diffing"
         else
           $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
           $MBSDIFF_HOOK -o "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
             $FUNSIZE_URL
+        fi
       fi
 
       $BZIP2 -z9 "$workdir/$f.patch"
