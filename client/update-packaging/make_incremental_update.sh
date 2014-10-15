@@ -181,15 +181,22 @@ for ((i=0; $i<$num_oldfiles; i=$i+1)); do
       mkdir -p "$dir"
       notice "diffing \"$f\""
 
+      # MBSDIFF_HOOK represents the communication interface with funsize and,
+      # if enabled, caches the intermediate patches for future use and
+      # compute avoidance
+
+      # if service is not enabled then default to old behavior
       if [ -z $MBSDIFF_HOOK ]; then
         $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
       else
-        if $MBSDIFF_HOOK -r "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
+        # if service enabled then check patch existence for retrieval
+        if $MBSDIFF_HOOK -g "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
             $FUNSIZE_URL; then
           notice "file \"$f\" found in funsize, skipping diffing"
         else
+          # if not found already - compute it and cache it for future use
           $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
-          $MBSDIFF_HOOK -o "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
+          $MBSDIFF_HOOK -u "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
             $FUNSIZE_URL
         fi
       fi
