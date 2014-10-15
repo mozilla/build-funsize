@@ -16,11 +16,11 @@ getsha512(){
 }
 
 usage(){
-    echo "$SCRIPT_NAME [-r] [-o] PATH-FROM-URL PATH-TO-URL PATH-PATCH SERVER-URL"
+    echo "$SCRIPT_NAME [-g] [-u] PATH-FROM-URL PATH-TO-URL PATH-PATCH SERVER-URL"
     echo "Script that saves/retrieves from cache presumptive patches as args"
     echo ""
-    echo "-r pre hook - tests whether patch already in cache"
-    echo "-o: post hook - upload patch to cache for future use"
+    echo "-g pre hook - tests whether patch already in cache"
+    echo "-u post hook - upload patch to cache for future use"
     echo ""
     echo "PATH-FROM-URL     : path on disk for source file"
     echo "PATH-TO-URL       : path on disk for destination file"
@@ -72,12 +72,12 @@ fi
 
 OPTIND=1
 
-while getopts ":ro" option; do
+while getopts ":gu" option; do
     case $option in
-        r)
+        g)
             HOOK="PRE";
             ;;
-        o)
+        u)
             HOOK="POST";
             ;;
         \?)
