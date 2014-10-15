@@ -34,6 +34,12 @@ upload_patch(){
     path_patch="$3"
     funsize_url="$4"
 
+    # save to local cache first
+    mkdir -p "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from"
+    cp -af "$path_patch" "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to"
+    echo ""$path_patch" saved on local cache!"
+
+    # send it over to funsize
     cmd="curl -sSw %{http_code} -o /dev/null -X POST $funsize_url -F sha_from="$sha_from" -F sha_to="$sha_to" -F patch_file="@$path_patch""
     ret_code=`$cmd`
 
@@ -52,6 +58,14 @@ get_patch(){
     destination_file="$3"
     funsize_url="$4"
 
+    # try to retrieve from local cache first
+    if [ -e "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to" ]; then
+        cp -af "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to" "$destination_file"
+        echo "Successful retrieved $destination_file from local cache!"
+        return 0;
+    fi
+
+    # if unsuccessful, try to retrieve from funsize
     cmd="curl -sSGw %{http_code} $funsize_url -o "$destination_file" --data-urlencode "sha_from=$sha_from" --data-urlencode "sha_to=$sha_to""
     ret_code=`$cmd`
 
