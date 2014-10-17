@@ -21,7 +21,6 @@ except ImportError:
 import funsize.cache.cache as cache
 import funsize.backend.tasks as tasks
 import funsize.utils.oddity as oddity
-import funsize.utils.csum as csum
 
 CACHE_URI = None
 
@@ -178,8 +177,8 @@ def trigger_partial(version='latest'):
     # TODO - here we should get try-except thing to retry + ack late
     # catch LCA exception
     tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from,
-                                    mar_from_hash, identifier,
-                                    channel_id, product_version)
+                                  mar_from_hash, identifier,
+                                  channel_id, product_version)
 
     logging.critical('Called build and moved on')
     resp = flask.Response(json.dumps({
