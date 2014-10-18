@@ -17,6 +17,7 @@ setup(name=PACKAGE_NAME,
             'celery==3.1.11',
             'nose==1.3.3',
             'requests==2.2.1',
+            'boto==2.33.0',
       ],
       packages=[
             'funsize',
