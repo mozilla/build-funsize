@@ -20,12 +20,9 @@ class Cache(object):
     """
 
     def __init__(self, _bucket=os.environ.get('FUNSIZE_S3_UPLOAD_BUCKET')):
-        """ cache_uri : URI of the cache for init.
-                        Just a filepath for the time being
-        """
+        """ _bucket : bucket name to use for S3 resources """
         if not _bucket:
             raise oddity.CacheError("Amazon S3 bucket not set")
-
         # open a connection and get the bucket
         self.conn = S3Connection()
         self.bucket = self.conn.get_bucket(_bucket)
@@ -34,15 +31,13 @@ class Cache(object):
         """ Method to return cache bucket key based on identifier """
         if not identifier:
             raise oddity.CacheError('Save object failed without identifier')
-
         if category not in ('complete', 'diff', 'partial', 'patch'):
             raise oddity.CacheError("Category failed for S3 uploading")
-
         bucket_key = "files/%s/%s" % (category, identifier)
         return bucket_key
 
     def _create_new_bucket_key(self, identifier, category):
-        """ Baed on identifier and category create a new key in the bucket"""
+        """ Based on identifier and category create a new key in the bucket"""
         _key = self._get_cache_internals(identifier, category)
         return self.bucket.new_key(_key)
 
@@ -58,12 +53,10 @@ class Cache(object):
         # FIXME: What should the behaviour be when we try to save to a
         # pre-existing key?
         key = self._create_new_bucket_key(identifier, category)
-
         if isfile:
             key.set_contents_from_filename(string)
         else:
             key.set_contents_from_stream(string)
-
         key.set_acl('public-read')
 
     def save_blank_file(self, identifier, category):
@@ -71,7 +64,6 @@ class Cache(object):
             it is being in progress
         """
         key = self._create_new_bucket_key(identifier, category)
-
         key.set_contents_from_string('')
         key.set_acl('public-read')
 
@@ -81,7 +73,6 @@ class Cache(object):
             Returns True is file exists and is blank, False otherwise
         """
         key = self._get_bucket_key(identifier, category)
-
         if not key:
             return False
         return key.size == 0
@@ -99,7 +90,6 @@ class Cache(object):
             otherwise returns the file as a binary string/file object
         """
         key = self._get_bucket_key(identifier, category)
-
         if output_file:
             key.get_contents_to_filename(output_file)
         else:
