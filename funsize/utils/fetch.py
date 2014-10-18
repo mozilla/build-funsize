@@ -20,7 +20,6 @@ def downloadmar(url, checksum, cipher='sha512', output_file=None):
         List of Ciphers supported is the same as those supported by
         `csum.py`
     """
-
     logging.debug('Starting download for %s with checksum: %s', url, checksum)
 
     response = requests.get(url)
@@ -49,6 +48,5 @@ def downloadmar(url, checksum, cipher='sha512', output_file=None):
             raise DownloadError('Failed to write file to disk')
         else:
             return None
-
     else:
         return mar

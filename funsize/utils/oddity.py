@@ -21,7 +21,8 @@ class DBError(Exception):
 
 class CacheMissError(Exception):
     """ Class for errors raised while trying to access non-existant cache
-        resources """
+        resources
+    """
     pass
 
 
