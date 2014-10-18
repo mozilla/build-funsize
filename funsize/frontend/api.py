@@ -66,7 +66,7 @@ def save_patch():
     identifier = _get_patch_identifier(sha_from, sha_to)
 
     logging.info('Saving patch file to cache with key %s', identifier)
-    cacheo = cache.Cache(app.config['CACHE_URI'])
+    cacheo = cache.Cache()
     cacheo.save(storage.read(), identifier, 'patch')
 
     url = flask.url_for('get_patch', sha_from=sha_from, sha_to=sha_to)
@@ -92,7 +92,7 @@ def get_patch():
                                        flask.request.args['sha_to'])
 
     logging.debug('Looking up record with identifier %s', identifier)
-    cacheo = cache.Cache(app.config['CACHE_URI'])
+    cacheo = cache.Cache()
     if not cacheo.find(identifier, 'patch'):
         logging.info('Invalid partial request')
         resp = flask.Response(json.dumps({
@@ -125,7 +125,7 @@ def trigger_partial(version='latest'):
         api_result['result'] += ' does not exist'
         return flask.Response(str(api_result), status=400)
 
-    cacheo = cache.Cache(app.config['CACHE_URI'])
+    cacheo = cache.Cache()
 
     logging.debug('Parameters passed in : %s', flask.request.form)
 
@@ -209,7 +209,7 @@ def get_partial(identifier, version='latest'):
         api_result['result'] += ' does not exist'
         return flask.Response(str(api_result), status=400)
 
-    cacheo = cache.Cache(app.config['CACHE_URI'])
+    cacheo = cache.Cache()
 
     logging.debug('looking up record with identifier %s', identifier)
     if not cacheo.find(identifier, 'partial'):
@@ -253,8 +253,6 @@ def main(argv):
     config = ConfigParser.ConfigParser()
     config.read(config_file)
     app.config['LOG_FILE'] = config.get('log', 'file_path')
-    app.config['DB_URI'] = config.get('db', 'uri')
-    app.config['CACHE_URI'] = config.get('cache', 'uri')
     app.config['supported_versions'] = [
         x.strip() for x in config.get('version', 'supported_versions').split(',')
     ]
