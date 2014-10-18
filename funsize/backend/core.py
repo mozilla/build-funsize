@@ -20,25 +20,19 @@ import funsize.utils.oddity as oddity
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE_PATH = os.path.join(__here__, '../configs/worker.ini')
-VERIFICATION_FILE = os.path.join(__here__, '../configs/verification_file.csv')
 
 config = ConfigParser.ConfigParser()
 config.read(CONFIG_FILE_PATH)
 
-if config.items('db') and config.items('cache'):
-    DB_URI = config.get('db', 'uri')
-    CACHE_URI = config.get('cache', 'uri')
+if config.items('tools'):
     TOOLS_DIR = config.get('tools', 'dir')
 else:
     raise oddity.ConfigError('Configuration parameters missing')
 
 
 def get_complete_mar(url, identifier, output_file=None):
-    """ Return binary string if no output_file specified
-    """
-
-    cacheo = cache.Cache(CACHE_URI)
-
+    """ Return binary string if no output_file specified """
+    cacheo = cache.Cache()
     logging.info('Request for complete MAR %s with Identifer %s in cache',
                  url, identifier)
 
@@ -63,11 +57,9 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
                       identifier, channel_id, product_version):
     """ Function that returns the partial MAR file to transition from the mar
         given by old_cmar_url to new_cmar_url
-
     """
-
     logging.info('Creating cache connections')
-    cacheo = cache.Cache(CACHE_URI)
+    cacheo = cache.Cache()
 
     logging.info('Creating temporary working directories')
     TMP_MAR_STORAGE = tempfile.mkdtemp(prefix='cmar_storage_')
@@ -82,7 +74,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     get_complete_mar(new_cmar_url, new_cmar_hash, output_file=new_cmar_path)
     get_complete_mar(old_cmar_url, old_cmar_hash, output_file=old_cmar_path)
 
-    tmo = tools.ToolManager(TOOLS_DIR, VERIFICATION_FILE)
+    tmo = tools.ToolManager(TOOLS_DIR)
     TMP_TOOL_STORAGE = tmo.get_path()
     logging.info('Tool storage: %s', TMP_TOOL_STORAGE)
 
@@ -112,7 +104,6 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
         difftools_path specifies the path of the directory in which
         the difftools, including mar,mbsdiff exist
     """
-
     if not working_dir:
         working_dir = '.'
 
@@ -127,6 +118,9 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
     my_env['MOZ_CHANNEL_ID'] = channel_id
     my_env['MOZ_PRODUCT_VERSION'] = product_version
     my_env['LC_ALL'] = 'C'
+    my_env['FUNSIZE_URL'] = 'http://127.0.0.1:5000/cache'
+    my_env['MBSDIFF_HOOK'] = '/vagrant/src/client/update-packaging/funsize_common.sh'
+    my_env['FUNSIZE_LOCAL_CACHE_DIR'] = '/tmp/local_cache'
 
     try:
         os.mkdir(working_dir)
@@ -178,7 +172,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
                   str(([MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd],
                        'cwd=', working_dir, 'env=', my_env)))
 
-    subprocess.call(["bash", "-x", MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd],
+    subprocess.call(["bash", MAKE_INCREMENTAL, pmar_path, cmo_wd, cmn_wd],
                     cwd=working_dir, env=my_env)
     logging.info('Partial now available at path: %s', pmar_path)
 

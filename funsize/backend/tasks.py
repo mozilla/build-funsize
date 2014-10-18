@@ -22,8 +22,7 @@ logger = get_task_logger(__name__)
 
 @app.task
 def build_partial_mar(*args):
-    """ Wrapper for actual method, to get timestamps and measurings
-    """
+    """ Wrapper for actual method, to get timestamps and measurings """
     logger.info('STARTING TASK')
     start_time = time.time()
 
