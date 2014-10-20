@@ -31,7 +31,7 @@ class Cache(object):
         """ Method to return cache bucket key based on identifier """
         if not identifier:
             raise oddity.CacheError('Save object failed without identifier')
-        if category not in ('complete', 'diff', 'partial', 'patch'):
+        if category not in ('diff', 'partial', 'patch'):
             raise oddity.CacheError("Category failed for S3 uploading")
         bucket_key = "files/%s/%s" % (category, identifier)
         return bucket_key
@@ -56,7 +56,7 @@ class Cache(object):
         if isfile:
             key.set_contents_from_filename(string)
         else:
-            key.set_contents_from_stream(string)
+            key.set_contents_from_string(string)
         key.set_acl('public-read')
 
     def save_blank_file(self, identifier, category):
@@ -93,7 +93,7 @@ class Cache(object):
         if output_file:
             key.get_contents_to_filename(output_file)
         else:
-            key.get_contents_as_string()
+            return key.get_contents_as_string()
 
     def delete_from_cache(self, identifier, category):
         """ Method to remove a file from cache """
