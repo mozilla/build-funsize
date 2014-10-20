@@ -18,10 +18,11 @@ getsha512(){
 }
 
 usage(){
-    echo "$SCRIPT_NAME -A SERVER-URL [-g] [-u] PATH-FROM-URL PATH-TO-URL PATH-PATCH SERVER-URL"
+    echo "$SCRIPT_NAME -A SERVER-URL [-c LOCAL-CACHE-DIR-PATH] [-g] [-u] PATH-FROM-URL PATH-TO-URL PATH-PATCH SERVER-URL"
     echo "Script that saves/retrieves from cache presumptive patches as args"
     echo ""
     echo "-A SERVER-URL - host where to sent the files to"
+    echo "-c LOCAL-CACHE-DIR-PATH local path to which patches are cached"
     echo "-g pre hook - tests whether patch already in cache"
     echo "-u post hook - upload patch to cache for future use"
     echo ""
