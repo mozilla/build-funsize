@@ -187,18 +187,16 @@ for ((i=0; $i<$num_oldfiles; i=$i+1)); do
       # compute avoidance
 
       # if service is not enabled then default to old behavior
-      if [ -z $MBSDIFF_HOOK ]; then
+      if [ -z "$MBSDIFF_HOOK" ]; then
         $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
       else
         # if service enabled then check patch existence for retrieval
-        if $MBSDIFF_HOOK -g "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
-            $FUNSIZE_URL; then
+        if $MBSDIFF_HOOK -g "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"; then
           notice "file \"$f\" found in funsize, skipping diffing"
         else
           # if not found already - compute it and cache it for future use
           $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
-          $MBSDIFF_HOOK -u "$olddir/$f" "$newdir/$f" "$workdir/$f.patch" \
-            $FUNSIZE_URL
+          $MBSDIFF_HOOK -u "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
         fi
       fi
       $BZIP2 -z9 "$workdir/$f.patch"
