@@ -30,26 +30,14 @@ else:
     raise oddity.ConfigError('Configuration parameters missing')
 
 
-def get_complete_mar(url, identifier, output_file=None):
+def get_complete_mar(url, mar_hash, output_file=None):
     """ Return binary string if no output_file specified """
-    cacheo = cache.Cache()
-    logging.info('Request for complete MAR %s with Identifer %s in cache',
-                 url, identifier)
+    logging.info('Request for complete MAR %s with mar_hash %s ', url, mar_hash)
+    logging.info('Downloading complete MAR %s with Identifer %s', url, mar_hash)
 
-    if cacheo.find(identifier, 'complete'):
-        logging.debug('Found complete MAR %s with Identifer %s in cache',
-                      url, identifier)
-        logging.info('Retriving MAR from cache')
-        mar = cacheo.retrieve(identifier, 'complete', output_file=output_file)
-    else:
-        logging.info('Downloading complete MAR %s with Identifer %s',
-                     url, identifier)
-        mar = fetch.downloadmar(url, identifier, output_file=output_file)
-        cacheo.save(output_file or mar, identifier, 'complete',
-                    isfile=bool(output_file))
-
-    logging.info('Request for complete MAR %s with Identifer %s satisfied',
-                 url, identifier)
+    mar = fetch.downloadmar(url, mar_hash, output_file=output_file)
+    logging.info('Request for complete MAR %s with mar_hash %s satisfied',
+                 url, mar_hash)
     return mar
 
 
@@ -91,8 +79,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
     logging.info('Saving PMAR %s to cache with key %s',
                  local_pmar_location, identifier)
-    cacheo.save(local_pmar_location,
-                identifier, 'partial', isfile=True)
+    cacheo.save(local_pmar_location, identifier, 'partial', isfile=True)
 
     #FIXME Cleanup temp directories here ?
 
@@ -120,7 +107,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
     my_env['LC_ALL'] = 'C'
     my_env['FUNSIZE_URL'] = 'http://127.0.0.1:5000/cache'
     my_env['MBSDIFF_HOOK'] = '/vagrant/src/client/update-packaging/funsize_common.sh'
-    my_env['FUNSIZE_LOCAL_CACHE_DIR'] = '/tmp/local_cache'
+    my_env['FUNSIZE_LOCAL_CACHE_DIR'] = '/tmp'
 
     try:
         os.mkdir(working_dir)
