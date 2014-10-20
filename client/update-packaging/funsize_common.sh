@@ -10,7 +10,8 @@
 
 SCRIPT_NAME=$(basename $0)
 HOOK=""
-FUNSIZE_URL=""
+SERVER_URL=""
+LOCAL_CACHE_DIR=""
 
 getsha512(){
     echo "$(openssl sha512 "${1}" | awk '{print $2}')"
@@ -35,12 +36,16 @@ upload_patch(){
     path_patch="$3"
 
     # save to local cache first
-    mkdir -p "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from"
-    cp -af "$path_patch" "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to"
-    echo ""$path_patch" saved on local cache!"
+    if [ -n "$LOCAL_CACHE_DIR" ]; then
+        local_cmd="mkdir -p "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from""
+        if `$local_cmd` >&2; then
+            cp -af "$path_patch" "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to"
+            echo ""$path_patch" saved on local cache!"
+        fi
+    fi
 
     # send it over to funsize
-    cmd="curl -sSw %{http_code} -o /dev/null -X POST $FUNSIZE_URL -F sha_from="$sha_from" -F sha_to="$sha_to" -F patch_file="@$path_patch""
+    cmd="curl -sSw %{http_code} -o /dev/null -X POST $SERVER_URL -F sha_from="$sha_from" -F sha_to="$sha_to" -F patch_file="@$path_patch""
     ret_code=`$cmd`
 
     if [ $ret_code -eq 200 ]; then
@@ -65,7 +70,7 @@ get_patch(){
     fi
 
     # if unsuccessful, try to retrieve from funsize
-    cmd="curl -sSGw %{http_code} $FUNSIZE_URL -o "$destination_file" --data-urlencode "sha_from=$sha_from" --data-urlencode "sha_to=$sha_to""
+    cmd="curl -sSGw %{http_code} $SERVER_URL -o "$destination_file" --data-urlencode "sha_from=$sha_from" --data-urlencode "sha_to=$sha_to""
     ret_code=`$cmd`
 
     if [ $ret_code -eq 200 ]; then
@@ -85,10 +90,17 @@ fi
 
 OPTIND=1
 
-while getopts ":A:gu" option; do
+while getopts ":A:c:gu" option; do
     case $option in
         A)
-            FUNSIZE_URL="$OPTARG";
+            SERVER_URL="$OPTARG";
+            ;;
+        c)
+            if [ ! -d "$OPTARG" ]; then
+                echo "A cache directory must be supplied (with -c flag)" >&2
+                exit 1;
+            fi
+            LOCAL_CACHE_DIR="$OPTARG";
             ;;
         g)
             HOOK="PRE";
@@ -98,9 +110,14 @@ while getopts ":A:gu" option; do
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
+            exit 1;
             ;;
         :)
             echo "Option -$OPTARG requires an argument." >&2
+            exit 1;
+            ;;
+        *)
+            echo "Unimplemented option: -$OPTARG" >&2
             exit 1;
             ;;
     esac
