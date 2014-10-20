@@ -32,11 +32,10 @@ else:
 
 def get_complete_mar(url, mar_hash, output_file=None):
     """ Return binary string if no output_file specified """
-    logging.info('Request for complete MAR %s with mar_hash %s ', url, mar_hash)
-    logging.info('Downloading complete MAR %s with Identifer %s', url, mar_hash)
+    logging.info('Downloading complete MAR %s with mar_hash %s', url, mar_hash)
 
     mar = fetch.downloadmar(url, mar_hash, output_file=output_file)
-    logging.info('Request for complete MAR %s with mar_hash %s satisfied',
+    logging.info('Satisfied request for complete MAR %s with mar_hash %s',
                  url, mar_hash)
     return mar
 
