@@ -29,10 +29,10 @@ __here__ = os.path.dirname(os.path.abspath(__file__))
 app = flask.Flask(__name__)
 
 
-def _get_patch_identifier(id_sha1, id_sha2):
+def _get_identifier(id_sha1, id_sha2):
     """ Function to generate the identifier of a patch based on two shas given
         The reason we keep this function is that in the future we might change
-        the - to something more sophisticated.
+        the '-' to something more sophisticated.
     """
     return '-'.join([id_sha1, id_sha2])
 
@@ -63,7 +63,7 @@ def save_patch():
 
     form = flask.request.form
     sha_from, sha_to = form['sha_from'], form['sha_to']
-    identifier = _get_patch_identifier(sha_from, sha_to)
+    identifier = _get_identifier(sha_from, sha_to)
 
     logging.info('Saving patch file to cache with key %s', identifier)
     cacheo = cache.Cache()
@@ -88,7 +88,7 @@ def get_patch():
         logging.info('Arguments could not be validated')
         flask.abort(400)
 
-    identifier = _get_patch_identifier(flask.request.args['sha_from'],
+    identifier = _get_identifier(flask.request.args['sha_from'],
                                        flask.request.args['sha_to'])
 
     logging.debug('Looking up record with identifier %s', identifier)
@@ -146,7 +146,7 @@ def trigger_partial(version='latest'):
 
     # TODO: Verify hashes and URLs are valid ?
 
-    identifier = '-'.join([mar_from_hash, mar_to_hash])
+    identifier = _get_identifier(mar_from_hash, mar_to_hash)
     url = flask.url_for('get_partial', identifier=identifier)
 
     if cacheo.find(identifier, 'partial'):
