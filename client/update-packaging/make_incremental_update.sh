@@ -185,6 +185,14 @@ for ((i=0; $i<$num_oldfiles; i=$i+1)); do
       # MBSDIFF_HOOK represents the communication interface with funsize and,
       # if enabled, caches the intermediate patches for future use and
       # compute avoidance
+      #
+      # An example of MBSDIFF_HOOK env variable could look like this:
+      # export MBSDIFF_HOOK="myscript.sh -A https://funsize/api -c /home/user"
+      # where myscript.sh has the following usage:
+      # myscript.sh -A SERVER-URL [-c LOCAL-CACHE-DIR-PATH] [-g] [-u] \
+      #   PATH-FROM-URL PATH-TO-URL PATH-PATCH SERVER-URL
+      #
+      # Note: patches are bzipped stashed in funsize to gain more speed
 
       # if service is not enabled then default to old behavior
       if [ -z "$MBSDIFF_HOOK" ]; then
@@ -193,7 +201,7 @@ for ((i=0; $i<$num_oldfiles; i=$i+1)); do
       else
         # if service enabled then check patch existence for retrieval
         if $MBSDIFF_HOOK -g "$olddir/$f" "$newdir/$f" "$workdir/$f.patch.bz2"; then
-          notice "file \"$f\" found in funsize, skipping diffing"
+          notice "file \"$f\" found in funsize, diffing skipped"
         else
           # if not found already - compute it and cache it for future use
           $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
