@@ -8,7 +8,6 @@
 # Author: Mihai Tabara
 #
 
-SCRIPT_NAME=$(basename $0)
 HOOK=""
 SERVER_URL=""
 LOCAL_CACHE_DIR=""
@@ -17,8 +16,8 @@ getsha512(){
     echo "$(openssl sha512 "${1}" | awk '{print $2}')"
 }
 
-usage(){
-    echo "$SCRIPT_NAME -A SERVER-URL [-c LOCAL-CACHE-DIR-PATH] [-g] [-u] PATH-FROM-URL PATH-TO-URL PATH-PATCH SERVER-URL"
+print_usage(){
+    echo "$(basename $0) -A SERVER-URL [-c LOCAL-CACHE-DIR-PATH] [-g] [-u] PATH-FROM-URL PATH-TO-URL PATH-PATCH SERVER-URL"
     echo "Script that saves/retrieves from cache presumptive patches as args"
     echo ""
     echo "-A SERVER-URL - host where to sent the files to"
@@ -84,8 +83,7 @@ get_patch(){
 }
 
 if [ $# -lt 6 ]; then
-    echo "$@"
-    usage;
+    print_usage;
     exit 1;
 fi
 
