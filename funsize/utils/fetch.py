@@ -39,7 +39,6 @@ def downloadmar(url, checksum, cipher='sha512', output_file=None):
     if output_file:
         try:
             logging.info('Writing download %s to file %s', url, output_file)
-            # TODO ROUGHEDGE write in blocks of 1MB anc check afterwards?
             with open(output_file, 'wb') as fobj:
                 fobj.write(mar)
         except:
