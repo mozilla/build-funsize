@@ -205,7 +205,7 @@ for ((i=0; $i<$num_oldfiles; i=$i+1)); do
         else
           # if not found already - compute it and cache it for future use
           $MBSDIFF "$olddir/$f" "$newdir/$f" "$workdir/$f.patch"
-          $BZIP2 -fz9 "$workdir/$f.patch"
+          $BZIP2 -z9 "$workdir/$f.patch"
           $MBSDIFF_HOOK -u "$olddir/$f" "$newdir/$f" "$workdir/$f.patch.bz2"
         fi
       fi
