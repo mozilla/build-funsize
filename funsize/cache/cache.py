@@ -8,7 +8,7 @@ caching layer core
 """
 
 import os
-from boto.s3.connection import S3Connection
+import boto
 
 import funsize.utils.oddity as oddity
 
@@ -24,7 +24,7 @@ class Cache(object):
         if not _bucket:
             raise oddity.CacheError("Amazon S3 bucket not set")
         # open a connection and get the bucket
-        self.conn = S3Connection()
+        self.conn = boto.connect_s3(profile_name='s3_credentials')
         self.bucket = self.conn.get_bucket(_bucket)
 
     def _get_cache_internals(self, identifier, category):
