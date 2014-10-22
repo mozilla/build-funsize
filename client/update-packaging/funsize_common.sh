@@ -61,6 +61,7 @@ get_patch(){
     sha_from=`getsha512 "$1"`
     sha_to=`getsha512 "$2"`
     destination_file="$3"
+    tmp_file="$destination_file.tmp"
 
     # try to retrieve from local cache first
     if [ -e "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to" ]; then
@@ -70,14 +71,16 @@ get_patch(){
     fi
 
     # if unsuccessful, try to retrieve from funsize
-    cmd="curl -sSGw %{http_code} $SERVER_URL -o "$destination_file" --data-urlencode "sha_from=$sha_from" --data-urlencode "sha_to=$sha_to""
+    cmd="curl -sSGw %{http_code} $SERVER_URL -o "$tmp_file" --data-urlencode "sha_from=$sha_from" --data-urlencode "sha_to=$sha_to""
     ret_code=`$cmd`
 
     if [ $ret_code -eq 200 ]; then
+        mv "$tmp_file" "$destination_file"
         echo "Successful retrieved $destination_file from funsize!"
         return 0;
     fi
 
+    rm "$tmp_file"
     echo "Failed to retrieve $destination_file from funsize!"
     return 1;
 }
