@@ -53,7 +53,7 @@ class ToolManager(object):
             raise oddity.ToolError('Could not determine platform')
         mar_tools_url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/%s/latest-mozilla-central/mar-tools/%s/" % (self.channel, platform_version)
         logging.info('Downloading tools from %s', mar_tools_url)
-        subprocess.call([os.path.abspath(os.path.join(__here__, 'download-copy-tools.sh')), '-o', self.folder])
+        subprocess.call([os.path.abspath(os.path.join(__here__, 'download-tools.sh')), '-o', self.folder])
         subprocess.call(['wget', '-O', self.mar, mar_tools_url+'mar'])
         subprocess.call(['wget', '-O', self.mbsdiff, mar_tools_url+'mbsdiff'])
 
