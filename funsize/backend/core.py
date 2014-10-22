@@ -104,7 +104,6 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
     my_env['MOZ_CHANNEL_ID'] = channel_id
     my_env['MOZ_PRODUCT_VERSION'] = product_version
     my_env['LC_ALL'] = 'C'
-    my_env['MBSDIFF_HOOK'] = '/vagrant/src/client/update-packaging/funsize_common.sh -A http://127.0.0.1:5000/cache'
 
     try:
         os.mkdir(working_dir)

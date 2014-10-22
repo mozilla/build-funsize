@@ -12,7 +12,7 @@ from celery.utils.log import get_task_logger
 import funsize.backend.core as core
 import funsize.utils.oddity as oddity
 
-app = Celery('tasks', broker='amqp://guest@localhost//')
+app = Celery('tasks', broker='sqs://')
 celery_config = {
     'CELERY_ACKS_LATE': True,
 }
