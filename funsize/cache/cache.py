@@ -57,7 +57,6 @@ class Cache(object):
             key.set_contents_from_filename(string)
         else:
             key.set_contents_from_string(string)
-        key.set_acl('public-read')
 
     def save_blank_file(self, identifier, category):
         """ Method to save a blank file to show a partial has been triggered and
@@ -65,7 +64,6 @@ class Cache(object):
         """
         key = self._create_new_bucket_key(identifier, category)
         key.set_contents_from_string('')
-        key.set_acl('public-read')
 
     def is_blank_file(self, identifier, category):
         """ Function to check if the file is empty or not. To be used to ensure
