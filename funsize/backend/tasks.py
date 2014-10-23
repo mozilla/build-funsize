@@ -6,13 +6,14 @@ This module contains a wrapper for the celery tasks that are to be run
 
 """
 
+import os
 import time
 from celery import Celery
 from celery.utils.log import get_task_logger
 import funsize.backend.core as core
 import funsize.utils.oddity as oddity
 
-app = Celery('tasks', broker='sqs://')
+app = Celery('tasks', broker=os.environ['CELERY_BROKER'])
 celery_config = {
     'CELERY_ACKS_LATE': True,
 }
