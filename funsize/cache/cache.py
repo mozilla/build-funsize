@@ -54,9 +54,9 @@ class Cache(object):
         # pre-existing key?
         key = self._create_new_bucket_key(identifier, category)
         if isfile:
-            key.set_contents_from_filename(string)
+            key.set_contents_from_filename(string, policy='public-read')
         else:
-            key.set_contents_from_string(string)
+            key.set_contents_from_string(string, policy='public-read')
         key.set_acl('public-read')
 
     def save_blank_file(self, identifier, category):
@@ -64,7 +64,7 @@ class Cache(object):
             it is being in progress
         """
         key = self._create_new_bucket_key(identifier, category)
-        key.set_contents_from_string('')
+        key.set_contents_from_string('', policy='public-read')
         key.set_acl('public-read')
 
     def is_blank_file(self, identifier, category):
