@@ -54,18 +54,16 @@ class Cache(object):
         # pre-existing key?
         key = self._create_new_bucket_key(identifier, category)
         if isfile:
-            key.set_contents_from_filename(string, policy='public-read')
+            key.set_contents_from_filename(string)
         else:
-            key.set_contents_from_string(string, policy='public-read')
-        key.set_acl('public-read')
+            key.set_contents_from_string(string)
 
     def save_blank_file(self, identifier, category):
         """ Method to save a blank file to show a partial has been triggered and
             it is being in progress
         """
         key = self._create_new_bucket_key(identifier, category)
-        key.set_contents_from_string('', policy='public-read')
-        key.set_acl('public-read')
+        key.set_contents_from_string('')
 
     def is_blank_file(self, identifier, category):
         """ Function to check if the file is empty or not. To be used to ensure
