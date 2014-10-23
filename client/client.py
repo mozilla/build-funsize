@@ -19,8 +19,7 @@ FUNSIZE_SERVER_SIDE = 'http://127.0.0.1:5000'
 
 
 class FunsizeClient(object):
-    """ Class to hold funsize client methods
-    """
+    """ Class to hold funsize client methods """
 
     lifecycles = 20 # number of lifecycles to keep polling for results
     cycle_sleep = 30 # number of seconds to sleep in a cycle
@@ -29,14 +28,12 @@ class FunsizeClient(object):
         pass
 
     def _write_to_file(self, ret, output_file):
-        """ Private method used to write content from response to file
-        """
+        """ Private method used to write content from response to file """
         with open(output_file, 'a') as fobj:
             fobj.write(ret.content)
 
     def demand_partial(self, args):
-        """ Method to contain th general logic of the module
-        """
+        """ Method to contain th general logic of the module """
 
         trigger_resource_uri = FUNSIZE_SERVER_SIDE + '/partial'
         ret = self.trigger_partial_request(trigger_resource_uri, args)
@@ -49,8 +46,7 @@ class FunsizeClient(object):
         self.poll_for_partial(getter_resource_uri, args.output)
 
     def trigger_partial_request(self, resource_uri, iargs):
-        """ Method used to request partial from funsize server side
-        """
+        """ Method used to request partial from funsize server side """
 
         payload = {
             'mar_from': iargs.from_url,
@@ -64,8 +60,7 @@ class FunsizeClient(object):
         return requests.post(resource_uri, data=payload)
 
     def poll_for_partial(self, resource_uri, output_file):
-        """ Method to retrieve the partial in max  lifecycles * cycle_sleep time
-        """
+        """ Method to retrieve partial in max  lifecycles * cycle_sleep time """
 
         ret = requests.get(resource_uri)
         if ret.status_code == 400:
@@ -85,9 +80,7 @@ class FunsizeClient(object):
 
 
 def main():
-    """ Main method to call for command line arguments
-    """
-
+    """ Main method to call for command line arguments """
     client = FunsizeClient()
     parser = argparse.ArgumentParser(description='Generate funsize partials!')
 
