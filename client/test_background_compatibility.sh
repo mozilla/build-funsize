@@ -4,7 +4,7 @@
 # tabara.mihai@gmail.com
 
 self=$(basename $0)
-CLIENT_RUNNER="client.py"
+CLIENT_RUNNER="funsize_client.py"
 HASH_RUNNER="mar.py"
 INPUT="$1"
 
