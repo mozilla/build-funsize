@@ -1,6 +1,6 @@
 - [x] Clean-Up
-- [ ] Retry Code
-- [ ] Logging
+- [x] Retry Code
+- [x] Logging
 - [ ] Tests
   - [ ] api.py tests
   - [ ] core.py tests
@@ -9,12 +9,19 @@
   - [x] Cache Tests
   - [x] DB Tests
   - [ ]
-- [ ] Diff Level Caching
-- [ ] Proper queue based download manager
-- [ ] Use S3 as cache
-- [ ] Use SQS as queue
+- [x] Diff Level Caching
+- [x] Proper queue based download manager
+- [x] Use S3 as cache
+- [x] Use SQS as queue
 - [ ] Use docker + vagrant for multiple containers (1. Frontend, 2. Workers, 3. DB + Cache 4. Queue/RabbitMQ)
 - [ ] Use Sphinx for API level documentation
 - [x] Restructure Dirs; Separate tests, celery, flask.
 - [x] Get Travis Working
 - [x] Reorganize DB Schema
+- [ ] Unit testing
+  - [ ] Fix unit testing
+  - [ ] Mock S3 calls
+- [ ] Restructure project directory
+- [ ] Implement integration testing in a uniform way - either using client/mar.py or latest mbsdiff/mar tools
+- [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
+
