@@ -8,7 +8,6 @@
   - [ ] End-to-end integration test (Application of partials)
   - [x] Cache Tests
   - [x] DB Tests
-  - [ ]
 - [x] Diff Level Caching
 - [x] Proper queue based download manager
 - [x] Use S3 as cache
