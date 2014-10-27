@@ -49,7 +49,7 @@ class FunsizeClient(object):
         logger.info("Server returned. Investigating response ...")
         _uri = json.loads(ret.content).get('result', None)
         getter_resource_uri = server_url + _uri
-        self.poll_for_partial(getter_resource_uri, args.output)
+        self.poll_for_partial(getter_resource_uri, args)
 
     def trigger_partial_request(self, server_url, iargs):
         """ Method used to request partial from funsize server side """
@@ -67,7 +67,7 @@ class FunsizeClient(object):
         logger.info("Triggering job at %s", trigger_resource_uri)
         return requests.post(trigger_resource_uri, data=payload)
 
-    def poll_for_partial(self, resource_uri, output_file):
+    def poll_for_partial(self, resource_uri, args):
         """ Method to retrieve partial in max  lifecycles * cycle_sleep time """
         logger.info("Polling for the partial at %s", resource_uri)
         ret = requests.get(resource_uri)
@@ -75,15 +75,17 @@ class FunsizeClient(object):
             raise ValueError("Bad identifier request!")
 
         logger.info("Start querying for the partial resource ...")
-        counter = self.lifecycles
+        output_file = args.output
+        counter = args.timeout
+        step = args.window_timeout
         while counter:
             ret = requests.get(resource_uri)
             if ret.status_code == 200:
                 logger.info("Partial resource retrieved, writing to file ...")
                 self._write_to_file(ret, output_file)
                 break
-            counter -= 1
-            time.sleep(self.cycle_sleep)
+            time.sleep(step)
+            counter -= step
 
         if not counter:
             raise OSError.TimeoutError("Timeout, could not retrieve file.")
@@ -94,7 +96,13 @@ def main():
     client = FunsizeClient()
     parser = argparse.ArgumentParser(description='Generate funsize partials!')
 
-    parser.add_argument('--server-url',
+    parser.add_argument('--timeout', default=600,
+                        help='timeout (in seconds) to wait for results',
+                        metavar='timeout')
+    parser.add_argument('--window-timeout', default=5,
+                        help='windows timeout sleep between calls',
+                        metavar='window_timeout')
+    parser.add_argument('--server-url', default='http://127.0.0.1:5000',
                         help='host where to send the files ',
                         metavar='server_url')
     parser.add_argument('--from-url',
@@ -125,11 +133,7 @@ def main():
                         required=True,
                         help='the file where to write the resulted partial mar',
                         metavar='output')
-
     args = parser.parse_args()
-    # default to localhost if server-url is None - fallback
-    if not args.server_url:
-        args.server_url = 'http://127.0.0.1:5000'
     client.demand_partial(args)
 
 
