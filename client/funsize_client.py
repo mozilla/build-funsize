@@ -24,8 +24,6 @@ handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
-FUNSIZE_SERVER_SIDE = 'http://funsize-env.elasticbeanstalk.com'
-
 
 class FunsizeClient(object):
     """ Class to hold funsize client methods """
@@ -34,7 +32,6 @@ class FunsizeClient(object):
 
     def __init__(self):
         logger.info("Funsize client successfully initiated.")
-        pass
 
     def _write_to_file(self, ret, output_file):
         """ Private method used to write content from response to file """
@@ -43,20 +40,21 @@ class FunsizeClient(object):
 
     def demand_partial(self, args):
         """ Method to contain th general logic of the module """
-        trigger_resource_uri = FUNSIZE_SERVER_SIDE + '/partial'
-        logger.info("Triggering job at %s", trigger_resource_uri)
-        ret = self.trigger_partial_request(trigger_resource_uri, args)
+        server_url = args.server_url
+        ret = self.trigger_partial_request(server_url, args)
 
         if ret.status_code == 500:
             raise SystemError('Encoutered error on funsize server side - 500')
 
         logger.info("Server returned. Investigating response ...")
         _uri = json.loads(ret.content).get('result', None)
-        getter_resource_uri = FUNSIZE_SERVER_SIDE + _uri
+        getter_resource_uri = server_url + _uri
         self.poll_for_partial(getter_resource_uri, args.output)
 
-    def trigger_partial_request(self, resource_uri, iargs):
+    def trigger_partial_request(self, server_url, iargs):
         """ Method used to request partial from funsize server side """
+        trigger_resource_uri = server_url + '/partial'
+
         payload = {
             'mar_from': iargs.from_url,
             'mar_to': iargs.to_url,
@@ -66,7 +64,8 @@ class FunsizeClient(object):
             'product_version': iargs.version,
         }
 
-        return requests.post(resource_uri, data=payload)
+        logger.info("Triggering job at %s", trigger_resource_uri)
+        return requests.post(trigger_resource_uri, data=payload)
 
     def poll_for_partial(self, resource_uri, output_file):
         """ Method to retrieve partial in max  lifecycles * cycle_sleep time """
@@ -95,6 +94,9 @@ def main():
     client = FunsizeClient()
     parser = argparse.ArgumentParser(description='Generate funsize partials!')
 
+    parser.add_argument('--server-url',
+                        help='host where to send the files ',
+                        metavar='server_url')
     parser.add_argument('--from-url',
                         required=True,
                         help='the complete mar url for `from` version',
@@ -125,6 +127,9 @@ def main():
                         metavar='output')
 
     args = parser.parse_args()
+    # default to localhost if server-url is None - fallback
+    if not args.server_url:
+        args.server_url = 'http://127.0.0.1:5000'
     client.demand_partial(args)
 
 

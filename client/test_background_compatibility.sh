@@ -7,6 +7,7 @@ self=$(basename $0)
 CLIENT_RUNNER="funsize_client.py"
 HASH_RUNNER="mar.py"
 INPUT="$1"
+SERVER_URL="http://funsize-env.elasticbeanstalk.com"
 
 usage(){
     echo "$self partials_info_file"
@@ -66,7 +67,7 @@ process(){
   do
     clobber $partial_path;
     echo -e "Requesting from funsize the partial between \n=> $from_url\n=> $to_url"
-    cmd="python $CLIENT_RUNNER --from-url $from_url --to-url $to_url --from-hash $from_hash --to-hash $to_hash --channel $channel --version $version --output $partial_path"
+    cmd="python $CLIENT_RUNNER --server-url $SERVER_URL --from-url $from_url --to-url $to_url --from-hash $from_hash --to-hash $to_hash --channel $channel --version $version --output $partial_path"
 
     $cmd
 
