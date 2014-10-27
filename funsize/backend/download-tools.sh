@@ -36,12 +36,11 @@ do
     esac
 done
 
-
-file_list=$(curl "http://hg.mozilla.org/integration/mozilla-inbound/file/$CHANGESET/tools/update-packaging?style=raw" | awk '{print $3}')
+file_list=$(curl "http://hg.mozilla.org/mozilla-central/file/$CHANGESET/tools/update-packaging?style=raw" | awk '{print $3}')
 echo $file_list
 
 for FILENAME in $file_list
 do
-    URL="http://hg.mozilla.org/integration/mozilla-inbound/raw-file/$CHANGESET/tools/update-packaging/$FILENAME"
+    URL="http://hg.mozilla.org/mozilla-central/raw-file/$CHANGESET/tools/update-packaging/$FILENAME"
     curl -s -o $OUTPUT_DIR/$FILENAME $URL
 done
