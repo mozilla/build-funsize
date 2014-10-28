@@ -59,7 +59,7 @@ def save_patch():
     if 'patch_file' not in files.keys():
         logging.info('Parameters passed could not be found on disk')
         flask.abort(400)
-    storage = flask.request.files.get('patch_file')
+    storage = files.get('patch_file')
 
     form = flask.request.form
     sha_from, sha_to = form['sha_from'], form['sha_to']
@@ -89,7 +89,7 @@ def get_patch():
         flask.abort(400)
 
     identifier = _get_identifier(flask.request.args['sha_from'],
-                                       flask.request.args['sha_to'])
+                                 flask.request.args['sha_to'])
 
     logging.debug('Looking up record with identifier %s', identifier)
     cacheo = cache.Cache()
@@ -114,7 +114,6 @@ def trigger_partial(version='latest'):
     Function to trigger a  partial generation
     Needs params: mar_from, mar_to, mar_from_hash, mar_to_hash
     """
-
     api_result = {
         'result': 'Version %s of API ' % version
     }
@@ -125,30 +124,22 @@ def trigger_partial(version='latest'):
         api_result['result'] += ' does not exist'
         return flask.Response(str(api_result), status=400)
 
-    cacheo = cache.Cache()
-
     logging.debug('Parameters passed in : %s', flask.request.form)
-
     required_params = ('mar_from', 'mar_to', 'mar_from_hash',
                        'mar_to_hash', 'channel_id', 'product_version')
-    if not all(param in flask.request.form.keys() for param in required_params):
+    form = flask.request.form
+    if not all(param in form.keys() for param in required_params):
         logging.info('Parameters could not be validated')
         flask.abort(400)
 
-    # TODO: Validate params and values through a form - saniteze needed?
-
-    mar_from = flask.request.form['mar_from']
-    mar_to = flask.request.form['mar_to']
-    mar_from_hash = flask.request.form['mar_from_hash']
-    mar_to_hash = flask.request.form['mar_to_hash']
-    channel_id = flask.request.form['channel_id']
-    product_version = flask.request.form['product_version']
-
-    # TODO: Verify hashes and URLs are valid ?
+    mar_from, mar_to = form['mar_from'], form['mar_to']
+    mar_from_hash, mar_to_hash = form['mar_from_hash'], form['mar_to_hash']
+    channel_id, product_version = form['channel_id'], form['product_version']
 
     identifier = _get_identifier(mar_from_hash, mar_to_hash)
     url = flask.url_for('get_partial', identifier=identifier)
 
+    cacheo = cache.Cache()
     if cacheo.find(identifier, 'partial'):
         logging.info('Partial has already been triggered')
         resp = flask.Response(json.dumps({
@@ -187,18 +178,12 @@ def trigger_partial(version='latest'):
         status=202,
         mimetype='application/json'
     )
-
-    # TODO: Hook responses up with relengapi ?
-    # https://api.pub.build.mozilla.org/docs/development/api_methods/
     return resp
 
 
 @app.route('/partial/<identifier>', methods=['GET'])
 def get_partial(identifier, version='latest'):
     """ Function to return a generated partial """
-    logging.debug('Request received with headers : %s', flask.request.headers)
-    logging.debug('Got request with version %s', version)
-
     api_result = {
         'result': 'Version %s of API ' % version
     }
@@ -209,9 +194,10 @@ def get_partial(identifier, version='latest'):
         api_result['result'] += ' does not exist'
         return flask.Response(str(api_result), status=400)
 
-    cacheo = cache.Cache()
-
+    logging.debug('Request received with headers : %s', flask.request.headers)
     logging.debug('looking up record with identifier %s', identifier)
+
+    cacheo = cache.Cache()
     if not cacheo.find(identifier, 'partial'):
         logging.info('Invalid partial request')
         resp = flask.Response(json.dumps({
@@ -220,8 +206,6 @@ def get_partial(identifier, version='latest'):
             status=400,
         )
         return resp
-
-    logging.debug('Record ID: %s', identifier)
 
     if cacheo.is_blank_file(identifier, 'partial'):
         logging.info('Record found, status: IN PROGRESS')
@@ -232,11 +216,9 @@ def get_partial(identifier, version='latest'):
         )
     else:
         logging.info('Record found, status: COMPLETED')
-        # TODO ROUGHEDGE stream data to client differently
         resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
                               status=200,
                               mimetype='application/octet-stream')
-
     return resp
 
 
