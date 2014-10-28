@@ -1,6 +1,7 @@
 import unittest
 
-import senbonzakura.utils.csum as csum
+import funsize.utils.csum as csum
+
 
 class TestCsum(unittest.TestCase):
     """ Tests for csum.py
@@ -19,9 +20,10 @@ class TestCsum(unittest.TestCase):
 
     def test_verify(self):
         self.assertTrue(csum.verify(self.test_string, self.correct_md5,
-            cipher='md5'))
+                                    cipher='md5'))
         self.assertTrue(csum.verify(self.test_string, self.correct_sha512,
-            cipher='sha512'))
+                                    cipher='sha512'))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=3)

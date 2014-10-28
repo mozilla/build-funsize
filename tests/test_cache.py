@@ -4,8 +4,9 @@ import shutil
 import tempfile
 import unittest
 
-import senbonzakura.cache.cache as cache
-import senbonzakura.utils.oddity as oddity
+import funsize.cache.cache as cache
+import funsize.utils.oddity as oddity
+
 
 class TestCache(unittest.TestCase):
     """ Tests for the Cache """

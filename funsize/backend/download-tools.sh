@@ -36,7 +36,6 @@ do
     esac
 done
 
-
 file_list=$(curl "http://hg.mozilla.org/mozilla-central/file/$CHANGESET/tools/update-packaging?style=raw" | awk '{print $3}')
 echo $file_list
 
