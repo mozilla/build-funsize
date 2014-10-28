@@ -109,7 +109,7 @@ def get_patch():
 
 
 @app.route('/partial', methods=['POST'])
-def trigger_partial(version='latest'):
+def trigger_partial():
     """
     Function to trigger a  partial generation
     Needs params: mar_from, mar_to, mar_from_hash, mar_to_hash
@@ -172,7 +172,7 @@ def trigger_partial(version='latest'):
 
 
 @app.route('/partial/<identifier>', methods=['GET'])
-def get_partial(identifier, version='latest'):
+def get_partial(identifier):
     """ Function to return a generated partial """
     logging.debug('Request received with headers : %s', flask.request.headers)
     logging.debug('looking up record with identifier %s', identifier)
