@@ -114,16 +114,6 @@ def trigger_partial(version='latest'):
     Function to trigger a  partial generation
     Needs params: mar_from, mar_to, mar_from_hash, mar_to_hash
     """
-    api_result = {
-        'result': 'Version %s of API ' % version
-    }
-    if version in app.config['unsupported_versions']:
-        api_result['result'] += ' no longer supported'
-        return flask.Response(str(api_result), status=410)
-    if version not in app.config['supported_versions']:
-        api_result['result'] += ' does not exist'
-        return flask.Response(str(api_result), status=400)
-
     logging.debug('Parameters passed in : %s', flask.request.form)
     required_params = ('mar_from', 'mar_to', 'mar_from_hash',
                        'mar_to_hash', 'channel_id', 'product_version')
@@ -184,16 +174,6 @@ def trigger_partial(version='latest'):
 @app.route('/partial/<identifier>', methods=['GET'])
 def get_partial(identifier, version='latest'):
     """ Function to return a generated partial """
-    api_result = {
-        'result': 'Version %s of API ' % version
-    }
-    if version in app.config['unsupported_versions']:
-        api_result['result'] += ' no longer supported'
-        return flask.Response(str(api_result), status=410)
-    if version not in app.config['supported_versions']:
-        api_result['result'] += ' does not exist'
-        return flask.Response(str(api_result), status=400)
-
     logging.debug('Request received with headers : %s', flask.request.headers)
     logging.debug('looking up record with identifier %s', identifier)
 
@@ -224,7 +204,7 @@ def get_partial(identifier, version='latest'):
 
 def main(argv):
     """ Parse args, config files and perform configuration """
-    parser = argparse.ArgumentParser(description='Some description')
+    parser = argparse.ArgumentParser(description='Funsize frontend api')
     parser.add_argument('-c', '--config-file', type=str,
                         default='../configs/default.ini',
                         required=False, dest='config_file',
@@ -235,34 +215,11 @@ def main(argv):
     config = ConfigParser.ConfigParser()
     config.read(config_file)
     app.config['LOG_FILE'] = config.get('log', 'file_path')
-    app.config['supported_versions'] = [
-        x.strip() for x in config.get('version', 'supported_versions').split(',')
-    ]
-    app.config['unsupported_versions'] = [
-        x.strip() for x in config.get('version', 'unsupported_versions').split(',')
-    ]
     logging.info('Flask config at startup: %s' % app.config)
 
 
 if __name__ == '__main__':
 
     main(sys.argv[1:])
-
-    for version in app.config['unsupported_versions'] + app.config['supported_versions']:
-        app.add_url_rule('/%s/partial' % version,
-                         'trigger_partial',
-                         trigger_partial,
-                         methods=['POST'],
-                         defaults={
-                             'version': version
-                         })
-        app.add_url_rule('/%s/partial/<identifier>' % version,
-                         'get_partial',
-                         view_func=get_partial,
-                         methods=['GET'],
-                         defaults={
-                             'version': version
-                         })
-
     logging.basicConfig(filename=app.config['LOG_FILE'], level=logging.INFO)
     app.run(debug=False, host='0.0.0.0', processes=6)
