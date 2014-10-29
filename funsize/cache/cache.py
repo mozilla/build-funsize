@@ -46,17 +46,16 @@ class Cache(object):
         _key = self._get_cache_internals(identifier, category)
         return self.bucket.get_key(_key)
 
-    def save(self, string, identifier, category, isfile=False):
-        """ Saves given file to cache, treats string as a local filepath if
-            isfile is true. returns hash of file.
+    def save(self, resource, identifier, category, isfilename=False):
+        """ Saves given file to cache.
+            resource can be either a local filepath or a file pointer (stream)
+            Returns url of the S3 uploaded resource.
         """
-        # FIXME: What should the behaviour be when we try to save to a
-        # pre-existing key?
         key = self._create_new_bucket_key(identifier, category)
-        if isfile:
-            key.set_contents_from_filename(string)
+        if isfilename:
+            key.set_contents_from_filename(resource)
         else:
-            key.set_contents_from_string(string)
+            key.set_contents_from_file(resource)
 
         # TODO fix this hardcoding nicely
         return self.url + self._get_cache_internals(identifier, category)

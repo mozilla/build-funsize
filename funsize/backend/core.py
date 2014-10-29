@@ -82,7 +82,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
     logging.info('Saving PMAR %s to cache with key %s',
                  local_pmar_location, identifier)
-    cacheo.save(local_pmar_location, identifier, 'partial', isfile=True)
+    cacheo.save(local_pmar_location, identifier, 'partial', isfilename=True)
 
 
 def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,

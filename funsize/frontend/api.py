@@ -39,8 +39,7 @@ def _get_identifier(id_sha1, id_sha2):
 
 def _dispatch_mar(mar_file_storage, sha_mar):
     cacheo = cache.Cache()
-    # TODO change .read() here
-    resource_url = cacheo.save(mar_file_storage.read(), sha_mar, 'complete')
+    resource_url = cacheo.save(mar_file_storage.stream, sha_mar, 'complete')
     return resource_url
 
 
@@ -88,7 +87,7 @@ def save_patch():
 
     logging.info('Saving patch file to cache with key %s', identifier)
     cacheo = cache.Cache()
-    cacheo.save(storage.read(), identifier, 'patch')
+    cacheo.save(storage.stream, identifier, 'patch')
 
     url = flask.url_for('get_patch', sha_from=sha_from, sha_to=sha_to)
     return flask.Response(json.dumps({
@@ -131,9 +130,7 @@ def get_patch():
 
 @app.route('/partial', methods=['POST'])
 def trigger_partial():
-    """
-    Function to trigger a  partial generation
-    """
+    """ Function to trigger a  partial generation """
     logging.debug('Parameters passed in : %s', flask.request.form)
     required_params = ('sha_from', 'sha_to', 'channel_id', 'product_version')
     form = flask.request.form
@@ -151,7 +148,7 @@ def trigger_partial():
 
     cacheo = cache.Cache()
     if cacheo.find(identifier, 'partial'):
-        logging.info('Partial has already been triggered')
+        logging.info('Partial has already been triggered/generated')
         resp = flask.Response(json.dumps({
             "result": url
             }),
