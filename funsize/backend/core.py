@@ -34,7 +34,12 @@ def get_complete_mar(url, mar_hash, output_file=None):
     """ Return binary string if no output_file specified """
     logging.info('Downloading complete MAR %s with mar_hash %s', url, mar_hash)
 
-    mar = fetch.downloadmar(url, mar_hash, output_file=output_file)
+    if url.ststartswith('http://ftp.mozilla.org/'):
+        mar = fetch.downloadmar(url, mar_hash, output_file=output_file)
+    else:
+        cacheo = cache.Cache()
+        mar = cacheo.retrieve(mar_hash, 'complete', output_file=output_file)
+
     logging.info('Satisfied request for complete MAR %s with mar_hash %s',
                  url, mar_hash)
     return mar
@@ -45,9 +50,6 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     """ Function that returns the partial MAR file to transition from the mar
         given by old_cmar_url to new_cmar_url
     """
-    logging.info('Creating cache connections')
-    cacheo = cache.Cache()
-
     logging.info('Creating temporary working directories')
     TMP_MAR_STORAGE = tempfile.mkdtemp(prefix='cmar_storage_')
     logging.debug('MAR storage: %s', TMP_MAR_STORAGE)
@@ -65,6 +67,8 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     TMP_TOOL_STORAGE = tmo.get_path()
     logging.info('Tool storage: %s', TMP_TOOL_STORAGE)
 
+    logging.info('Creating cache connections')
+    cacheo = cache.Cache()
     try:
         local_pmar_location = generate_partial_mar(new_cmar_path, old_cmar_path,
                                                    TMP_TOOL_STORAGE,
@@ -79,8 +83,6 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     logging.info('Saving PMAR %s to cache with key %s',
                  local_pmar_location, identifier)
     cacheo.save(local_pmar_location, identifier, 'partial', isfile=True)
-
-    #FIXME Cleanup temp directories here ?
 
 
 def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
