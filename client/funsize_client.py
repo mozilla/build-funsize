@@ -58,8 +58,8 @@ class FunsizeClient(object):
         payload = {
             'mar_from': iargs.from_url,
             'mar_to': iargs.to_url,
-            'mar_from_hash': iargs.from_hash,
-            'mar_to_hash': iargs.to_hash,
+            'sha_from': iargs.from_hash,
+            'sha_to': iargs.to_hash,
             'channel_id': iargs.channel,
             'product_version': iargs.version,
         }

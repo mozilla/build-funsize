@@ -135,20 +135,19 @@ def trigger_partial():
     Function to trigger a  partial generation
     """
     logging.debug('Parameters passed in : %s', flask.request.form)
-
     required_params = ('sha_from', 'sha_to', 'channel_id', 'product_version')
     form = flask.request.form
     if not all(param in form.keys() for param in required_params):
         logging.info('Missing parameters from POST form call')
         flask.abort(400)
 
-    sha_from, sha_to = form['mar_from_hash'], form['mar_to_hash']
+    sha_from, sha_to = form['sha_from'], form['sha_to']
     channel_id, product_version = form['channel_id'], form['product_version']
     mar_from = _pull_mar('mar_from', sha_from)
     mar_to = _pull_mar('mar_to', sha_to)
 
     identifier = _get_identifier(sha_from, sha_to)
-    url = flask.url_for('get_partial', identifier)
+    url = flask.url_for('get_partial', identifier=identifier)
 
     cacheo = cache.Cache()
     if cacheo.find(identifier, 'partial'):
