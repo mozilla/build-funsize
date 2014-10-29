@@ -18,7 +18,6 @@ class Cache(object):
         Assumes all keys are hex-encoded SHA512s
         Internally converts  hex to base64 encoding
     """
-
     def __init__(self, _bucket=os.environ.get('FUNSIZE_S3_UPLOAD_BUCKET')):
         """ _bucket : bucket name to use for S3 resources """
         if not _bucket:
@@ -26,12 +25,13 @@ class Cache(object):
         # open a connection and get the bucket
         self.conn = S3Connection()
         self.bucket = self.conn.get_bucket(_bucket)
+        self.url ="http://%s.s3.amazonaws.com/" % _bucket
 
     def _get_cache_internals(self, identifier, category):
         """ Method to return cache bucket key based on identifier """
         if not identifier:
             raise oddity.CacheError('Save object failed without identifier')
-        if category not in ('diff', 'partial', 'patch'):
+        if category not in ('partial', 'patch', 'complete'):
             raise oddity.CacheError("Category failed for S3 uploading")
         bucket_key = "files/%s/%s" % (category, identifier)
         return bucket_key
@@ -57,6 +57,9 @@ class Cache(object):
             key.set_contents_from_filename(string)
         else:
             key.set_contents_from_string(string)
+
+        # TODO fix this hardcoding nicely
+        return self.url + self._get_cache_internals(identifier, category)
 
     def save_blank_file(self, identifier, category):
         """ Method to save a blank file to show a partial has been triggered and
