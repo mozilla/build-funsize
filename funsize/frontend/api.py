@@ -37,6 +37,27 @@ def _get_identifier(id_sha1, id_sha2):
     return '-'.join([id_sha1, id_sha2])
 
 
+def _dispatch_mar(mar_file_storage, sha_mar):
+    cacheo = cache.Cache()
+    # TODO change .read() here
+    resource_url = cacheo.save(mar_file_storage.read(), sha_mar, 'complete')
+    return resource_url
+
+
+def _pull_mar(mar_field, sha_mar):
+    # attempt to retrieve mar url directly from form
+    mar_url = flask.request.form.get(mar_field)
+    if not mar_url:
+        # if not found in form, search in files
+        if mar_field not in flask.request.files.keys():
+            raise ValueError("Form field not found in the form at all.")
+        mar_file = flask.request.files.get(mar_field)
+        # upload the mar to S3 and return the url
+        mar_url = _dispatch_mar(mar_file, sha_mar)
+
+    return mar_url
+
+
 @app.route('/')
 def index():
     """ Mockup message to fill in the index page """
@@ -112,22 +133,22 @@ def get_patch():
 def trigger_partial():
     """
     Function to trigger a  partial generation
-    Needs params: mar_from, mar_to, mar_from_hash, mar_to_hash
     """
     logging.debug('Parameters passed in : %s', flask.request.form)
-    required_params = ('mar_from', 'mar_to', 'mar_from_hash',
-                       'mar_to_hash', 'channel_id', 'product_version')
+
+    required_params = ('sha_from', 'sha_to', 'channel_id', 'product_version')
     form = flask.request.form
     if not all(param in form.keys() for param in required_params):
-        logging.info('Parameters could not be validated')
+        logging.info('Missing parameters from POST form call')
         flask.abort(400)
 
-    mar_from, mar_to = form['mar_from'], form['mar_to']
-    mar_from_hash, mar_to_hash = form['mar_from_hash'], form['mar_to_hash']
+    sha_from, sha_to = form['mar_from_hash'], form['mar_to_hash']
     channel_id, product_version = form['channel_id'], form['product_version']
+    mar_from = _pull_mar('mar_from', sha_from)
+    mar_to = _pull_mar('mar_to', sha_to)
 
-    identifier = _get_identifier(mar_from_hash, mar_to_hash)
-    url = flask.url_for('get_partial', identifier=identifier)
+    identifier = _get_identifier(sha_from, sha_to)
+    url = flask.url_for('get_partial', identifier)
 
     cacheo = cache.Cache()
     if cacheo.find(identifier, 'partial'):
@@ -143,8 +164,7 @@ def trigger_partial():
     try:
         cacheo.save_blank_file(identifier, 'partial')
     except oddity.CacheError:
-        logging.error('Error while processing trigger request for URL: %s\n',
-                      url)
+        logging.error('Error processing trigger request for URL: %s\n', url)
         resp = flask.Response(json.dumps({
             "result": "Error while processing request %s" % url,
             }),
@@ -155,11 +175,8 @@ def trigger_partial():
 
     logging.info('Calling generation functions')
 
-    # TODO - here we should get try-except thing to retry + ack late
-    # catch LCA exception
-    tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from,
-                                  mar_from_hash, identifier,
-                                  channel_id, product_version)
+    tasks.build_partial_mar.delay(mar_to, sha_to, mar_from, sha_from,
+                                  identifier, channel_id, product_version)
 
     logging.critical('Called build and moved on')
     resp = flask.Response(json.dumps({
