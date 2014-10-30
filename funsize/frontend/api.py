@@ -39,7 +39,10 @@ def _get_identifier(id_sha1, id_sha2):
 
 def _dispatch_mar(mar_file_storage, sha_mar):
     cacheo = cache.Cache()
-    resource_url = cacheo.save(mar_file_storage.stream, sha_mar, 'complete')
+    if not cacheo.find(sha_mar, 'complete'):
+        cacheo.save(mar_file_storage.stream, sha_mar, 'complete')
+    # if file is S3 related then its mar_url is the mar hash identifier
+    resource_url = sha_mar
     return resource_url
 
 
@@ -94,8 +97,7 @@ def save_patch():
         "result": url,
         }),
         status=200,
-        mimetype='application/json'
-    )
+        mimetype='application/json')
 
 
 @app.route('/cache', methods=['GET'])

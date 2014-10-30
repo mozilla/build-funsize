@@ -25,7 +25,6 @@ class Cache(object):
         # open a connection and get the bucket
         self.conn = S3Connection()
         self.bucket = self.conn.get_bucket(_bucket)
-        self.url ="http://%s.s3.amazonaws.com/" % _bucket
 
     def _get_cache_internals(self, identifier, category):
         """ Method to return cache bucket key based on identifier """
@@ -56,9 +55,6 @@ class Cache(object):
             key.set_contents_from_filename(resource)
         else:
             key.set_contents_from_file(resource)
-
-        # TODO fix this hardcoding nicely
-        return self.url + self._get_cache_internals(identifier, category)
 
     def save_blank_file(self, identifier, category):
         """ Method to save a blank file to show a partial has been triggered and
