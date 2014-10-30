@@ -34,7 +34,7 @@ def get_complete_mar(url, mar_hash, output_file=None):
     """ Return binary string if no output_file specified """
     logging.info('Downloading complete MAR %s with mar_hash %s', url, mar_hash)
 
-    if url.ststartswith('http://ftp.mozilla.org/'):
+    if url.ststartswith('http://') or url.ststartswith('https://'):
         mar = fetch.downloadmar(url, mar_hash, output_file=output_file)
     else:
         cacheo = cache.Cache()
