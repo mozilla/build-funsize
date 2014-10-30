@@ -27,9 +27,6 @@ logger.addHandler(handler)
 
 class FunsizeClient(object):
     """ Class to hold funsize client methods """
-    lifecycles = 20  # number of lifecycles to keep polling for results
-    cycle_sleep = 30  # number of seconds to sleep in a cycle
-
     def __init__(self):
         logger.info("Funsize client successfully initiated.")
 
