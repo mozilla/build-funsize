@@ -231,6 +231,7 @@ def main(argv):
     config = ConfigParser.ConfigParser()
     config.read(config_file)
     app.config['LOG_FILE'] = config.get('log', 'file_path')
+    app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
     logging.info('Flask config at startup: %s' % app.config)
 
 
