@@ -142,8 +142,6 @@ def trigger_partial():
 
     sha_from, sha_to = form['sha_from'], form['sha_to']
     channel_id, product_version = form['channel_id'], form['product_version']
-    mar_from = _pull_mar('mar_from', sha_from)
-    mar_to = _pull_mar('mar_to', sha_to)
 
     identifier = _get_identifier(sha_from, sha_to)
     url = flask.url_for('get_partial', identifier=identifier)
@@ -158,6 +156,9 @@ def trigger_partial():
             mimetype='application/json'
         )
         return resp
+
+    mar_from = _pull_mar('mar_from', sha_from)
+    mar_to = _pull_mar('mar_to', sha_to)
 
     try:
         cacheo.save_blank_file(identifier, 'partial')
