@@ -30,19 +30,19 @@ else:
     raise oddity.ConfigError('Configuration parameters missing')
 
 
-def get_complete_mar(url, mar_hash, output_file=None):
+def get_complete_mar(url, mar_hash, output_file):
     """ Return binary string if no output_file specified """
     logging.info('Downloading complete MAR %s with mar_hash %s', url, mar_hash)
 
+    cacheo = cache.Cache()
     if url.startswith('http://') or url.startswith('https://'):
-        mar = fetch.downloadmar(url, mar_hash, output_file=output_file)
+        fetch.downloadmar(url, mar_hash, output_file)
+        cacheo.save(output_file, mar_hash, 'complete', isfilename=True)
     else:
-        cacheo = cache.Cache()
-        mar = cacheo.retrieve(mar_hash, 'complete', output_file=output_file)
+        cacheo.retrieve(mar_hash, 'complete', output_file=output_file)
 
     logging.info('Satisfied request for complete MAR %s with mar_hash %s',
                  url, mar_hash)
-    return mar
 
 
 def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
@@ -60,8 +60,8 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     old_cmar_path = os.path.join(TMP_MAR_STORAGE, 'old.mar')
 
     logging.info('Looking up the complete MARs required')
-    get_complete_mar(new_cmar_url, new_cmar_hash, output_file=new_cmar_path)
-    get_complete_mar(old_cmar_url, old_cmar_hash, output_file=old_cmar_path)
+    get_complete_mar(new_cmar_url, new_cmar_hash, new_cmar_path)
+    get_complete_mar(old_cmar_url, old_cmar_hash, old_cmar_path)
 
     tmo = tools.ToolManager(TOOLS_DIR)
     TMP_TOOL_STORAGE = tmo.get_path()

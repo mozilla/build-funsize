@@ -17,6 +17,7 @@ try:
     import simplejson
 except ImportError:
     import json
+from werkzeug.datastructures import FileStorage
 
 import funsize.cache.cache as cache
 import funsize.backend.tasks as tasks
@@ -37,26 +38,29 @@ def _get_identifier(id_sha1, id_sha2):
     return '-'.join([id_sha1, id_sha2])
 
 
-def _dispatch_mar(mar_file_storage, sha_mar):
+def _dispatch_mar(mar_resource, sha_mar):
     cacheo = cache.Cache()
-    if not cacheo.find(sha_mar, 'complete'):
-        cacheo.save(mar_file_storage.stream, sha_mar, 'complete')
-    # if file is S3 related then its mar_url is the mar hash identifier
-    resource_url = sha_mar
-    return resource_url
+    # if file found on S3, retrieve it no matter what (FileStorage or FTP url)
+    if cacheo.find(sha_mar, 'complete'):
+        return sha_mar
+
+    # if FileStorage - cache it on S3 and return its key
+    if isinstance(mar_resource, FileStorage):
+        cacheo.save(mar_resource.stream, sha_mar, 'complete')
+        return sha_mar
+
+    # if FTP url, return it as it is
+    return mar_resource
 
 
 def _pull_mar(mar_field, sha_mar):
-    # attempt to retrieve mar url directly from form
-    mar_url = flask.request.form.get(mar_field)
-    if not mar_url:
-        # if not found in form, search in files
-        if mar_field not in flask.request.files.keys():
-            raise ValueError("Form field not found in the form at all.")
-        mar_file = flask.request.files.get(mar_field)
-        # upload the mar to S3 and return the url
-        mar_url = _dispatch_mar(mar_file, sha_mar)
+    request = flask.request
+    mar_resource = request.form.get(mar_field) or request.files.get(mar_field)
 
+    if not mar_resource:
+        raise ValueError("Field %s not found in the form at all" % mar_field)
+
+    mar_url = _dispatch_mar(mar_resource, sha_mar)
     return mar_url
 
 

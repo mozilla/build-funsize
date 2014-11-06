@@ -13,7 +13,7 @@ from .csum import verify
 from .oddity import DownloadError
 
 
-def downloadmar(url, checksum, cipher='sha512', output_file=None):
+def downloadmar(url, checksum, output_file, cipher='sha512'):
     """ Downloads the file specified by url, verifies the checksum.
         The file is written to the location specified by output file,
         if not specified, the downloaded file is returned.
@@ -36,16 +36,11 @@ def downloadmar(url, checksum, cipher='sha512', output_file=None):
     else:
         logging.info('Verified download of %s', url)
 
-    if output_file:
-        try:
-            logging.info('Writing download %s to file %s', url, output_file)
-            with open(output_file, 'wb') as fobj:
-                fobj.write(mar)
-        except:
-            logging.error('Error while downloading %s to file %s on disk',
-                          url, output_file)
-            raise DownloadError('Failed to write file to disk')
-        else:
-            return None
-    else:
-        return mar
+    try:
+        logging.info('Writing download %s to file %s', url, output_file)
+        with open(output_file, 'wb') as fobj:
+            fobj.write(mar)
+    except:
+        logging.error('Error while downloading %s to file %s on disk',
+                        url, output_file)
+        raise DownloadError('Failed to write file to disk')
