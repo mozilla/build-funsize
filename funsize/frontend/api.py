@@ -17,6 +17,7 @@ try:
     import simplejson
 except ImportError:
     import json
+from werkzeug.datastructures import FileStorage
 
 import funsize.cache.cache as cache
 import funsize.backend.tasks as tasks
@@ -35,6 +36,32 @@ def _get_identifier(id_sha1, id_sha2):
         the '-' to something more sophisticated.
     """
     return '-'.join([id_sha1, id_sha2])
+
+
+def _dispatch_mar(mar_resource, sha_mar):
+    cacheo = cache.Cache()
+    # if file found on S3, retrieve it no matter what (FileStorage or FTP url)
+    if cacheo.find(sha_mar, 'complete'):
+        return sha_mar
+
+    # if FileStorage - cache it on S3 and return its key
+    if isinstance(mar_resource, FileStorage):
+        cacheo.save(mar_resource.stream, sha_mar, 'complete')
+        return sha_mar
+
+    # if FTP url, return it as it is
+    return mar_resource
+
+
+def _pull_mar(mar_field, sha_mar):
+    request = flask.request
+    mar_resource = request.form.get(mar_field) or request.files.get(mar_field)
+
+    if not mar_resource:
+        raise ValueError("Field %s not found in the form at all" % mar_field)
+
+    mar_url = _dispatch_mar(mar_resource, sha_mar)
+    return mar_url
 
 
 @app.route('/')
@@ -59,7 +86,7 @@ def save_patch():
     if 'patch_file' not in files.keys():
         logging.info('Parameters passed could not be found on disk')
         flask.abort(400)
-    storage = flask.request.files.get('patch_file')
+    storage = files.get('patch_file')
 
     form = flask.request.form
     sha_from, sha_to = form['sha_from'], form['sha_to']
@@ -67,15 +94,14 @@ def save_patch():
 
     logging.info('Saving patch file to cache with key %s', identifier)
     cacheo = cache.Cache()
-    cacheo.save(storage.read(), identifier, 'patch')
+    cacheo.save(storage.stream, identifier, 'patch')
 
     url = flask.url_for('get_patch', sha_from=sha_from, sha_to=sha_to)
     return flask.Response(json.dumps({
         "result": url,
         }),
         status=200,
-        mimetype='application/json'
-    )
+        mimetype='application/json')
 
 
 @app.route('/cache', methods=['GET'])
@@ -89,7 +115,7 @@ def get_patch():
         flask.abort(400)
 
     identifier = _get_identifier(flask.request.args['sha_from'],
-                                       flask.request.args['sha_to'])
+                                 flask.request.args['sha_to'])
 
     logging.debug('Looking up record with identifier %s', identifier)
     cacheo = cache.Cache()
@@ -109,48 +135,24 @@ def get_patch():
 
 
 @app.route('/partial', methods=['POST'])
-def trigger_partial(version='latest'):
-    """
-    Function to trigger a  partial generation
-    Needs params: mar_from, mar_to, mar_from_hash, mar_to_hash
-    """
-
-    api_result = {
-        'result': 'Version %s of API ' % version
-    }
-    if version in app.config['unsupported_versions']:
-        api_result['result'] += ' no longer supported'
-        return flask.Response(str(api_result), status=410)
-    if version not in app.config['supported_versions']:
-        api_result['result'] += ' does not exist'
-        return flask.Response(str(api_result), status=400)
-
-    cacheo = cache.Cache()
-
+def trigger_partial():
+    """ Function to trigger a  partial generation """
     logging.debug('Parameters passed in : %s', flask.request.form)
-
-    required_params = ('mar_from', 'mar_to', 'mar_from_hash',
-                       'mar_to_hash', 'channel_id', 'product_version')
-    if not all(param in flask.request.form.keys() for param in required_params):
-        logging.info('Parameters could not be validated')
+    required_params = ('sha_from', 'sha_to', 'channel_id', 'product_version')
+    form = flask.request.form
+    if not all(param in form.keys() for param in required_params):
+        logging.info('Missing parameters from POST form call')
         flask.abort(400)
 
-    # TODO: Validate params and values through a form - saniteze needed?
+    sha_from, sha_to = form['sha_from'], form['sha_to']
+    channel_id, product_version = form['channel_id'], form['product_version']
 
-    mar_from = flask.request.form['mar_from']
-    mar_to = flask.request.form['mar_to']
-    mar_from_hash = flask.request.form['mar_from_hash']
-    mar_to_hash = flask.request.form['mar_to_hash']
-    channel_id = flask.request.form['channel_id']
-    product_version = flask.request.form['product_version']
-
-    # TODO: Verify hashes and URLs are valid ?
-
-    identifier = _get_identifier(mar_from_hash, mar_to_hash)
+    identifier = _get_identifier(sha_from, sha_to)
     url = flask.url_for('get_partial', identifier=identifier)
 
+    cacheo = cache.Cache()
     if cacheo.find(identifier, 'partial'):
-        logging.info('Partial has already been triggered')
+        logging.info('Partial has already been triggered/generated')
         resp = flask.Response(json.dumps({
             "result": url
             }),
@@ -159,11 +161,13 @@ def trigger_partial(version='latest'):
         )
         return resp
 
+    mar_from = _pull_mar('mar_from', sha_from)
+    mar_to = _pull_mar('mar_to', sha_to)
+
     try:
         cacheo.save_blank_file(identifier, 'partial')
     except oddity.CacheError:
-        logging.error('Error while processing trigger request for URL: %s\n',
-                      url)
+        logging.error('Error processing trigger request for URL: %s\n', url)
         resp = flask.Response(json.dumps({
             "result": "Error while processing request %s" % url,
             }),
@@ -174,11 +178,8 @@ def trigger_partial(version='latest'):
 
     logging.info('Calling generation functions')
 
-    # TODO - here we should get try-except thing to retry + ack late
-    # catch LCA exception
-    tasks.build_partial_mar.delay(mar_to, mar_to_hash, mar_from,
-                                  mar_from_hash, identifier,
-                                  channel_id, product_version)
+    tasks.build_partial_mar.delay(mar_to, sha_to, mar_from, sha_from,
+                                  identifier, channel_id, product_version)
 
     logging.critical('Called build and moved on')
     resp = flask.Response(json.dumps({
@@ -187,31 +188,16 @@ def trigger_partial(version='latest'):
         status=202,
         mimetype='application/json'
     )
-
-    # TODO: Hook responses up with relengapi ?
-    # https://api.pub.build.mozilla.org/docs/development/api_methods/
     return resp
 
 
 @app.route('/partial/<identifier>', methods=['GET'])
-def get_partial(identifier, version='latest'):
+def get_partial(identifier):
     """ Function to return a generated partial """
     logging.debug('Request received with headers : %s', flask.request.headers)
-    logging.debug('Got request with version %s', version)
-
-    api_result = {
-        'result': 'Version %s of API ' % version
-    }
-    if version in app.config['unsupported_versions']:
-        api_result['result'] += ' no longer supported'
-        return flask.Response(str(api_result), status=410)
-    if version not in app.config['supported_versions']:
-        api_result['result'] += ' does not exist'
-        return flask.Response(str(api_result), status=400)
+    logging.debug('looking up record with identifier %s', identifier)
 
     cacheo = cache.Cache()
-
-    logging.debug('looking up record with identifier %s', identifier)
     if not cacheo.find(identifier, 'partial'):
         logging.info('Invalid partial request')
         resp = flask.Response(json.dumps({
@@ -220,8 +206,6 @@ def get_partial(identifier, version='latest'):
             status=400,
         )
         return resp
-
-    logging.debug('Record ID: %s', identifier)
 
     if cacheo.is_blank_file(identifier, 'partial'):
         logging.info('Record found, status: IN PROGRESS')
@@ -232,17 +216,15 @@ def get_partial(identifier, version='latest'):
         )
     else:
         logging.info('Record found, status: COMPLETED')
-        # TODO ROUGHEDGE stream data to client differently
         resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
                               status=200,
                               mimetype='application/octet-stream')
-
     return resp
 
 
 def main(argv):
     """ Parse args, config files and perform configuration """
-    parser = argparse.ArgumentParser(description='Some description')
+    parser = argparse.ArgumentParser(description='Funsize frontend api')
     parser.add_argument('-c', '--config-file', type=str,
                         default='../configs/default.ini',
                         required=False, dest='config_file',
@@ -253,34 +235,12 @@ def main(argv):
     config = ConfigParser.ConfigParser()
     config.read(config_file)
     app.config['LOG_FILE'] = config.get('log', 'file_path')
-    app.config['supported_versions'] = [
-        x.strip() for x in config.get('version', 'supported_versions').split(',')
-    ]
-    app.config['unsupported_versions'] = [
-        x.strip() for x in config.get('version', 'unsupported_versions').split(',')
-    ]
+    app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
     logging.info('Flask config at startup: %s' % app.config)
 
 
 if __name__ == '__main__':
 
     main(sys.argv[1:])
-
-    for version in app.config['unsupported_versions'] + app.config['supported_versions']:
-        app.add_url_rule('/%s/partial' % version,
-                         'trigger_partial',
-                         trigger_partial,
-                         methods=['POST'],
-                         defaults={
-                             'version': version
-                         })
-        app.add_url_rule('/%s/partial/<identifier>' % version,
-                         'get_partial',
-                         view_func=get_partial,
-                         methods=['GET'],
-                         defaults={
-                             'version': version
-                         })
-
     logging.basicConfig(filename=app.config['LOG_FILE'], level=logging.INFO)
     app.run(debug=False, host='0.0.0.0', processes=6)

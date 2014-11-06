@@ -18,7 +18,6 @@ class Cache(object):
         Assumes all keys are hex-encoded SHA512s
         Internally converts  hex to base64 encoding
     """
-
     def __init__(self, _bucket=os.environ.get('FUNSIZE_S3_UPLOAD_BUCKET')):
         """ _bucket : bucket name to use for S3 resources """
         if not _bucket:
@@ -31,7 +30,7 @@ class Cache(object):
         """ Method to return cache bucket key based on identifier """
         if not identifier:
             raise oddity.CacheError('Save object failed without identifier')
-        if category not in ('diff', 'partial', 'patch'):
+        if category not in ('partial', 'patch', 'complete'):
             raise oddity.CacheError("Category failed for S3 uploading")
         bucket_key = "files/%s/%s" % (category, identifier)
         return bucket_key
@@ -46,17 +45,16 @@ class Cache(object):
         _key = self._get_cache_internals(identifier, category)
         return self.bucket.get_key(_key)
 
-    def save(self, string, identifier, category, isfile=False):
-        """ Saves given file to cache, treats string as a local filepath if
-            isfile is true. returns hash of file.
+    def save(self, resource, identifier, category, isfilename=False):
+        """ Saves given file to cache.
+            resource can be either a local filepath or a file pointer (stream)
+            Returns url of the S3 uploaded resource.
         """
-        # FIXME: What should the behaviour be when we try to save to a
-        # pre-existing key?
         key = self._create_new_bucket_key(identifier, category)
-        if isfile:
-            key.set_contents_from_filename(string)
+        if isfilename:
+            key.set_contents_from_filename(resource)
         else:
-            key.set_contents_from_string(string)
+            key.set_contents_from_file(resource)
 
     def save_blank_file(self, identifier, category):
         """ Method to save a blank file to show a partial has been triggered and

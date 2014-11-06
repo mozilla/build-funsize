@@ -20,7 +20,10 @@
 - [ ] Unit testing
   - [ ] Fix unit testing
   - [ ] Mock S3 calls
-- [ ] Restructure project directory
+- [x] Restructure project directory
 - [ ] Implement integration testing in a uniform way - either using client/mar.py or latest mbsdiff/mar tools
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
 
+Known bugs (infrastructure/AWS/code)
+- [] POST size limit on aws container nginx reverse proxy - 413
+- [] platform has to be send as an argument from the client side - https://github.com/mozilla/build-funsize/blob/master/funsize/backend/tools.py#L54
