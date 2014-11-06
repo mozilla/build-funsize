@@ -41,6 +41,13 @@ If you want to use Docker with Vagrant you need to:
 
 A fully functional Vagrant container with Docker provisioning automatically installed software has been created.
 
+Client side
+-----------
+
+The client side to call for partials lies in this python package script:
+- https://pypi.python.org/pypi/funsizer
+
+
 License
 -------
 

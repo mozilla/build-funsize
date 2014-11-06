@@ -20,7 +20,7 @@
 - [ ] Unit testing
   - [ ] Fix unit testing
   - [ ] Mock S3 calls
-- [ ] Restructure project directory
+- [x] Restructure project directory
 - [ ] Implement integration testing in a uniform way - either using client/mar.py or latest mbsdiff/mar tools
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
 
