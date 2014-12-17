@@ -55,7 +55,7 @@ flask_pid=$!
 sleep 5 # wait for python and celery to get started.
 
 echo "Starting tests"
-bash $script_dir/curl-test.sh trigger-release
+$script_dir/curl-test.sh trigger-release
 echo "Crossed the curl-test call"
 start_time=$(date +%s)
 sleep 5
@@ -65,7 +65,7 @@ echo $PWD
 while true
 do
   #POLL=$( bash curl-test.sh -i get-release | head -1 | awk '{print $2}')
-  POLL=$( bash $script_dir/curl-test.sh -i get-release | awk '{print $2}' | head -1 )
+  POLL=$( $script_dir/curl-test.sh -i get-release | awk '{print $2}' | head -1 )
   req=$(($req + 1))
   if [[ $POLL -eq 200 ]]
   then
@@ -84,7 +84,7 @@ done
 # Essentially doing the following, but using files incase we need to confirm headers
 #GENERATED_HASH=$(bash $script_dir/curl-test.sh get-release | md5sum | cut -d ' ' -f 1)
 tmp_file="/tmp/temp$(echo $RANDOM).mar"
-bash $script_dir/curl-test.sh get-release > $tmp_file
+$script_dir/curl-test.sh get-release > $tmp_file
 GENERATED_HASH=$(md5sum $tmp_file | cut -d ' ' -f 1)
 echo "Gen Hash: $GENERATED_HASH"
 #rm $tmp_file
