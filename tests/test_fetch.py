@@ -5,11 +5,12 @@ import unittest
 import funsize.utils.fetch as fetch
 import funsize.utils.oddity as oddity
 
-TEST_URL='https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/29.0/KEY'
-TEST_MD5='ab3ef84fb7437659c5fd34a793cad0f2'
-WRONG_MD5='2f0dac397a43df5c9567347bf48fe3ba'
-TEST_SHA512='6f445230407ae4e4c73a73d345de8b349e975f08adcdfafc713e9ba05e40a38f8dd287055ddbbcc59aef21a814f7b1a0488492e2be116242bbbdbee62f5ab997'
-WRONG_SHA512='799ba5f26eebdbbb242611eb2e2948840a1b7f418a12fea95ccbbdd550782dd8f83a04e50ab9e317cfafdcda80f579e943b8ed543d37a37c4e4ea704032544f6'
+TEST_URL = 'https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/29.0/KEY'
+TEST_MD5 = 'ab3ef84fb7437659c5fd34a793cad0f2'
+WRONG_MD5 = '2f0dac397a43df5c9567347bf48fe3ba'
+TEST_SHA512 = '6f445230407ae4e4c73a73d345de8b349e975f08adcdfafc713e9ba05e40a38f8dd287055ddbbcc59aef21a814f7b1a0488492e2be116242bbbdbee62f5ab997'
+WRONG_SHA512 = '799ba5f26eebdbbb242611eb2e2948840a1b7f418a12fea95ccbbdd550782dd8f83a04e50ab9e317cfafdcda80f579e943b8ed543d37a37c4e4ea704032544f6'
+
 
 class TestFetch(unittest.TestCase):
 
@@ -29,7 +30,8 @@ class TestFetch(unittest.TestCase):
             f.write('Already something in this file\n')
 
     def test_correct_download(self):
-        self.assertEqual(None, fetch.downloadmar(self.test_url,
+        self.assertEqual(
+            None, fetch.downloadmar(self.test_url,
                                     self.test_sha512, cipher='sha512',
                                     output_file=self.temp_filepath))
 
@@ -39,11 +41,13 @@ class TestFetch(unittest.TestCase):
                           output_file=self.temp_filepath)
 
     def test_file_save(self):
-        fetch.downloadmar(self.test_url, self.test_sha512, cipher='sha512', output_file=self.temp_filepath)
+        fetch.downloadmar(self.test_url, self.test_sha512, cipher='sha512',
+                          output_file=self.temp_filepath)
         self.assertTrue(os.path.exists(self.temp_filepath))
 
     def test_existing_file_save(self):
-        fetch.downloadmar(self.test_url, self.test_sha512, cipher='sha512', output_file=self.temp_filepath)
+        fetch.downloadmar(self.test_url, self.test_sha512, cipher='sha512',
+                          output_file=self.temp_filepath)
         self.assertTrue(os.path.exists(self.temp_filepath))
 
     def tearDown(self):

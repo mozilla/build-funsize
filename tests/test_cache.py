@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 import tempfile
@@ -26,11 +25,14 @@ class TestCache(unittest.TestCase):
 
     def test_cache(self):
         """ Full test of a successful insert, lookup retrieval """
-        # This doesn't sound right as a unittest, but this is the best I can think of
+        # This doesn't sound right as a unittest, but this is the best I can
+        # think of
 
-        self.cache_object.save(self.test_file, self.key, self.category, isfile=True)
+        self.cache_object.save(self.test_file, self.key, self.category,
+                               isfile=True)
         self.assertTrue(self.cache_object.find(self.key, self.category))
-        self.cache_object.retrieve(self.key, self.category, output_file=self.output_file)
+        self.cache_object.retrieve(self.key, self.category,
+                                   output_file=self.output_file)
         with open(self.output_file, 'rb') as f:
             self.assertEqual(self.test_string, f.read())
 
@@ -40,7 +42,7 @@ class TestCache(unittest.TestCase):
 
     def test_retrieve(self):
         self.assertRaises(oddity.CacheMissError, self.cache_object.retrieve,
-                'nonexistantid', self.category, output_file=False)
+                          'nonexistantid', self.category, output_file=False)
 
     @unittest.skip('Skipping test till we figure out what should go in it')
     def test_save(self):

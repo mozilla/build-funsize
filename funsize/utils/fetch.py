@@ -42,5 +42,5 @@ def downloadmar(url, checksum, output_file, cipher='sha512'):
             fobj.write(mar)
     except:
         logging.error('Error while downloading %s to file %s on disk',
-                        url, output_file)
+                      url, output_file)
         raise DownloadError('Failed to write file to disk')

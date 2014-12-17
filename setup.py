@@ -25,8 +25,4 @@ setup(name=PACKAGE_NAME,
           'funsize.frontend',
           'funsize.utils',
       ],
-      tests_require=[
-          'nose',
-          'mock'
-      ],
       )
