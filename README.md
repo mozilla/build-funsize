@@ -1,7 +1,7 @@
 Funsize
 ============
 
-[![Build Status](https://travis-ci.org/ffledgling/Senbonzakura.svg?branch=master)](https://travis-ci.org/ffledgling/Senbonzakura)
+[![Build Status](https://travis-ci.org/mozilla/build-funsize.svg?branch=master)](https://travis-ci.org/mozilla/build-funsize)
 
 This service (Previously called [Senbonzakura](http://en.wikipedia.org/wiki/Byakuya_Kuchiki#Senbonzakura)
 for now) will generate partial .MAR (Mozilla ARchive) files for updates from

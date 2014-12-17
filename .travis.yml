@@ -10,16 +10,11 @@ services:
     - rabbitmq
 
 install:
-    #- pip install -r requirements.txt
     - python setup.py develop
+    - python setup.py test
 
 script:
     - nosetests -v
-    - bash tests/integration-test.sh -t
-
-notifications:
-    email: ffledgling+travis@gmail.com
-    irc: irc.mozilla.org#ffledgling
 
 matrix:
     fast_finish: true
