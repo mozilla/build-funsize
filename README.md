@@ -3,12 +3,10 @@ Funsize
 
 [![Build Status](https://travis-ci.org/mozilla/build-funsize.svg?branch=master)](https://travis-ci.org/mozilla/build-funsize)
 
-This service (Previously called [Senbonzakura](http://en.wikipedia.org/wiki/Byakuya_Kuchiki#Senbonzakura)
-for now) will generate partial .MAR (Mozilla ARchive) files for updates from
-Version A to Version B on demand.
+This service (Previously called [Senbonzakura](http://en.wikipedia.org/wiki/Byakuya_Kuchiki#Senbonzakura)) generates partial .MAR (Mozilla ARchive) files to update Firefox from Version A to Version B. It generates these on demand via API.
 
 
-See [Wiki Page](https://wiki.mozilla.org/User:Ffledgling/Senbonzakura) for more details.
+See [Wiki Page (Historical)](https://wiki.mozilla.org/User:Ffledgling/Senbonzakura) and [Wiki Page](https://wiki.mozilla.org/ReleaseEngineering/Funsize) for more details.
 
 TODO
 ----
