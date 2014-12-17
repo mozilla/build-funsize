@@ -10,9 +10,9 @@ class TestCsum(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.test_string="Make him an offer he can't refuse"
-        cls.correct_md5='fc1cbdd4aa7539ff2d09e0c2feb394e7'
-        cls.correct_sha512='fc97f6c478cf25412cac95ad7e33b0e00a9894862febe6e7996fcdf63c0ff7beccde5ca0156df03ed4b0d710eaf2c89982ec4fbb5f58d9b52e38bac9d1e9f86f'
+        cls.test_string = "Make him an offer he can't refuse"
+        cls.correct_md5 = 'fc1cbdd4aa7539ff2d09e0c2feb394e7'
+        cls.correct_sha512 = 'fc97f6c478cf25412cac95ad7e33b0e00a9894862febe6e7996fcdf63c0ff7beccde5ca0156df03ed4b0d710eaf2c89982ec4fbb5f58d9b52e38bac9d1e9f86f'
 
     def test_gethash(self):
         self.assertEqual(self.correct_md5, csum.getmd5(self.test_string))

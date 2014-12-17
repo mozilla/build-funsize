@@ -21,6 +21,11 @@ Dev-Env Requirements
 - Run `python setup.py develop` inside your virtualenv
 - You're good to go!
 
+Testing the code
+----------------
+
+Run `tox` command. It will create a temporary virtualenv under `.tox` and run the tests.
+
 Use infrastructure with Docker via Vagrant
 ------------------------------------------
 

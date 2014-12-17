@@ -13,10 +13,7 @@ import flask
 import logging
 import os
 import sys
-try:
-    import simplejson
-except ImportError:
-    import json
+import json
 from werkzeug.datastructures import FileStorage
 
 import funsize.cache.cache as cache

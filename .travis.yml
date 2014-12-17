@@ -9,8 +9,7 @@ os:
 #    - rabbitmq
 
 install:
-    - python setup.py develop
-    - python setup.py test
+    - travis_retry pip install tox==1.8
 
 script:
-    - nosetests -v
+    - tox
