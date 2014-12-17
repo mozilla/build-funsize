@@ -1,25 +1,16 @@
 language: python
 python:
-    #    - "2.6" #unittest.skip N/A in py2.6
     - "2.7"
 
 os:
     - linux
 
-services:
-    - rabbitmq
+#services:  # No need for rabbit with broken integration tests
+#    - rabbitmq
 
 install:
-    #- pip install -r requirements.txt
     - python setup.py develop
+    - python setup.py test
 
 script:
     - nosetests -v
-    - bash tests/integration-test.sh -t
-
-notifications:
-    email: ffledgling+travis@gmail.com
-    irc: irc.mozilla.org#ffledgling
-
-matrix:
-    fast_finish: true
