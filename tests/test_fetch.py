@@ -12,6 +12,7 @@ TEST_SHA512 = '6f445230407ae4e4c73a73d345de8b349e975f08adcdfafc713e9ba05e40a38f8
 WRONG_SHA512 = '799ba5f26eebdbbb242611eb2e2948840a1b7f418a12fea95ccbbdd550782dd8f83a04e50ab9e317cfafdcda80f579e943b8ed543d37a37c4e4ea704032544f6'
 
 
+# FIXME: mock downloads to pass the tests without hitting the Internet
 class TestFetch(unittest.TestCase):
 
     @classmethod

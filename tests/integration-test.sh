@@ -12,8 +12,9 @@ TRAVIS=false
 MD5_OSX='b6d74f5283420d83f788711bdd6722d1' # New hash with channelID and product Version
 MD5_LINUX='9da1d36ebcb6473b2cf260f37ddd60e7' # New hash with channelID and product Version
 FF28_FF29_PARTIAL_MD5=$MD5_OSX #Default to OSX because that's the dev machine.
-tmp_file=$(mktemp)
 
+# make sure local rabbitmq server is running
+nc -zv localhost  56725 || exit 4
 
 while getopts "t" opt
 do
@@ -41,6 +42,8 @@ echo "Lanching Flask"
 python $script_dir/../funsize/frontend/api.py &
 flask_pid=$!
 sleep 5 # wait for python and celery to get started.
+
+tmp_file=$(mktemp)
 
 function cleanup {
     rm -f $tmp_file
