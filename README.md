@@ -15,34 +15,19 @@ See TODO.md
 
 Dev-Env Requirements
 --------------------
+- A Linux machine with docker installed
+- Export the following variables to pass them to the funsize container: `FUNSIZE_AWS_ACCESS_KEY_ID`, `FUNSIZE_AWS_SECRET_ACCESS_KEY`, `FUNSIZE_S3_UPLOAD_BUCKET`
+- run `./tests/launch_dev_env.sh` to generate 2 docker containers:
+  - A container running RabbitMQ server. This container will be linked to the main container. See [docker documentation](http://docs.docker.com/userguide/dockerlinks/) for the details.
+  - Funsize container will be running in foreground. The checkout root directory will be mounted to the `/app` directory inside the container. This means that your file changes will be propagated to the container.
+- The application logs will show up in the `logs` directory
 
-- Setup a virtualenv
-- Clone source
-- Run `python setup.py develop` inside your virtualenv
-- You're good to go!
 
-Testing the code
-----------------
+Running Unit Tests
+------------------
 
 Run `tox` command. It will create a temporary virtualenv under `.tox` and run the tests.
 
-Use infrastructure with Docker via Vagrant
-------------------------------------------
-
-To deploy & test the infrastructure on a particular machine, the Docker platform can easily be used.
-Docker Engine uses Linux-specific kernel features, so to run it within OS X/Windows a lightweight virtual machine is needed.
-
-If you want to use Docker with Vagrant you need to:
-
-   1. Download Vagrant from here http://www.vagrantup.com/downloads.html
-   2. Go into your working directory
-   3. Find the `Vagrantfile` sample from this repo placed under `Docker` folder.
-   4. Rename `Vagrantfile.sample` to `Vagrantfile`.
-   5. From `Docker` directory run:
-       * ` $vagrant up funsizeapp --provider=docker`
-
-
-A fully functional Vagrant container with Docker provisioning automatically installed software has been created.
 
 Client side
 -----------

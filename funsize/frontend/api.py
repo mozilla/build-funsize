@@ -7,12 +7,9 @@ API call parameters
 
 """
 
-import argparse
-import ConfigParser
 import flask
 import logging
 import os
-import sys
 import json
 from werkzeug.datastructures import FileStorage
 
@@ -218,26 +215,11 @@ def get_partial(identifier):
                               mimetype='application/octet-stream')
     return resp
 
-
-def main(argv):
-    """ Parse args, config files and perform configuration """
-    parser = argparse.ArgumentParser(description='Funsize frontend api')
-    parser.add_argument('-c', '--config-file', type=str,
-                        default='../configs/default.ini',
-                        required=False, dest='config_file',
-                        help='The application config file. INI format')
-    args = parser.parse_args(argv)
-    config_file = os.path.join(__here__, args.config_file)
-
-    config = ConfigParser.ConfigParser()
-    config.read(config_file)
-    app.config['LOG_FILE'] = config.get('log', 'file_path')
-    app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
-    logging.info('Flask config at startup: %s' % app.config)
-
-
 if __name__ == '__main__':
-
-    main(sys.argv[1:])
-    logging.basicConfig(filename=app.config['LOG_FILE'], level=logging.INFO)
-    app.run(debug=False, host='0.0.0.0', processes=6)
+    debug = os.environ.get("FUNSIZE_DEBUG", False)
+    if debug:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    logging.basicConfig(level=level)
+    app.run(debug=debug, host='0.0.0.0', processes=6)

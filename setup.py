@@ -12,6 +12,7 @@ setup(name="funsize",
       license='MPL',
       packages=find_packages(),
       install_requires=[
+          'celery==3.1.11',
           'Flask==0.10.1',
           'requests==2.2.1',
           'boto==2.33.0',
