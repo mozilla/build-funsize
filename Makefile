@@ -1,6 +1,6 @@
-ZIP_FILE = /tmp/funsize-$(shell date -u "+%Y-%m-%d-%H-%M").zip
+ZIP_FILE = funsize-$(shell date -u "+%Y-%m-%d-%H-%M").zip
 
 eb:
 	-rm -f $(ZIP_FILE)
-	zip -r $(ZIP_FILE) --exclude=.git* --exclude=.tox* --exclude=.rope*  --exclude=tests* .
+	git archive --format=zip HEAD > $(ZIP_FILE)
 	@echo $(ZIP_FILE) created
