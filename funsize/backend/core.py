@@ -18,16 +18,7 @@ import funsize.cache.cache as cache
 import funsize.backend.tools as tools
 import funsize.utils.oddity as oddity
 
-__here__ = os.path.dirname(os.path.abspath(__file__))
-CONFIG_FILE_PATH = os.path.join(__here__, '../configs/worker.ini')
-
-config = ConfigParser.ConfigParser()
-config.read(CONFIG_FILE_PATH)
-
-if config.items('tools'):
-    TOOLS_DIR = config.get('tools', 'dir')
-else:
-    raise oddity.ConfigError('Configuration parameters missing')
+TOOLS_DIR = "/perma/tools"  # TODO: pass or keep them under the tree?
 
 
 def get_complete_mar(url, mar_hash, output_file):

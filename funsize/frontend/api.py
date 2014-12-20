@@ -185,7 +185,7 @@ def trigger_partial():
     return resp
 
 
-@app.route('/partial/<identifier>', methods=['GET'])
+@app.route('/partial/<identifier>', methods=['GET', 'HEAD'])
 def get_partial(identifier):
     """ Function to return a generated partial """
     logging.debug('Request received with headers : %s', flask.request.headers)
@@ -210,9 +210,16 @@ def get_partial(identifier):
         )
     else:
         logging.info('Record found, status: COMPLETED')
-        resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
-                              status=200,
-                              mimetype='application/octet-stream')
+        if flask.request.method == 'HEAD':
+            resp = flask.Response(json.dumps({
+                "result": "Done. Use GET to retrieve the object",
+                }),
+                status=200,
+            )
+        else:
+            resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
+                                  status=200,
+                                  mimetype='application/octet-stream')
     return resp
 
 if __name__ == '__main__':
@@ -222,4 +229,5 @@ if __name__ == '__main__':
     else:
         level = logging.INFO
     logging.basicConfig(level=level)
+    logging.getLogger("boto").setLevel(logging.INFO)
     app.run(debug=debug, host='0.0.0.0', processes=6)

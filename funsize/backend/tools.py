@@ -9,11 +9,9 @@ This module contains all funsize related tool things
 import stat
 import os
 import shutil
-import platform
 import logging
 import subprocess
 
-import funsize.utils.oddity as oddity
 
 __here__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,6 +32,8 @@ class ToolManager(object):
                                              'make_incremental_update.sh')
 
     def setup_tools(self):
+        # FIXME: get rid of tools manager?
+        return
         """ Bomb everything and redownload (there probably is a better way) """
         if os.path.isdir(self.folder):
             shutil.rmtree(self.folder)
@@ -42,16 +42,11 @@ class ToolManager(object):
 
     def download_tools(self):
         """ Method to call the downloading of the mar and mbsdiff files """
-        OS = platform.system()
-        if OS == 'Linux':
-            platform_version = 'linux64'
-        elif OS == 'Darwin':
-            platform_version = 'macosx64'
-        elif OS in ['Windows', 'Microsoft']:
-            platform_version = 'win32'
-        else:
-            raise oddity.ToolError('Could not determine platform')
-        mar_tools_url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/%s/latest-mozilla-central/mar-tools/%s/" % (self.channel, platform_version)
+        # FIXME: get rid of tools manager?
+        return
+        # Supported server side platform is linux64 only
+        # TODO: get rid of oddity.ToolError
+        mar_tools_url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/%s/latest-mozilla-central/mar-tools/linux64/" % (self.channel,)
         logging.info('Downloading tools from %s', mar_tools_url)
         subprocess.call([os.path.abspath(os.path.join(__here__, 'download-tools.sh')), '-o', self.folder])
         subprocess.call(['wget', '-O', self.mar, mar_tools_url+'mar'])
@@ -64,5 +59,5 @@ class ToolManager(object):
 
     def get_path(self):
         """ Caller method for the redownloading """
-        self.setup_tools()
+        # self.setup_tools()
         return self.folder
