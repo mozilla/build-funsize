@@ -9,5 +9,10 @@
   - [ ] Mock S3 calls
 - [ ] Implement integration testing in a uniform way - either using client/mar.py or latest mbsdiff/mar tools
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
-- [ ] Two level caching: local cache before S3 cache
-- [ ] Cache invalidation
+- [ ] Enable two level caching: local cache before S3 cache
+  - [ ] Purge the cache
+- [ ] S3 cache invalidation
+- [ ] Replace curl with requests
+- [ ] Use HTTP timeouts where possible
+- [ ] Mount /var/cache/funsize in dev environment
+- [ ] Figure out how to expose celery status

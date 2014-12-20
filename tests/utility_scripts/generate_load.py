@@ -1,35 +1,33 @@
 #!/usr/bin/env python
+""" Trigger a bunch of MAR jobs to simulate load on the backend.
+    Usage: ./generate_load.py | bash
+"""
+from collections import defaultdict
 
-mega_dict = {}
+d = defaultdict(dict)
 
 with open('url_hash.list', 'r') as f:
-    while True:
-        line = f.readline()
-        if not line:
-            break
-        version, platform, locale, sha, url = tuple([x.strip() for x in
-                                                     line.split(',')])
-        if not mega_dict.get(version):
-            mega_dict[version] = {}
-        if not mega_dict[version].get(platform):
-            mega_dict[version][platform] = {}
-        if not mega_dict[version][platform].get(locale):
-            mega_dict[version][platform][locale] = {'hash': sha, 'url': url}
+    # TODO: Dinamically fetch from
+    # http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/33.0/SHA512SUMS
+    for line in f:
+        version, platform, locale, sha, url = [x.strip() for x in
+                                               line.split(',')]
+        entry = {"version": version, "platform": platform, "locale": locale,
+                 "sha512": sha, "url": url}
+        d[version][locale] = entry
 
 from_list = [
-    # ('25.0', 'mac', 'fi'),
-    # ('26.0', 'win32', 'fi'),
-    # ('28.0', 'linux-i686', 'fi'),
-    # ('29.0', 'linux-x86_64', 'hi-IN'),
+    ('25.0', 'mac', 'en-US'),
     ('27.0', 'mac', 'en-US'),
 ]
-to_list = [
-    ('29.0', 'mac', 'en-US'),
-]
+to_list = ['29.0']
 
-for src in from_list:
-    for dst in to_list:
-        s = mega_dict[src[0]][src[1]][src[2]]
-        d = mega_dict[dst[0]][dst[1]][dst[2]]
-        print ','.join([s['url'], d['url'], s['hash'], d['hash'],
-                        'firefox-mozilla-release', dst[0]])
+for from_version, platform, locale in from_list:
+    for to_version in to_list:
+        print " ".join([
+            "../curl-test.sh", "trigger-release",
+            d[from_version][locale]["url"],
+            d[to_version][locale]["url"],
+            d[from_version][locale]["sha512"],
+            d[to_version][locale]["sha512"],
+            'firefox-mozilla-release', to_version])
