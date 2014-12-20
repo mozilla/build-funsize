@@ -50,11 +50,11 @@ upload_patch(){
 
     if [ $ret_code -eq 200 ]; then
         echo ""$path_patch" Successful uploaded to funsize!"
-        return 0;
+        return 0
     fi
 
     echo ""$path_patch" Failed to be uploaded to funsize!"
-    return 1;
+    return 1
 }
 
 get_patch(){
@@ -67,7 +67,7 @@ get_patch(){
     if [ -e "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to" ]; then
         cp -af "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to" "$destination_file"
         echo "Successful retrieved $destination_file from local cache!"
-        return 0;
+        return 0
     fi
 
     # if unsuccessful, try to retrieve from funsize
@@ -77,17 +77,17 @@ get_patch(){
     if [ $ret_code -eq 200 ]; then
         mv "$tmp_file" "$destination_file"
         echo "Successful retrieved $destination_file from funsize!"
-        return 0;
+        return 0
     fi
 
     rm "$tmp_file"
     echo "Failed to retrieve $destination_file from funsize!"
-    return 1;
+    return 1
 }
 
 if [ $# -lt 6 ]; then
-    print_usage;
-    exit 1;
+    print_usage
+    exit 1
 fi
 
 OPTIND=1
@@ -95,39 +95,39 @@ OPTIND=1
 while getopts ":A:c:gu" option; do
     case $option in
         A)
-            SERVER_URL="$OPTARG";
+            SERVER_URL="$OPTARG"
             ;;
         c)
             if [ ! -d "$OPTARG" ]; then
                 echo "A cache directory must be supplied (with -c flag)" >&2
-                exit 1;
+                exit 1
             fi
-            LOCAL_CACHE_DIR="$OPTARG";
+            LOCAL_CACHE_DIR="$OPTARG"
             ;;
         g)
-            HOOK="PRE";
+            HOOK="PRE"
             ;;
         u)
-            HOOK="POST";
+            HOOK="POST"
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
-            exit 1;
+            exit 1
             ;;
         :)
             echo "Option -$OPTARG requires an argument." >&2
-            exit 1;
+            exit 1
             ;;
         *)
             echo "Unimplemented option: -$OPTARG" >&2
-            exit 1;
+            exit 1
             ;;
     esac
 done
 shift $((OPTIND-1))
 
 if [ "$HOOK" == "PRE" ]; then
-    get_patch $1 $2 $3;
+    get_patch $1 $2 $3
 elif [ "$HOOK" == "POST" ]; then
-    upload_patch $1 $2 $3;
+    upload_patch $1 $2 $3
 fi

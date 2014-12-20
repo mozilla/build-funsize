@@ -16,3 +16,4 @@
 - [ ] Use HTTP timeouts where possible
 - [ ] Mount /var/cache/funsize in dev environment
 - [ ] Figure out how to expose celery status
+- [ ] Replace subprocess.call with something that logs the output

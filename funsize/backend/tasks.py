@@ -29,7 +29,7 @@ def build_partial_mar(*args):
 
     try:
         core.build_partial_mar(*args)
-    except (oddity.ToolError, oddity.CacheError) as exc:
+    except oddity.CacheError as exc:
         # TODO: maybe a unittool clobber here? or cache clean for entry?
         logger.info("Going to retry the job.")
         raise build_partial_mar.retry(countdown=60, exc=exc, max_retries=2)

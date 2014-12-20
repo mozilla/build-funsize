@@ -39,13 +39,3 @@ class CacheError(Exception):
 class FunsizeNotImplementedError(Exception):
     """ Exception raised for functions/classes not implemented yet """
     pass
-
-
-class ConfigError(Exception):
-    """ Exception raised for missing or invalid configuration """
-    pass
-
-
-class ToolError(Exception):
-    """ Exception raised for problems during tooling setup """
-    pass

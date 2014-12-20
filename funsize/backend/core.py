@@ -6,7 +6,6 @@ This module contains the brain of the entire funsize project
 
 """
 
-import errno
 import logging
 import os
 import subprocess
@@ -14,7 +13,6 @@ import tempfile
 
 import funsize.utils.fetch as fetch
 import funsize.cache.cache as cache
-import funsize.utils.oddity as oddity
 
 TOOLS_DIR = "/perma/tools"  # TODO: pass or keep them under the tree?
 
@@ -61,7 +59,7 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
                                                    product_version,
                                                    working_dir=TMP_WORKING_DIR)
         logging.debug('Partial MAR generated at %s', local_pmar_location)
-    except oddity.ToolError:
+    except:
         cacheo.delete_from_cache(identifier, 'partial')
         raise
 
@@ -71,15 +69,12 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
 
 
 def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
-                         product_version, working_dir=None):
+                         product_version, working_dir):
     """ cmar_new is the path of the newer complete .mar file
         cmar_old is the path of the older complete .mar file
         difftools_path specifies the path of the directory in which
         the difftools, including mar,mbsdiff exist
     """
-    if not working_dir:
-        working_dir = '.'
-
     UNWRAP = os.path.join(difftools_path, 'unwrap_full_update.pl')
     MAKE_INCREMENTAL = os.path.join(difftools_path,
                                     'make_incremental_update.sh')
@@ -93,24 +88,9 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
     my_env['MOZ_PRODUCT_VERSION'] = product_version
     my_env['LC_ALL'] = 'C'
 
-    try:
-        os.mkdir(working_dir)
-    except Exception as e:
-        if e.errno == errno.EEXIST and os.path.isdir(working_dir):
-            pass
-        else:
-            raise oddity.ToolError('Error while initiating working dir')
-
     cmn_name = os.path.basename(cmar_new)
     cmn_wd = os.path.join(working_dir, cmn_name)
-
-    try:
-        os.mkdir(cmn_wd)
-    except Exception as e:
-        if e.errno == errno.EEXIST and os.path.isdir(cmn_wd):
-            pass
-        else:
-            raise oddity.ToolError('Error making working dir while unwrapping')
+    os.mkdir(cmn_wd)
 
     logging.info('Unwrapping MAR#1')
     logging.debug('subprocess call to %s',
@@ -120,14 +100,7 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
 
     cmo_name = os.path.basename(cmar_old)
     cmo_wd = os.path.join(working_dir, cmo_name)
-
-    try:
-        os.mkdir(cmo_wd)
-    except Exception as e:
-        if e.errno == errno.EEXIST and os.path.isdir(cmo_wd):
-            pass
-        else:
-            raise oddity.ToolError('Error while initiating working dir')
+    os.mkdir(cmo_wd)
 
     logging.info('Unwrapping MAR#2')
     logging.debug('subprocess call to %s',

@@ -16,12 +16,13 @@ Dev-Env Requirements
 --------------------
 - A Linux machine with docker installed
 - Export the following variables to pass them to the funsize container: `FUNSIZE_AWS_ACCESS_KEY_ID`, `FUNSIZE_AWS_SECRET_ACCESS_KEY`, `FUNSIZE_S3_UPLOAD_BUCKET`
-- run `./tests/launch_dev_env.sh` to generate 2 docker containers:
+- Run `./tests/launch_dev_env.sh` to generate 2 docker containers:
   - A container running RabbitMQ server. This container will be linked to the main container. See [docker documentation](http://docs.docker.com/userguide/dockerlinks/) for the details.
   - Funsize container will be running in foreground. The checkout root directory will be mounted to the `/app` directory inside the container. This means that your file changes will be propagated to the container.
 - The application logs will show up in the `logs` directory
 - Funzise REST API can be accessed at http://localhost:5000
 - Ctrl+C to stop the container. The rabbitmq contaner will be stopped and deleted automatically (--rm option)
+- You can run `./tests/launch_dev_env.sh /bin/bash` to get shell access to the funsize container. Note that the services won't be running. You can start them by running `supervisord &`.
 
 
 Running Unit Tests

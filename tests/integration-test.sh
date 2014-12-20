@@ -32,7 +32,7 @@ do
     break
   fi
   echo "REQUEST #:$req"
-  sleep 5
+  sleep 30
 done
 
 $script_dir/curl-test.sh get-release -o $tmp_file
