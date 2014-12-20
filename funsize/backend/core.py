@@ -14,7 +14,6 @@ import tempfile
 
 import funsize.utils.fetch as fetch
 import funsize.cache.cache as cache
-import funsize.backend.tools as tools
 import funsize.utils.oddity as oddity
 
 TOOLS_DIR = "/perma/tools"  # TODO: pass or keep them under the tree?
@@ -53,15 +52,11 @@ def build_partial_mar(new_cmar_url, new_cmar_hash, old_cmar_url, old_cmar_hash,
     get_complete_mar(new_cmar_url, new_cmar_hash, new_cmar_path)
     get_complete_mar(old_cmar_url, old_cmar_hash, old_cmar_path)
 
-    tmo = tools.ToolManager(TOOLS_DIR)
-    TMP_TOOL_STORAGE = tmo.get_path()
-    logging.info('Tool storage: %s', TMP_TOOL_STORAGE)
-
     logging.info('Creating cache connections')
     cacheo = cache.Cache()
     try:
         local_pmar_location = generate_partial_mar(new_cmar_path, old_cmar_path,
-                                                   TMP_TOOL_STORAGE,
+                                                   TOOLS_DIR,
                                                    channel_id,
                                                    product_version,
                                                    working_dir=TMP_WORKING_DIR)
