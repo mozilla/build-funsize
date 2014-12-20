@@ -6,7 +6,6 @@ This module contains the brain of the entire funsize project
 
 """
 
-import ConfigParser
 import errno
 import logging
 import os
@@ -87,7 +86,8 @@ def generate_partial_mar(cmar_new, cmar_old, difftools_path, channel_id,
         working_dir = '.'
 
     UNWRAP = os.path.join(difftools_path, 'unwrap_full_update.pl')
-    MAKE_INCREMENTAL = os.path.join(difftools_path, 'make_incremental_update.sh')
+    MAKE_INCREMENTAL = os.path.join(difftools_path,
+                                    'make_incremental_update.sh')
     MAR = os.path.join(difftools_path, 'mar')
     MBSDIFF = os.path.join(difftools_path, 'mbsdiff')
 
