@@ -188,8 +188,9 @@ def get_partial(identifier):
     else:
         logging.info('Record found, status: COMPLETED')
         if flask.request.method == 'HEAD':
+            url = flask.url_for('get_partial', identifier=identifier)
             resp = flask.Response(json.dumps({
-                "result": "Done. Use GET to retrieve the object",
+                "result": url
                 }),
                 status=200,
             )
