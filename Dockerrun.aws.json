@@ -3,12 +3,5 @@
   "Image": {
     "Name": "ubuntu:trusty",
     "Update": "true"
-  },
-  "Volumes": [
-    {
-      "HostDirectory": "/var/funsize/",
-      "ContainerDirectory": "/perma"
-    }
-  ],
-  "Logging": "/var/log/"
+  }
 }
