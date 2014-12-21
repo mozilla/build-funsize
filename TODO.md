@@ -12,10 +12,10 @@
 - [ ] Enable two level caching: local cache before S3 cache
   - [ ] Purge the cache
 - [ ] S3 cache invalidation
-- [ ] Replace curl with requests
 - [ ] Use HTTP timeouts where possible
 - [ ] Mount /var/cache/funsize in dev environment
 - [ ] Figure out how to expose celery status
-- [ ] Replace subprocess.call with something that logs the output
 - [ ] Rewrite funsize/backend/mbsdiff_hook.sh in Python to get rid of bash/curl dependency
 - [ ] Upload individual patches from the HOOK async?
+- [ ] Better logging
+- [ ] Less of deffensive programming practices (DownloadError)

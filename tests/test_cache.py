@@ -3,8 +3,7 @@ import shutil
 import tempfile
 import unittest
 
-import funsize.cache.cache as cache
-import funsize.utils.oddity as oddity
+import funsize.cache as cache
 
 
 # FIXME: the test suite doesn't work without mocking S3
@@ -39,10 +38,6 @@ class TestCache(unittest.TestCase):
     def test_find(self):
         """ Check the find method works """
         self.assertFalse(self.cache_object.find('nonexistantid', self.category))
-
-    def test_retrieve(self):
-        self.assertRaises(oddity.CacheMissError, self.cache_object.retrieve,
-                          'nonexistantid', self.category, output_file=False)
 
     @unittest.skip('Skipping test till we figure out what should go in it')
     def test_save(self):

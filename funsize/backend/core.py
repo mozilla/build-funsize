@@ -12,7 +12,7 @@ import tempfile
 import sh
 
 import funsize.utils.fetch as fetch
-import funsize.cache.cache as cache
+import funsize.cache as cache
 
 TOOLS_DIR = "/perma/tools"  # TODO: pass or keep them under the tree?
 UNWRAP = os.path.join(TOOLS_DIR, 'unwrap_full_update.pl')

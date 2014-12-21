@@ -3,7 +3,6 @@ import tempfile
 import unittest
 
 import funsize.utils.fetch as fetch
-import funsize.utils.oddity as oddity
 
 TEST_URL = 'https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/29.0/KEY'
 TEST_MD5 = 'ab3ef84fb7437659c5fd34a793cad0f2'
@@ -37,7 +36,7 @@ class TestFetch(unittest.TestCase):
                                     output_file=self.temp_filepath))
 
     def test_incorrect_download(self):
-        self.assertRaises(oddity.DownloadError, fetch.downloadmar,
+        self.assertRaises(fetch.DownloadError, fetch.downloadmar,
                           self.test_url, self.wrong_sha512, cipher='sha512',
                           output_file=self.temp_filepath)
 

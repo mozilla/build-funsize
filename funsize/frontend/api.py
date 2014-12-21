@@ -12,9 +12,8 @@ import logging
 import os
 import json
 
-import funsize.cache.cache as cache
+import funsize.cache as cache
 import funsize.backend.tasks as tasks
-import funsize.utils.oddity as oddity
 
 CACHE_URI = None
 
@@ -137,7 +136,7 @@ def trigger_partial():
 
     try:
         cacheo.save_blank_file(identifier, 'partial')
-    except oddity.CacheError:
+    except cache.CacheError:
         logging.error('Error processing trigger request for URL: %s\n', url)
         resp = flask.Response(json.dumps({
             "result": "Error while processing request %s" % url,

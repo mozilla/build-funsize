@@ -8,9 +8,14 @@ This module contains fetch functions
 
 import logging
 import requests
+from exceptions import Exception
 
 from .csum import verify
-from .oddity import DownloadError
+
+
+class DownloadError(Exception):
+    """ Class for errors raised when downloading a resource fails """
+    pass
 
 
 def downloadmar(url, checksum, output_file, cipher='sha512'):
@@ -20,9 +25,9 @@ def downloadmar(url, checksum, output_file, cipher='sha512'):
         List of Ciphers supported is the same as those supported by
         `csum.py`
     """
-    logging.debug('Starting download for %s with checksum: %s', url, checksum)
+    logging.debug('Downloading %s with checksum: %s', url, checksum)
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=120)
     if response.status_code != requests.codes.ok:
         logging.debug('HTTP Request to %s failed with error code %d',
                       url, response.status_code)
