@@ -1,10 +1,9 @@
 {
   "AWSEBDockerrunVersion": "1",
-  "Ports": [
-    {
-      "ContainerPort": "5000"
-    }
-  ],
+  "Image": {
+    "Name": "ubuntu:trusty",
+    "Update": "true"
+  },
   "Volumes": [
     {
       "HostDirectory": "/var/funsize/",
