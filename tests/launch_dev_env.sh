@@ -6,7 +6,7 @@ script_dir=$(dirname $0)
 
 cd $script_dir/..
 docker build -t funsize .
-docker build -t rabbitmq rabbitmq
+docker build -t rabbitmq tests/rabbitmq
 docker rm -f funsize || :
 docker rm -f rabbitmq || :
 docker run -d  -P -p 56725:56725 --name rabbitmq rabbitmq
