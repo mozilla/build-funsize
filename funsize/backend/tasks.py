@@ -11,7 +11,7 @@ import time
 from celery import Celery
 from celery.utils.log import get_task_logger
 import funsize.backend.core as core
-import funsize.utils.oddity as oddity
+from funsize.cache import CacheError
 
 app = Celery('tasks', broker=os.environ['CELERY_BROKER'])
 celery_config = {
@@ -27,7 +27,7 @@ def build_partial_mar(*args, **kwargs):
     start_time = time.time()
     try:
         core.build_partial_mar(*args, **kwargs)
-    except oddity.CacheError as exc:
+    except CacheError as exc:
         logger.info("Retrying the failed task")
         raise build_partial_mar.retry(countdown=60, exc=exc, max_retries=2)
 
