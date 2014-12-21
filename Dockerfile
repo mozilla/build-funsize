@@ -5,6 +5,8 @@ EXPOSE 5000
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python-dev supervisor python-pip
+# curl is used by the hook script
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y curl
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY / /app
 RUN mkdir -p /perma/tools /app/logs /var/cache/funsize

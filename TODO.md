@@ -17,3 +17,5 @@
 - [ ] Mount /var/cache/funsize in dev environment
 - [ ] Figure out how to expose celery status
 - [ ] Replace subprocess.call with something that logs the output
+- [ ] Rewrite funsize/backend/mbsdiff_hook.sh in Python to get rid of bash/curl dependency
+- [ ] Upload individual patches from the HOOK async?

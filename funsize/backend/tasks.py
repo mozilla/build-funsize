@@ -22,17 +22,14 @@ logger = get_task_logger(__name__)
 
 
 @app.task
-def build_partial_mar(*args):
+def build_partial_mar(*args, **kwargs):
     """ Wrapper for actual method, to get timestamps and measurings """
-    logger.info('STARTING TASK')
     start_time = time.time()
-
     try:
-        core.build_partial_mar(*args)
+        core.build_partial_mar(*args, **kwargs)
     except oddity.CacheError as exc:
-        # TODO: maybe a unittool clobber here? or cache clean for entry?
-        logger.info("Going to retry the job.")
+        logger.info("Retrying the failed task")
         raise build_partial_mar.retry(countdown=60, exc=exc, max_retries=2)
 
     total_time = time.time() - start_time
-    logger.info("Backup TOTAL TIME: %s", divmod(total_time, 60))
+    logger.info("TOTAL TIME: %s", divmod(total_time, 60))
