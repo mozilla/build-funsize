@@ -19,7 +19,7 @@ docker run -v $(pwd):/app \
     --env=AWS_ACCESS_KEY_ID=$FUNSIZE_AWS_ACCESS_KEY_ID \
     --env=AWS_SECRET_ACCESS_KEY=$FUNSIZE_AWS_SECRET_ACCESS_KEY \
     --env=FUNSIZE_S3_UPLOAD_BUCKET=$FUNSIZE_S3_UPLOAD_BUCKET \
-    --env=MBSDIFF_HOOK="/app/funsize/backend/mbsdiff_hook.sh -A http://localhost:5000/cache" \
+    --env=MBSDIFF_HOOK="/app/funsize/backend/mbsdiff_hook.sh -A http://127.0.0.1:5000/cache -c /var/cache/funsize" \
     --env=FUNSIZE_DEBUG=1 \
     -i -t --name funsize funsize $@
 

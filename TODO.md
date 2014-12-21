@@ -1,29 +1,21 @@
-- [x] Clean-Up
-- [x] Retry Code
-- [x] Logging
 - [ ] Tests
   - [ ] api.py tests
   - [ ] core.py tests
-  - [x] End-to-end integration test (generation of partials)
-  - [ ] End-to-end integration test (Application of partials)
-  - [x] Cache Tests
-  - [x] DB Tests
-- [x] Diff Level Caching
-- [x] Proper queue based download manager
-- [x] Use S3 as cache
-- [x] Use SQS as queue
-- [ ] Use docker + vagrant for multiple containers (1. Frontend, 2. Workers, 3. DB + Cache 4. Queue/RabbitMQ)
+  - [~] End-to-end integration test (generation of partials)
+- [ ] Use docker for multiple containers (1. Frontend, 2. Workers, 3. DB + Cache 4. Queue/RabbitMQ)
 - [ ] Use Sphinx for API level documentation
-- [x] Restructure Dirs; Separate tests, celery, flask.
-- [x] Get Travis Working
-- [x] Reorganize DB Schema
 - [ ] Unit testing
   - [ ] Fix unit testing
   - [ ] Mock S3 calls
-- [x] Restructure project directory
 - [ ] Implement integration testing in a uniform way - either using client/mar.py or latest mbsdiff/mar tools
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
-
-Known bugs (infrastructure/AWS/code)
-- [] POST size limit on aws container nginx reverse proxy - 413
-- [] platform has to be send as an argument from the client side - https://github.com/mozilla/build-funsize/blob/master/funsize/backend/tools.py#L54
+- [ ] Enable two level caching: local cache before S3 cache
+  - [ ] Purge the cache
+- [ ] S3 cache invalidation
+- [ ] Replace curl with requests
+- [ ] Use HTTP timeouts where possible
+- [ ] Mount /var/cache/funsize in dev environment
+- [ ] Figure out how to expose celery status
+- [ ] Replace subprocess.call with something that logs the output
+- [ ] Rewrite funsize/backend/mbsdiff_hook.sh in Python to get rid of bash/curl dependency
+- [ ] Upload individual patches from the HOOK async?

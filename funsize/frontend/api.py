@@ -11,7 +11,6 @@ import flask
 import logging
 import os
 import json
-from werkzeug.datastructures import FileStorage
 
 import funsize.cache.cache as cache
 import funsize.backend.tasks as tasks
@@ -30,32 +29,6 @@ def _get_identifier(id_sha1, id_sha2):
         the '-' to something more sophisticated.
     """
     return '-'.join([id_sha1, id_sha2])
-
-
-def _dispatch_mar(mar_resource, sha_mar):
-    cacheo = cache.Cache()
-    # if file found on S3, retrieve it no matter what (FileStorage or FTP url)
-    if cacheo.find(sha_mar, 'complete'):
-        return sha_mar
-
-    # if FileStorage - cache it on S3 and return its key
-    if isinstance(mar_resource, FileStorage):
-        cacheo.save(mar_resource.stream, sha_mar, 'complete')
-        return sha_mar
-
-    # if FTP url, return it as it is
-    return mar_resource
-
-
-def _pull_mar(mar_field, sha_mar):
-    request = flask.request
-    mar_resource = request.form.get(mar_field) or request.files.get(mar_field)
-
-    if not mar_resource:
-        raise ValueError("Field %s not found in the form at all" % mar_field)
-
-    mar_url = _dispatch_mar(mar_resource, sha_mar)
-    return mar_url
 
 
 @app.route('/')
@@ -132,14 +105,21 @@ def get_patch():
 def trigger_partial():
     """ Function to trigger a  partial generation """
     logging.debug('Parameters passed in : %s', flask.request.form)
-    required_params = ('sha_from', 'sha_to', 'channel_id', 'product_version')
+    required_params = (
+        'mar_from', 'sha_from',
+        'mar_to', 'sha_to',
+        'channel_id', 'product_version')
     form = flask.request.form
     if not all(param in form.keys() for param in required_params):
         logging.info('Missing parameters from POST form call')
         flask.abort(400)
 
-    sha_from, sha_to = form['sha_from'], form['sha_to']
-    channel_id, product_version = form['channel_id'], form['product_version']
+    mar_from = form['mar_from']
+    sha_from = form['sha_from']
+    mar_to = form['mar_to']
+    sha_to = form['sha_to']
+    channel_id = form['channel_id']
+    product_version = form['product_version']
 
     identifier = _get_identifier(sha_from, sha_to)
     url = flask.url_for('get_partial', identifier=identifier)
@@ -154,9 +134,6 @@ def trigger_partial():
             mimetype='application/json'
         )
         return resp
-
-    mar_from = _pull_mar('mar_from', sha_from)
-    mar_to = _pull_mar('mar_to', sha_to)
 
     try:
         cacheo.save_blank_file(identifier, 'partial')
@@ -185,7 +162,7 @@ def trigger_partial():
     return resp
 
 
-@app.route('/partial/<identifier>', methods=['GET'])
+@app.route('/partial/<identifier>', methods=['GET', 'HEAD'])
 def get_partial(identifier):
     """ Function to return a generated partial """
     logging.debug('Request received with headers : %s', flask.request.headers)
@@ -210,9 +187,17 @@ def get_partial(identifier):
         )
     else:
         logging.info('Record found, status: COMPLETED')
-        resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
-                              status=200,
-                              mimetype='application/octet-stream')
+        if flask.request.method == 'HEAD':
+            url = flask.url_for('get_partial', identifier=identifier)
+            resp = flask.Response(json.dumps({
+                "result": url
+                }),
+                status=200,
+            )
+        else:
+            resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
+                                  status=200,
+                                  mimetype='application/octet-stream')
     return resp
 
 if __name__ == '__main__':
@@ -222,4 +207,5 @@ if __name__ == '__main__':
     else:
         level = logging.INFO
     logging.basicConfig(level=level)
+    logging.getLogger("boto").setLevel(logging.INFO)
     app.run(debug=debug, host='0.0.0.0', processes=6)

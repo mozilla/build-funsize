@@ -16,5 +16,6 @@ setup(name="funsize",
           'Flask==0.10.1',
           'requests==2.2.1',
           'boto==2.33.0',
+          'sh==1.09',
       ],
       )
