@@ -29,3 +29,4 @@ deploy:
           secure: "S6CGa3B8b5b2oq+3UdbboVe3CY9SU0h3IkCL8tX9DuKJV6WKjjaRhr3UFauu8vEu0OCEjyB48DhMAdSOKWft+8W5d1WBRadFETuI7Mc7P5T8Xnb3S6mcn8Xw/mgo+wxE34WHgFh2W1yoYdMTuYNs+p7GikY5oTTr3QxXsXSLX/Y="
       on:
           repo: rail/build-funsize
+          all_branches: true
