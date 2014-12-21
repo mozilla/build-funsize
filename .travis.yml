@@ -16,3 +16,16 @@ script:
 
 after_script:
     - tox -e py27-coveralls
+
+deploy:
+    - provider: elasticbeanstalk
+      app: funsize
+      env: funsize-dev-rail
+      bucket_name: elasticbeanstalk-us-east-1-314336048151
+      region: us-east-1
+      access_key_id:
+          secure: "oso5kqFuUURshO1XXB1o/yPq8XHcdXRU+NmpjKk+LGNjdXWEvAmQj+E6lZTNw9R8WI6M4JuVoC0PTsNdS5mXKoFBsU/I7lHfc/6E4+d0L0BN+3yDeTMf1nFOHrB7Htf/fHHLP2qAh5Pj3BVkRM8PyzxfjaUcRuGCRhxS43xTp98="
+      secret_access_key:
+          secure: "S6CGa3B8b5b2oq+3UdbboVe3CY9SU0h3IkCL8tX9DuKJV6WKjjaRhr3UFauu8vEu0OCEjyB48DhMAdSOKWft+8W5d1WBRadFETuI7Mc7P5T8Xnb3S6mcn8Xw/mgo+wxE34WHgFh2W1yoYdMTuYNs+p7GikY5oTTr3QxXsXSLX/Y="
+      on:
+          repo: rail/build-funsize
