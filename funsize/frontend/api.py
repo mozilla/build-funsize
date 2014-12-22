@@ -18,6 +18,7 @@ from funsize.frontend import _get_identifier, allow_from
 
 CACHE_URI = None
 app = flask.Flask(__name__)
+log = logging.getLogger(__name__)
 
 
 @app.route('/')
@@ -32,17 +33,14 @@ def index():
 @allow_from("127.0.0.1")
 def save_patch():
     """ Function to cache a patch in funsize """
-    logging.debug('Parameters passed in : %s', flask.request.form)
-    logging.debug('Files passed in : %s', flask.request.files.lists())
-
     required_params = ('sha_from', 'sha_to')
     if not all(param in flask.request.form.keys() for param in required_params):
-        logging.info('Parameters could not be validated')
+        log.info('Parameters could not be validated')
         flask.abort(400)
 
     files = flask.request.files
     if 'patch_file' not in files.keys():
-        logging.info('Parameters passed could not be found on disk')
+        log.debug('Parameters passed could not be found on disk')
         flask.abort(400)
     storage = files.get('patch_file')
 
@@ -50,7 +48,7 @@ def save_patch():
     sha_from, sha_to = form['sha_from'], form['sha_to']
     identifier = _get_identifier(sha_from, sha_to)
 
-    logging.info('Saving patch file to cache with key %s', identifier)
+    log.debug('Saving patch file to cache with key %s', identifier)
     cacheo = cache.Cache()
     cacheo.save(storage.stream, identifier, 'patch')
 
@@ -65,20 +63,18 @@ def save_patch():
 @app.route('/cache', methods=['GET'])
 def get_patch():
     """ Function to return a patch from cache """
-    logging.debug('Request received with args : %s', flask.request.args)
-
     required_params = ('sha_from', 'sha_to')
     if not all(param in flask.request.args.keys() for param in required_params):
-        logging.info('Arguments could not be validated')
+        log.info('Arguments could not be validated')
         flask.abort(400)
 
     identifier = _get_identifier(flask.request.args['sha_from'],
                                  flask.request.args['sha_to'])
 
-    logging.debug('Looking up record with identifier %s', identifier)
+    log.debug('Looking up record with identifier %s', identifier)
     cacheo = cache.Cache()
     if not cacheo.find(identifier, 'patch'):
-        logging.info('Invalid partial request')
+        log.info('Invalid partial request')
         resp = flask.Response(json.dumps({
             "result": "Patch with identifier %s not found" % identifier,
             }),
@@ -86,7 +82,7 @@ def get_patch():
         )
         return resp
 
-    logging.info('Patch found, retrieving ...')
+    log.info('Patch found, retrieving ...')
     return flask.Response(cacheo.retrieve(identifier, 'patch'),
                           status=200,
                           mimetype='application/octet-stream')
@@ -95,14 +91,13 @@ def get_patch():
 @app.route('/partial', methods=['POST'])
 def trigger_partial():
     """ Function to trigger a  partial generation """
-    logging.debug('Parameters passed in : %s', flask.request.form)
     required_params = (
         'mar_from', 'sha_from',
         'mar_to', 'sha_to',
         'channel_id', 'product_version')
     form = flask.request.form
     if not all(param in form.keys() for param in required_params):
-        logging.info('Missing parameters from POST form call')
+        log.info('Missing parameters from POST form call')
         flask.abort(400)
 
     mar_from = form['mar_from']
@@ -117,7 +112,7 @@ def trigger_partial():
 
     cacheo = cache.Cache()
     if cacheo.find(identifier, 'partial'):
-        logging.info('Partial has already been triggered/generated')
+        log.info('Partial has already been triggered/generated')
         resp = flask.Response(json.dumps({
             "result": url
             }),
@@ -129,7 +124,7 @@ def trigger_partial():
     try:
         cacheo.save_blank_file(identifier, 'partial')
     except cache.CacheError:
-        logging.error('Error processing trigger request for URL: %s\n', url)
+        log.error('Error processing trigger request for URL: %s\n', url)
         resp = flask.Response(json.dumps({
             "result": "Error while processing request %s" % url,
             }),
@@ -138,12 +133,12 @@ def trigger_partial():
         )
         return resp
 
-    logging.info('Calling generation functions')
+    log.info('Calling generation functions')
 
     tasks.build_partial_mar.delay(mar_to, sha_to, mar_from, sha_from,
                                   identifier, channel_id, product_version)
 
-    logging.critical('Called build and moved on')
+    log.critical('Called build and moved on')
     resp = flask.Response(json.dumps({
         "result": url,
         }),
@@ -156,12 +151,8 @@ def trigger_partial():
 @app.route('/partial/<identifier>', methods=['GET', 'HEAD'])
 def get_partial(identifier):
     """ Function to return a generated partial """
-    logging.debug('Request received with headers : %s', flask.request.headers)
-    logging.debug('looking up record with identifier %s', identifier)
-
     cacheo = cache.Cache()
     if not cacheo.find(identifier, 'partial'):
-        logging.info('Invalid partial request')
         resp = flask.Response(json.dumps({
             "result": "Partial with identifier %s not found" % identifier,
             }),
@@ -170,14 +161,14 @@ def get_partial(identifier):
         return resp
 
     if cacheo.is_blank_file(identifier, 'partial'):
-        logging.info('Record found, status: IN PROGRESS')
+        log.debug('Record found, status: IN PROGRESS')
         resp = flask.Response(json.dumps({
             "result": "wait",
             }),
             status=202,
         )
     else:
-        logging.info('Record found, status: COMPLETED')
+        log.debug('Record found, status: COMPLETED')
         if flask.request.method == 'HEAD':
             url = flask.url_for('get_partial', identifier=identifier)
             resp = flask.Response(json.dumps({

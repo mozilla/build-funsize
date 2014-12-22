@@ -12,6 +12,8 @@ from exceptions import Exception
 
 from .checksum import verify
 
+log = logging.getLogger(__name__)
+
 
 class DownloadError(Exception):
     """ Class for errors raised when downloading a resource fails """
@@ -23,27 +25,26 @@ def download_mar(url, checksum, output_file):
         The file is written to the location specified by output file,
         if not specified, the downloaded file is returned.
     """
-    logging.debug('Downloading %s with checksum: %s', url, checksum)
+    log.debug('Downloading %s with checksum: %s', url, checksum)
 
     response = requests.get(url, timeout=120)
     if response.status_code != requests.codes.ok:
-        logging.debug('HTTP Request to %s failed with error code %d',
-                      url, response.status_code)
+        log.debug('HTTP Request to %s failed with error code %d', url,
+                  response.status_code)
         raise DownloadError('HTTP Request response error')
     mar = response.content
 
     if not verify(mar, checksum):
-        logging.warning('Verification of %s with checksum %s failed',
-                        url, checksum)
+        log.warning('Verification of %s with checksum %s failed', url, checksum)
         raise DownloadError('Checksums do not match')
     else:
-        logging.info('Verified download of %s', url)
+        log.info('Verified download of %s', url)
 
     try:
-        logging.info('Writing download %s to file %s', url, output_file)
+        log.info('Writing download %s to file %s', url, output_file)
         with open(output_file, 'wb') as fobj:
             fobj.write(mar)
     except:
-        logging.error('Error while downloading %s to file %s on disk',
-                      url, output_file)
+        log.error('Error while downloading %s to file %s on disk', url,
+                  output_file)
         raise DownloadError('Failed to write file to disk')
