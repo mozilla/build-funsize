@@ -27,7 +27,7 @@ def get_complete_mar(url, mar_hash, output_file):
 
     cacheo = cache.Cache()
     if url.startswith('http://') or url.startswith('https://'):
-        fetch.downloadmar(url, mar_hash, output_file)
+        fetch.download_mar(url, mar_hash, output_file)
         cacheo.save(output_file, mar_hash, 'complete', isfilename=True)
     else:
         cacheo.retrieve(mar_hash, 'complete', output_file=output_file)
