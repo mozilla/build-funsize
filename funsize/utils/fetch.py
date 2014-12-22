@@ -10,7 +10,7 @@ import logging
 import requests
 from exceptions import Exception
 
-from .csum import verify
+from .checksum import verify
 
 
 class DownloadError(Exception):
@@ -18,12 +18,10 @@ class DownloadError(Exception):
     pass
 
 
-def downloadmar(url, checksum, output_file, cipher='sha512'):
+def download_mar(url, checksum, output_file):
     """ Downloads the file specified by url, verifies the checksum.
         The file is written to the location specified by output file,
         if not specified, the downloaded file is returned.
-        List of Ciphers supported is the same as those supported by
-        `csum.py`
     """
     logging.debug('Downloading %s with checksum: %s', url, checksum)
 
@@ -34,7 +32,7 @@ def downloadmar(url, checksum, output_file, cipher='sha512'):
         raise DownloadError('HTTP Request response error')
     mar = response.content
 
-    if not verify(mar, checksum, cipher):
+    if not verify(mar, checksum):
         logging.warning('Verification of %s with checksum %s failed',
                         url, checksum)
         raise DownloadError('Checksums do not match')

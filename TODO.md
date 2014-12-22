@@ -1,13 +1,12 @@
+- [ ] Use docker for multiple containers (1. Frontend, 2. Workers, 3. RabbitMQ)
+- [ ] Use Sphinx for API level documentation
 - [ ] Tests
   - [ ] api.py tests
   - [ ] core.py tests
-  - [~] End-to-end integration test (generation of partials)
-- [ ] Use docker for multiple containers (1. Frontend, 2. Workers, 3. DB + Cache 4. Queue/RabbitMQ)
-- [ ] Use Sphinx for API level documentation
-- [ ] Unit testing
   - [ ] Fix unit testing
   - [ ] Mock S3 calls
-- [ ] Implement integration testing in a uniform way - either using client/mar.py or latest mbsdiff/mar tools
+  - [~] End-to-end integration test (generation of partials)
+  - [ ] Implement integration testing in a uniform way - either using client/mar.py or latest mbsdiff/mar tools
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
 - [ ] Enable two level caching: local cache before S3 cache
   - [ ] Purge the cache
@@ -19,3 +18,5 @@
 - [ ] Upload individual patches from the HOOK async?
 - [ ] Better logging
 - [ ] Less of deffensive programming practices (DownloadError)
+- [ ] Better Flask app initialization (processes, etc)
+- [ ] Auth
