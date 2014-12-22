@@ -27,26 +27,17 @@ class TestCache(unittest.TestCase):
         # This doesn't sound right as a unittest, but this is the best I can
         # think of
 
-        self.cache_object.save(self.test_file, self.key, self.category,
+        self.cache_object.save(self.test_file, self.category, self.key,
                                isfile=True)
-        self.assertTrue(self.cache_object.find(self.key, self.category))
-        self.cache_object.retrieve(self.key, self.category,
+        self.assertTrue(self.cache_object.exists(self.category, self.key))
+        self.cache_object.retrieve(self.category, self.key,
                                    output_file=self.output_file)
         with open(self.output_file, 'rb') as f:
             self.assertEqual(self.test_string, f.read())
 
-    def test_find(self):
-        """ Check the find method works """
-        self.assertFalse(self.cache_object.find('nonexistantid', self.category))
-
-    @unittest.skip('Skipping test till we figure out what should go in it')
-    def test_save(self):
-        # TODO: Test all errors are raised correctly
-        pass
+    def test_exists(self):
+        self.assertFalse(self.cache_object.exists(self.category, 'badid'))
 
     def tearDown(self):
         shutil.rmtree(self.cache_uri)
         os.remove(self.test_file)
-
-if __name__ == '__main__':
-    unittest.main(verbosity=3)

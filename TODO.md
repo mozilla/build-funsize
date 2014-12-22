@@ -1,22 +1,20 @@
 - [ ] Use docker for multiple containers (1. Frontend, 2. Workers, 3. RabbitMQ)
 - [ ] Use Sphinx for API level documentation
 - [ ] Tests
-  - [ ] api.py tests
   - [ ] core.py tests
-  - [ ] Fix unit testing
   - [ ] Mock S3 calls
   - [~] End-to-end integration test (generation of partials)
-  - [ ] Implement integration testing in a uniform way - either using client/mar.py or latest mbsdiff/mar tools
+  - [ ] Implement integration testing comparing production MAR files with generated ones (comparing them skipping the signarure)
+  - [ ] Multiple versions/locales integration tests
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
 - [ ] Enable two level caching: local cache before S3 cache
-  - [ ] Purge the cache
+  - [ ] Purge local cache
 - [ ] S3 cache invalidation
 - [ ] Use HTTP timeouts where possible
 - [ ] Mount /var/cache/funsize in dev environment
-- [ ] Figure out how to expose celery status
 - [ ] Rewrite funsize/backend/mbsdiff_hook.sh in Python to get rid of bash/curl dependency
 - [ ] Upload individual patches from the HOOK async?
-- [ ] Better logging
 - [ ] Less of deffensive programming practices (DownloadError)
-- [ ] Better Flask app initialization (processes, etc)
 - [ ] Auth
+- [ ] Separate app and request logs
+- [ ] Run as a WSGI app?
