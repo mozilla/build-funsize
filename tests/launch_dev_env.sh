@@ -9,7 +9,7 @@ docker build -t funsize .
 docker build -t rabbitmq tests/rabbitmq
 docker rm -f funsize || :
 docker rm -f rabbitmq || :
-docker run -d  -P -p 56725:56725 --name rabbitmq rabbitmq
+docker run -d  -P -p 56725:56725 -p 5555:5555 --name rabbitmq rabbitmq
 
 sleep 5
 docker run -v $(pwd):/app \

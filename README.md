@@ -21,7 +21,8 @@ Dev-Env Requirements
   - Funsize container will be running in foreground. The checkout root directory will be mounted to the `/app` directory inside the container. This means that your file changes will be propagated to the container.
 - The application logs will show up in the `logs` directory
 - Funzise REST API can be accessed at http://localhost:5000
-- Ctrl+C to stop the container. The rabbitmq contaner will be stopped and deleted automatically (--rm option)
+- Ctrl+C to stop the container. The rabbitmq contaner will be stopped automatically
+- The task queue can be monitored at http://localhost:5555/
 - You can run `./tests/launch_dev_env.sh /bin/bash` to get shell access to the funsize container. Note that the services won't be running. You can start them by running `supervisord &`.
 
 
