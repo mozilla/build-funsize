@@ -113,39 +113,26 @@ def trigger_partial():
     cacheo = cache.Cache()
     if cacheo.find(identifier, 'partial'):
         log.info('Partial has already been triggered/generated')
-        resp = flask.Response(json.dumps({
-            "result": url
-            }),
-            status=201,
-            mimetype='application/json'
-        )
-        return resp
-
+        return flask.Response(json.dumps({"result": url}), status=201,
+                              mimetype='application/json')
     try:
         cacheo.save_blank_file(identifier, 'partial')
     except cache.CacheError:
         log.error('Error processing trigger request for URL: %s\n', url)
-        resp = flask.Response(json.dumps({
-            "result": "Error while processing request %s" % url,
-            }),
+        return flask.Response(
+            json.dumps({"result": "Error while processing request %s" % url}),
             status=500,
             mimetypge='application/json'
         )
-        return resp
-
-    log.info('Calling generation functions')
 
     tasks.build_partial_mar.delay(mar_to, sha_to, mar_from, sha_from,
                                   identifier, channel_id, product_version)
-
-    log.critical('Called build and moved on')
-    resp = flask.Response(json.dumps({
-        "result": url,
-        }),
+    log.debug("Task submitted")
+    return flask.Response(
+        json.dumps({"result": url}),
         status=202,
         mimetype='application/json'
     )
-    return resp
 
 
 @app.route('/partial/<identifier>', methods=['GET', 'HEAD'])
@@ -156,7 +143,7 @@ def get_partial(identifier):
         resp = flask.Response(json.dumps({
             "result": "Partial with identifier %s not found" % identifier,
             }),
-            status=400,
+            status=404,
         )
         return resp
 
@@ -175,6 +162,7 @@ def get_partial(identifier):
                 "result": url
                 }),
                 status=200,
+                mimetype='application/json'
             )
         else:
             resp = flask.Response(cacheo.retrieve(identifier, 'partial'),
@@ -182,7 +170,7 @@ def get_partial(identifier):
                                   mimetype='application/octet-stream')
     return resp
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     debug = os.environ.get("FUNSIZE_DEBUG", False)
     if debug:
         processes = 1

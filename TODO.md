@@ -1,7 +1,6 @@
 - [ ] Use docker for multiple containers (1. Frontend, 2. Workers, 3. RabbitMQ)
 - [ ] Use Sphinx for API level documentation
 - [ ] Tests
-  - [ ] api.py tests
   - [ ] core.py tests
   - [ ] Fix unit testing
   - [ ] Mock S3 calls
