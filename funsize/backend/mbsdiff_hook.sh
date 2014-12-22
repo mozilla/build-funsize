@@ -7,11 +7,10 @@
 # This tool contains functions that are to be used to handle/enable funsize
 # Author: Mihai Tabara
 #
-set -x
 
-HOOK=""
-SERVER_URL=""
-LOCAL_CACHE_DIR=""
+HOOK=
+SERVER_URL=
+LOCAL_CACHE_DIR=
 
 getsha512(){
     echo "$(openssl sha512 "${1}" | awk '{print $2}')"
@@ -38,10 +37,10 @@ upload_patch(){
 
     # save to local cache first
     if [ -n "$LOCAL_CACHE_DIR" ]; then
-        local_cmd="mkdir -p "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from""
+        local_cmd="mkdir -p "$LOCAL_CACHE_DIR/$sha_from""
         if `$local_cmd` >&2; then
-            cp -af "$patch_path" "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to"
-            echo ""$patch_path" saved on local cache!"
+            cp -af "$patch_path" "$LOCAL_CACHE_DIR/$sha_from/$sha_to"
+            echo "$patch_path saved on local cache!"
         fi
     fi
 
@@ -50,11 +49,11 @@ upload_patch(){
     ret_code=`$cmd`
 
     if [ $ret_code -eq 200 ]; then
-        echo ""$patch_path" Successful uploaded to funsize!"
+        echo "$patch_path Successful uploaded to funsize!"
         return 0
     fi
 
-    echo ""$patch_path" Failed to be uploaded to funsize!"
+    echo "$patch_path Failed to be uploaded to funsize!"
     return 1
 }
 
@@ -65,8 +64,8 @@ get_patch(){
     tmp_file="$destination_file.tmp"
 
     # try to retrieve from local cache first
-    if [ -e "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to" ]; then
-        cp -af "$FUNSIZE_LOCAL_CACHE_DIR/$sha_from/$sha_to" "$destination_file"
+    if [ -r "$LOCAL_CACHE_DIR/$sha_from/$sha_to" ]; then
+        cp -af "$LOCAL_CACHE_DIR/$sha_from/$sha_to" "$destination_file"
         echo "Successful retrieved $destination_file from local cache!"
         return 0
     fi
@@ -81,7 +80,7 @@ get_patch(){
         return 0
     fi
 
-    rm "$tmp_file"
+    rm  -f "$tmp_file"
     echo "Failed to retrieve $destination_file from funsize!"
     return 1
 }

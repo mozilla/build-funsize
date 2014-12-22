@@ -14,20 +14,10 @@ import json
 
 import funsize.cache as cache
 import funsize.backend.tasks as tasks
+from funsize.frontend import _get_identifier, allow_from
 
 CACHE_URI = None
-
-__here__ = os.path.dirname(os.path.abspath(__file__))
-
 app = flask.Flask(__name__)
-
-
-def _get_identifier(id_sha1, id_sha2):
-    """ Function to generate the identifier of a patch based on two shas given
-        The reason we keep this function is that in the future we might change
-        the '-' to something more sophisticated.
-    """
-    return '-'.join([id_sha1, id_sha2])
 
 
 @app.route('/')
@@ -38,6 +28,8 @@ def index():
 
 
 @app.route('/cache', methods=['POST'])
+# Restrict cache submission to localhost only
+@allow_from("127.0.0.1")
 def save_patch():
     """ Function to cache a patch in funsize """
     logging.debug('Parameters passed in : %s', flask.request.form)
