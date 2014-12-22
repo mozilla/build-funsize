@@ -20,3 +20,5 @@
 - [ ] Less of deffensive programming practices (DownloadError)
 - [ ] Better Flask app initialization (processes, etc)
 - [ ] Auth
+- [ ] Separate app and request logs
+- [ ] Run as a WSGI app

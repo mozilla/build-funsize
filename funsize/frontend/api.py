@@ -17,15 +17,15 @@ import funsize.backend.tasks as tasks
 from funsize.frontend import _get_identifier, allow_from
 
 CACHE_URI = None
-app = flask.Flask(__name__)
+app = flask.Flask("funsize")
 log = logging.getLogger(__name__)
 
 
 @app.route('/')
 def index():
     """ Mockup message to fill in the index page """
-    return "Welcome to Funsize, the Partial MAR on demand Web-Service."\
-           "Please see https://wiki.mozilla.org/User:Ffledgling/Senbonzakura"
+    return """Welcome to Funsize, the Partial MAR on demand Web-Service.
+           Please see https://wiki.mozilla.org/User:Ffledgling/Senbonzakura"""
 
 
 @app.route('/cache', methods=['POST'])
