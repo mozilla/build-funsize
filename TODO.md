@@ -2,10 +2,10 @@
 - [ ] Use Sphinx for API level documentation
 - [ ] Tests
   - [ ] core.py tests
-  - [ ] Fix unit testing
   - [ ] Mock S3 calls
   - [~] End-to-end integration test (generation of partials)
   - [ ] Implement integration testing comparing production MAR files with generated ones (comparing them skipping the signarure)
+  - [ ] Multiple versions/locales integration tests
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
 - [ ] Enable two level caching: local cache before S3 cache
   - [ ] Purge local cache
@@ -17,4 +17,4 @@
 - [ ] Less of deffensive programming practices (DownloadError)
 - [ ] Auth
 - [ ] Separate app and request logs
-- [ ] Run as a WSGI app
+- [ ] Run as a WSGI app?

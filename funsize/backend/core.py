@@ -30,9 +30,9 @@ def get_complete_mar(url, mar_hash, output_file):
     cacheo = cache.Cache()
     if url.startswith('http://') or url.startswith('https://'):
         fetch.download_mar(url, mar_hash, output_file)
-        cacheo.save(output_file, mar_hash, 'complete', isfilename=True)
+        cacheo.save(output_file, 'complete', mar_hash, isfilename=True)
     else:
-        cacheo.retrieve(mar_hash, 'complete', output_file=output_file)
+        cacheo.retrieve('complete', mar_hash, output_file=output_file)
 
     log.info('Satisfied request for complete MAR %s with mar_hash %s', url,
              mar_hash)
@@ -64,12 +64,12 @@ def build_partial_mar(to_mar_url, to_mar_hash, from_mar_url, from_mar_hash,
             working_dir=TMP_WORKING_DIR)
         log.debug('Partial MAR generated at %s', partial_file)
     except:
-        cacheo.delete_from_cache(identifier, 'partial')
+        cacheo.delete('partial', identifier)
         raise
 
     log.info('Saving partial MAR %s to cache with key %s', partial_file,
              identifier)
-    cacheo.save(partial_file, identifier, 'partial', isfilename=True)
+    cacheo.save(partial_file, 'partial', identifier, isfilename=True)
 
 
 def generate_partial_mar(to_mar, from_mar, channel_id, product_version,

@@ -11,7 +11,7 @@ docker rm -f funsize || :
 docker rm -f rabbitmq || :
 docker run -d  -P -p 56725:56725 -p 5555:5555 --name rabbitmq rabbitmq
 
-sleep 5
+sleep 2
 docker run -v $(pwd):/app \
     --link rabbitmq:rabbitmq \
     -p 5000:5000 -P --rm \

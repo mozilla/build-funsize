@@ -56,21 +56,21 @@ def test_trigger_partial_missing_params():
 @mock.patch("funsize.cache.Cache")
 def test_trigger_partial_existing(m_cache):
     cacheo = mock.Mock()
-    cacheo.find.return_value = True
+    cacheo.exists.return_value = True
     m_cache.return_value = cacheo
     c = app.test_client()
     data = {'mar_from': 'mf', 'sha_from': 'hf', 'mar_to': 'mt', 'sha_to': 'st',
             'channel_id': 'ci', 'product_version': 'pv'}
     rv = c.post("/partial", data=data)
     assert rv.status_code == 201
-    cacheo.find.assert_called_once()
+    cacheo.exists.assert_called_once()
 
 
 @mock.patch("funsize.backend.tasks.build_partial_mar")
 @mock.patch("funsize.cache.Cache")
 def test_trigger_partial_new(m_cache, m_task):
     cacheo = mock.Mock()
-    cacheo.find.return_value = False
+    cacheo.exists.return_value = False
     m_cache.return_value = cacheo
     c = app.test_client()
     data = {'mar_from': 'mf', 'sha_from': 'hf', 'mar_to': 'mt', 'sha_to': 'st',
@@ -84,7 +84,7 @@ def test_trigger_partial_new(m_cache, m_task):
 @mock.patch("funsize.cache.Cache")
 def test_trigger_partial_cache_error(m_cache):
     cacheo = mock.Mock()
-    cacheo.find.return_value = False
+    cacheo.exists.return_value = False
     cacheo.save_blank_file.side_effect = funsize.cache.CacheError("oops")
     m_cache.return_value = cacheo
     c = app.test_client()
@@ -104,72 +104,72 @@ def test_get_patch_missing_params():
 @mock.patch("funsize.cache.Cache")
 def test_get_patch_cache_miss(m_cache):
     cacheo = mock.Mock()
-    cacheo.find.return_value = False
+    cacheo.exists.return_value = False
     m_cache.return_value = cacheo
     c = app.test_client()
     # data = {"sha_from": "sf", "sha_to": "st"}
     rv = c.get("/cache?sha_from=a&sha_to=b")
     assert rv.status_code == 400
-    cacheo.find.assert_called_once()
+    cacheo.exists.assert_called_once()
 
 
 @mock.patch("funsize.cache.Cache")
 def test_get_patch_cache_hit(m_cache):
     cacheo = mock.Mock()
-    cacheo.find.return_value = True
+    cacheo.exists.return_value = True
     m_cache.return_value = cacheo
     c = app.test_client()
     # data = {"sha_from": "sf", "sha_to": "st"}
     rv = c.get("/cache?sha_from=a&sha_to=b")
     assert rv.status_code == 200
-    cacheo.find.assert_called_once()
+    cacheo.exists.assert_called_once()
     cacheo.retrieve.assert_called_once()
 
 
 @mock.patch("funsize.cache.Cache")
 def test_get_partial_404(m_cache):
     cacheo = mock.Mock()
-    cacheo.find.return_value = False
+    cacheo.exists.return_value = False
     m_cache.return_value = cacheo
     c = app.test_client()
     rv = c.get("/partial/123")
     assert rv.status_code == 404
-    cacheo.find.assert_called_once()
+    cacheo.exists.assert_called_once()
 
 
 @mock.patch("funsize.cache.Cache")
 def test_get_partial_in_progress(m_cache):
     cacheo = mock.Mock()
-    cacheo.find.return_value = True
+    cacheo.exists.return_value = True
     cacheo.is_blank_file.return_value = True
     m_cache.return_value = cacheo
     c = app.test_client()
     rv = c.get("/partial/123")
     assert rv.status_code == 202
-    cacheo.find.assert_called_once()
+    cacheo.exists.assert_called_once()
 
 
 @mock.patch("funsize.cache.Cache")
 def test_get_partial_completed_head(m_cache):
     cacheo = mock.Mock()
-    cacheo.find.return_value = True
+    cacheo.exists.return_value = True
     cacheo.is_blank_file.return_value = False
     m_cache.return_value = cacheo
     c = app.test_client()
     rv = c.head("/partial/123")
     assert rv.status_code == 200
     assert rv.content_type == "application/json"
-    cacheo.find.assert_called_once()
+    cacheo.exists.assert_called_once()
 
 
 @mock.patch("funsize.cache.Cache")
 def test_get_partial_completed_get(m_cache):
     cacheo = mock.Mock()
-    cacheo.find.return_value = True
+    cacheo.exists.return_value = True
     cacheo.is_blank_file.return_value = False
     m_cache.return_value = cacheo
     c = app.test_client()
     rv = c.get("/partial/123")
     assert rv.status_code == 200
     assert rv.content_type == "application/octet-stream"
-    cacheo.find.assert_called_once()
+    cacheo.exists.assert_called_once()
