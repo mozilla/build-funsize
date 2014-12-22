@@ -185,9 +185,12 @@ def get_partial(identifier):
 if __name__ == '__main__':
     debug = os.environ.get("FUNSIZE_DEBUG", False)
     if debug:
+        processes = 1
         level = logging.DEBUG
     else:
+        import multiprocessing
+        processes = multiprocessing.cpu_count()
         level = logging.INFO
     logging.basicConfig(level=level)
     logging.getLogger("boto").setLevel(logging.INFO)
-    app.run(debug=debug, host='0.0.0.0', processes=6)
+    app.run(debug=debug, host='0.0.0.0', processes=processes)
