@@ -11,8 +11,10 @@ import os
 import shutil
 import logging
 import errno
+from StringIO import StringIO
 from boto.s3.connection import S3Connection
 from exceptions import Exception
+from funsize.utils.checksum import get_hash
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +27,6 @@ class CacheError(Exception):
 class CacheBase(object):
 
     def get_cache_path(self, category, identifier):
-        """ Method to return cache bucket key based on identifier """
         return "files/%s/%s" % (category, identifier)
 
     def save(self, fp_or_filename, category, identifier, isfilename=False):
@@ -52,12 +53,18 @@ class LocalCache(CacheBase):
     def __init__(self, cache_root):
         self.cache_root = cache_root
 
+    def get_cache_path(self, category, identifier=""):
+        # Shorten the path to avoid file-name-too-long errors
+        if identifier:
+            identifier = get_hash("sha1", identifier)
+        return "files/{}/{}".format(category, identifier)
+
     def abspath(self, category, identifier):
         return os.path.join(
             self.cache_root, self.get_cache_path(category, identifier))
 
-    def mkdir_p(self, path):
-        path = os.path.join(self.cache_root, path)
+    def mkdir_p(self, category):
+        path = os.path.join(self.cache_root, self.get_cache_path(category))
         try:
             os.makedirs(path, 0700)
         except OSError as e:
@@ -74,7 +81,7 @@ class LocalCache(CacheBase):
                 shutil.copyfileobj(fp_or_filename, fdest)
 
     def save_blank_file(self, category, identifier):
-        self.save("", category, identifier)
+        self.save(StringIO(""), category, identifier)
 
     def is_blank_file(self, category, identifier):
         dest = self.abspath(category, identifier)
@@ -169,11 +176,12 @@ class S3Cache(CacheBase):
         """ Method to remove a file from cache """
         self.get_key(category, identifier).delete()
 
-if 'FUNSIZE_S3_UPLOAD_BUCKET' in os.environ:
-    cache = S3Cache(os.environ["FUNSIZE_S3_UPLOAD_BUCKET"])
-elif 'FUNSIZE_LOCAL_CACHE_DIR' in os.environ:
+if 'FUNSIZE_LOCAL_CACHE_DIR' in os.environ:
+    logging.info("Using local cache")
     cache = LocalCache(os.environ["FUNSIZE_LOCAL_CACHE_DIR"])
+elif 'FUNSIZE_S3_UPLOAD_BUCKET' in os.environ:
+    logging.info("Using S3 cache")
+    cache = S3Cache(os.environ["FUNSIZE_S3_UPLOAD_BUCKET"])
 else:
+    logging.info("Default local cache")
     cache = LocalCache("/tmp/funsizecache")
-#     raise Exception("Specify you cache backed by setting up "
-#                     "FUNSIZE_S3_UPLOAD_BUCKET or FUNSIZE_LOCAL_CACHE_DIR")

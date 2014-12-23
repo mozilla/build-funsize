@@ -14,7 +14,7 @@ import json
 
 import funsize.backend.tasks as tasks
 from funsize.frontend import _get_identifier, allow_from
-from funsize.cache import cache
+from funsize.cache import cache, CacheError
 
 app = flask.Flask("funsize")
 log = logging.getLogger(__name__)
@@ -113,7 +113,7 @@ def trigger_partial():
                               mimetype='application/json')
     try:
         cache.save_blank_file('partial', identifier)
-    except cache.CacheError:
+    except CacheError:
         log.error('Error processing trigger request for URL: %s\n', url)
         return flask.Response(
             json.dumps({"result": "Error while processing request %s" % url}),
