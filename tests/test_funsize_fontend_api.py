@@ -107,7 +107,6 @@ def test_get_patch_cache_miss(m_cache):
     cacheo.exists.return_value = False
     m_cache.return_value = cacheo
     c = app.test_client()
-    # data = {"sha_from": "sf", "sha_to": "st"}
     rv = c.get("/cache?sha_from=a&sha_to=b")
     assert rv.status_code == 400
     cacheo.exists.assert_called_once()
@@ -119,7 +118,6 @@ def test_get_patch_cache_hit(m_cache):
     cacheo.exists.return_value = True
     m_cache.return_value = cacheo
     c = app.test_client()
-    # data = {"sha_from": "sf", "sha_to": "st"}
     rv = c.get("/cache?sha_from=a&sha_to=b")
     assert rv.status_code == 200
     cacheo.exists.assert_called_once()

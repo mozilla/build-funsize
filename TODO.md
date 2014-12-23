@@ -3,9 +3,7 @@
 - [ ] Tests
   - [ ] core.py tests
   - [ ] Mock S3 calls
-  - [~] End-to-end integration test (generation of partials)
-  - [ ] Implement integration testing comparing production MAR files with generated ones (comparing them skipping the signarure)
-  - [ ] Multiple versions/locales integration tests
+  - [ ] End-to-end integration test (generation of partials) per push
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
 - [ ] Enable two level caching: local cache before S3 cache
   - [ ] Purge local cache
@@ -18,3 +16,6 @@
 - [ ] Auth
 - [ ] Separate app and request logs
 - [ ] Run as a WSGI app?
+- [ ] Use better HTTP codes
+- [ ] Use named celery queues
+- [ ] Use separate queues for production
