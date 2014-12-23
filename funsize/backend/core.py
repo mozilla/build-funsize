@@ -12,7 +12,7 @@ import tempfile
 import sh
 
 import funsize.utils.fetch as fetch
-import funsize.cache as cache
+from funsize.cache import cache
 
 log = logging.getLogger(__name__)
 
@@ -27,12 +27,11 @@ def get_complete_mar(url, mar_hash, output_file):
     """ Return binary string if no output_file specified """
     log.info('Downloading complete MAR %s with mar_hash %s', url, mar_hash)
 
-    cacheo = cache.Cache()
     if url.startswith('http://') or url.startswith('https://'):
         fetch.download_mar(url, mar_hash, output_file)
-        cacheo.save(output_file, 'complete', mar_hash, isfilename=True)
+        cache.save(output_file, 'complete', mar_hash, isfilename=True)
     else:
-        cacheo.retrieve('complete', mar_hash, output_file=output_file)
+        cache.retrieve('complete', mar_hash, output_file=output_file)
 
     log.info('Satisfied request for complete MAR %s with mar_hash %s', url,
              mar_hash)
@@ -57,19 +56,18 @@ def build_partial_mar(to_mar_url, to_mar_hash, from_mar_url, from_mar_hash,
     get_complete_mar(from_mar_url, from_mar_hash, from_mar)
 
     log.info('Creating cache connections')
-    cacheo = cache.Cache()
     try:
         partial_file = generate_partial_mar(
             to_mar, from_mar, channel_id, product_version,
             working_dir=TMP_WORKING_DIR)
         log.debug('Partial MAR generated at %s', partial_file)
     except:
-        cacheo.delete('partial', identifier)
+        cache.delete('partial', identifier)
         raise
 
     log.info('Saving partial MAR %s to cache with key %s', partial_file,
              identifier)
-    cacheo.save(partial_file, 'partial', identifier, isfilename=True)
+    cache.save(partial_file, 'partial', identifier, isfilename=True)
 
 
 def generate_partial_mar(to_mar, from_mar, channel_id, product_version,

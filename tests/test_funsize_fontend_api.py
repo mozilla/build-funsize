@@ -34,17 +34,15 @@ def test_caching_required_file():
     assert rv.status_code == 400
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_caching(m_cache):
-    cacheo = mock.Mock()
-    m_cache.return_value = cacheo
     c = app.test_client()
     data = {"sha_from": "xx", "sha_to": "yy",
             "patch_file": (StringIO('Foo bar baz'), "patch")}
     rv = c.post("/cache", environ_overrides={"REMOTE_ADDR": "127.0.0.1"},
                 data=data)
     assert rv.status_code == 200
-    cacheo.save.assert_called_once()
+    assert m_cache.save.call_count == 1
 
 
 def test_trigger_partial_missing_params():
@@ -53,45 +51,41 @@ def test_trigger_partial_missing_params():
     assert rv.status_code == 400
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_trigger_partial_existing(m_cache):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = True
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = True
     c = app.test_client()
     data = {'mar_from': 'mf', 'sha_from': 'hf', 'mar_to': 'mt', 'sha_to': 'st',
             'channel_id': 'ci', 'product_version': 'pv'}
     rv = c.post("/partial", data=data)
     assert rv.status_code == 201
-    cacheo.exists.assert_called_once()
+    assert m_cache.exists.call_count == 1
 
 
 @mock.patch("funsize.backend.tasks.build_partial_mar")
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_trigger_partial_new(m_cache, m_task):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = False
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = False
     c = app.test_client()
     data = {'mar_from': 'mf', 'sha_from': 'hf', 'mar_to': 'mt', 'sha_to': 'st',
             'channel_id': 'ci', 'product_version': 'pv'}
     rv = c.post("/partial", data=data)
-    cacheo.save_blank_file.assert_called_once()
-    m_task.delay.assert_called_once()
+    print dir(m_cache)
+    assert m_cache.exists.call_count == 1
+    assert m_cache.save_blank_file.call_count == 1
+    assert m_task.delay.call_count == 1
     assert rv.status_code == 202
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_trigger_partial_cache_error(m_cache):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = False
-    cacheo.save_blank_file.side_effect = funsize.cache.CacheError("oops")
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = False
+    m_cache.save_blank_file.side_effect = funsize.cache.CacheError("oops")
     c = app.test_client()
     data = {'mar_from': 'mf', 'sha_from': 'hf', 'mar_to': 'mt', 'sha_to': 'st',
             'channel_id': 'ci', 'product_version': 'pv'}
     rv = c.post("/partial", data=data)
-    cacheo.save_blank_file.assert_called_once()
+    assert m_cache.save_blank_file.call_count == 1
     assert rv.status_code == 500
 
 
@@ -101,73 +95,61 @@ def test_get_patch_missing_params():
     assert rv.status_code == 400
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_get_patch_cache_miss(m_cache):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = False
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = False
     c = app.test_client()
     rv = c.get("/cache?sha_from=a&sha_to=b")
     assert rv.status_code == 400
-    cacheo.exists.assert_called_once()
+    assert m_cache.exists.call_count == 1
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_get_patch_cache_hit(m_cache):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = True
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = True
     c = app.test_client()
     rv = c.get("/cache?sha_from=a&sha_to=b")
     assert rv.status_code == 200
-    cacheo.exists.assert_called_once()
-    cacheo.retrieve.assert_called_once()
+    assert m_cache.exists.call_count == 1
+    assert m_cache.retrieve.call_count == 1
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_get_partial_404(m_cache):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = False
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = False
     c = app.test_client()
     rv = c.get("/partial/123")
     assert rv.status_code == 404
-    cacheo.exists.assert_called_once()
+    assert m_cache.exists.call_count == 1
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_get_partial_in_progress(m_cache):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = True
-    cacheo.is_blank_file.return_value = True
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = True
+    m_cache.is_blank_file.return_value = True
     c = app.test_client()
     rv = c.get("/partial/123")
     assert rv.status_code == 202
-    cacheo.exists.assert_called_once()
+    assert m_cache.exists.call_count == 1
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_get_partial_completed_head(m_cache):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = True
-    cacheo.is_blank_file.return_value = False
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = True
+    m_cache.is_blank_file.return_value = False
     c = app.test_client()
     rv = c.head("/partial/123")
     assert rv.status_code == 200
     assert rv.content_type == "application/json"
-    cacheo.exists.assert_called_once()
+    assert m_cache.exists.call_count == 1
 
 
-@mock.patch("funsize.cache.Cache")
+@mock.patch("funsize.frontend.api.cache")
 def test_get_partial_completed_get(m_cache):
-    cacheo = mock.Mock()
-    cacheo.exists.return_value = True
-    cacheo.is_blank_file.return_value = False
-    m_cache.return_value = cacheo
+    m_cache.exists.return_value = True
+    m_cache.is_blank_file.return_value = False
     c = app.test_client()
     rv = c.get("/partial/123")
     assert rv.status_code == 200
     assert rv.content_type == "application/octet-stream"
-    cacheo.exists.assert_called_once()
+    assert m_cache.exists.call_count == 1
