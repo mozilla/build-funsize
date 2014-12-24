@@ -6,7 +6,7 @@ import tempfile
 import time
 import os
 import argparse
-from mar import MarFile
+from mar.mar import MarFile
 
 
 partial_mar_re = re.compile(
