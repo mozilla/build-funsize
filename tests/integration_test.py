@@ -100,13 +100,13 @@ def build_sample(completes, partials, channel_id):
 
 
 def compare_partials(args):
-    data, original_mar_url, api_root, identifier = args
+    data, mar_url, api_root, identifier = args
     trigger_partial(api_root, data)
     _, their_mar = tempfile.mkstemp()
     os.close(_)
     _, our_mar = tempfile.mkstemp()
     os.close(_)
-    get_file(original_mar_url, their_mar)
+    get_file(mar_url, their_mar)
     get_file("{api_root}partial/{identifier}".format(
         api_root=api_root, identifier=identifier), our_mar)
     assert mar_internal_sha512(their_mar) == mar_internal_sha512(our_mar)
@@ -122,7 +122,8 @@ if __name__ == '__main__':
                         default="http://localhost:5000/")
     parser.add_argument("-n", "--partial-count", type=int, default=1,
                         help="How many partials to generate")
-    parser.add_argument("-c", "--channel-id", default="firefox-mozilla-release",
+    parser.add_argument("-c", "--channel-id",
+                        default="firefox-mozilla-release",
                         help="MAR channel ID")
     parser.add_argument("-j", "--processes", type=int, default=1,
                         help="How many processes to use")
@@ -144,9 +145,8 @@ if __name__ == '__main__':
         exit(1)
     print "Testing %s out of %s" % (args.partial_count, len(sample))
     test_args = []
-    for data, original_mar_url, identifier in random.sample(sample,
-                                                            args.partial_count):
-        test_args.append([data, original_mar_url, args.api_root, identifier])
+    for data, mar_url, identifier in random.sample(sample, args.partial_count):
+        test_args.append([data, mar_url, args.api_root, identifier])
     if args.processes > 1:
         import multiprocessing
         pool = multiprocessing.Pool(processes=min([args.processes,

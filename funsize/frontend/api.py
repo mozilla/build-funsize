@@ -33,7 +33,7 @@ def index():
 def save_patch():
     """ Function to cache a patch in funsize """
     required_params = ('sha_from', 'sha_to')
-    if not all(param in flask.request.form.keys() for param in required_params):
+    if not all(p in flask.request.form.keys() for p in required_params):
         log.info('Parameters could not be validated')
         flask.abort(400)
 
@@ -87,7 +87,7 @@ def trigger_partial():
         'mar_to', 'sha_to',
         'channel_id', 'product_version')
     form = flask.request.form
-    if not all(param in form.keys() for param in required_params):
+    if not all(p in form.keys() for p in required_params):
         log.info('Missing parameters from POST form call')
         flask.abort(400)
 
