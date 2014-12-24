@@ -1,1 +1,1 @@
-raise NotImplementedError
+FUNSIZE_CONF_NAME = "production"
