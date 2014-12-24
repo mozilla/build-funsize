@@ -4,9 +4,7 @@ set -e
 set -x
 script_dir=$(dirname $0)
 
-CACHE_TYPE="s3"  # change to something else to enable local cache
-
-if [ "$CACHE_TYPE" = "s3" ]; then
+if [ "$FUNSIZE_CACHE_TYPE" = "s3" ]; then
     CACHE_ENV_PARAMS="\
     --env=AWS_ACCESS_KEY_ID=$FUNSIZE_AWS_ACCESS_KEY_ID \
     --env=AWS_SECRET_ACCESS_KEY=$FUNSIZE_AWS_SECRET_ACCESS_KEY \

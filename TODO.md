@@ -15,7 +15,6 @@
 - [ ] Less of deffensive programming practices (DownloadError)
 - [ ] Auth
 - [ ] Separate app and request logs
-- [ ] Run as a WSGI app?
 - [ ] Use better HTTP codes
 - [ ] Use named celery queues
 - [ ] Use separate queues for production

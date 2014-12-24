@@ -14,7 +14,6 @@ import errno
 from StringIO import StringIO
 from boto.s3.connection import S3Connection
 from exceptions import Exception
-from funsize.utils.checksum import get_hash
 
 log = logging.getLogger(__name__)
 
@@ -54,26 +53,26 @@ class LocalCache(CacheBase):
         self.cache_root = cache_root
 
     def get_cache_path(self, category, identifier=""):
-        # Shorten the path to avoid file-name-too-long errors
+        # Split the name to avoid file-name-too-long errors
         if identifier:
-            identifier = get_hash("sha1", identifier)
+            identifier = identifier.replace("-", "/")
         return "files/{}/{}".format(category, identifier)
 
     def abspath(self, category, identifier):
         return os.path.join(
             self.cache_root, self.get_cache_path(category, identifier))
 
-    def mkdir_p(self, category):
-        path = os.path.join(self.cache_root, self.get_cache_path(category))
+    def mkdir_p(self, directory):
         try:
-            os.makedirs(path, 0700)
+            os.makedirs(directory, 0700)
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
 
     def save(self, fp_or_filename, category, identifier, isfilename=False):
         dest = self.abspath(category, identifier)
-        self.mkdir_p(category)
+        parent_dir = os.path.dirname(dest)
+        self.mkdir_p(parent_dir)
         if isfilename:
             shutil.copyfile(fp_or_filename, dest)
         else:
