@@ -17,7 +17,7 @@ Dev-Env Requirements
 - A Linux machine with docker installed
 - Run `./tests/launch_dev_env.sh` to generate 2 docker containers:
   - A container running RabbitMQ server. This container will be linked to the main container. See [docker documentation](http://docs.docker.com/userguide/dockerlinks/) for the details.
-  - Funsize container will be running in foreground. The checkout root directory will be mounted to the `/app` directory inside the container. This means that your file changes will be propagated to the container.
+  - Funsize container will be running in foreground. The checkout root directory will be mounted to the `/app` directory inside the container. This means that your file changes will be propagated to the container. FIXME: current version of gunicorn doesn't support `--reload`.
 - The application logs will show up in the `logs` directory
 - Funzise REST API can be accessed at http://localhost:5000
 - The task queue can be monitored at http://localhost:5555/
