@@ -8,7 +8,6 @@
 - [ ] Enable two level caching: local cache before S3 cache
   - [ ] Purge local cache
 - [ ] S3 cache invalidation
-- [ ] Use HTTP timeouts where possible
 - [ ] Mount /var/cache/funsize in dev environment
 - [ ] Rewrite funsize/backend/mbsdiff_hook.sh in Python to get rid of bash/curl dependency
 - [ ] Upload individual patches from the HOOK async?
@@ -16,7 +15,5 @@
 - [ ] Auth
 - [ ] Separate app and request logs
 - [ ] Use better HTTP codes
-- [ ] Use named celery queues
-- [ ] Use separate queues for production
 - [ ] use send_file() to stream files instead of reading them into memory
 - [ ] Dynamic number of workers for gunicorn (2-4 per CPU)

@@ -13,14 +13,8 @@ import logging
 import errno
 from StringIO import StringIO
 from boto.s3.connection import S3Connection
-from exceptions import Exception
 
 log = logging.getLogger(__name__)
-
-
-class CacheError(Exception):
-    """ Class for generic cache related errors """
-    pass
 
 
 class CacheBase(object):
@@ -108,10 +102,8 @@ class S3Cache(CacheBase):
         Assumes all keys are hex-encoded SHA512s
         Internally converts  hex to base64 encoding
     """
-    def __init__(self, bucket=os.environ.get('FUNSIZE_S3_UPLOAD_BUCKET')):
+    def __init__(self, bucket):
         """ _bucket : bucket name to use for S3 fp_or_filenames """
-        if not bucket:
-            raise CacheError("Amazon S3 bucket not set")
         # open a connection and get the bucket
         self.conn = S3Connection()
         self.bucket = self.conn.get_bucket(bucket)
