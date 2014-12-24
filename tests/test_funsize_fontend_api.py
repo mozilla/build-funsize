@@ -3,9 +3,8 @@ from StringIO import StringIO
 import os
 
 # Fake celery before importing app
-os.environ["CELERY_BROKER"] = "fake"
+os.environ["FUNSIZE_CELERY_CONFIG"] = "funsize.backend.config.test"
 from funsize.frontend.api import app
-import funsize.cache
 
 
 def test_index():
@@ -80,7 +79,7 @@ def test_trigger_partial_new(m_cache, m_task):
 @mock.patch("funsize.frontend.api.cache")
 def test_trigger_partial_cache_error(m_cache):
     m_cache.exists.return_value = False
-    m_cache.save_blank_file.side_effect = funsize.cache.CacheError("oops")
+    m_cache.save_blank_file.side_effect = Exception("oops")
     c = app.test_client()
     data = {'mar_from': 'mf', 'sha_from': 'hf', 'mar_to': 'mt', 'sha_to': 'st',
             'channel_id': 'ci', 'product_version': 'pv'}
