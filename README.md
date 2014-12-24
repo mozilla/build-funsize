@@ -30,6 +30,13 @@ export AWS_ACCESS_KEY_ID=your_aws_key_id
 export AWS_SECRET_ACCESS_KEY=your_aws_siktit
 export FUNSIZE_S3_UPLOAD_BUCKET=bucket-name
 ```
+- To delete ALL docker containers and images use the following commands
+```
+# Delete all containers
+docker rm $(docker ps -a -q)
+# Delete all images
+docker rmi $(docker images -q)
+```
 
 Running Unit Tests
 ------------------
