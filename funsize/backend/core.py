@@ -106,7 +106,8 @@ def generate_partial_mar(to_mar, from_mar, channel_id, product_version,
 
     log.info('Generating partial mar @ %s', partial_mar)
     out = sh.bash(MAKE_INCREMENTAL, partial_mar, from_mar_wd, to_mar_wd,
-                  _cwd=working_dir, _env=my_env, _timeout=300, _err_to_out=True)
+                  _cwd=working_dir, _env=my_env, _timeout=300,
+                  _err_to_out=True)
     log.debug("Command returned: %s", out)
     log.info('Partial now available at path: %s', partial_mar)
 

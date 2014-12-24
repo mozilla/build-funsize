@@ -35,7 +35,8 @@ def download_mar(url, checksum, output_file):
     mar = response.content
 
     if not verify(mar, checksum):
-        log.warning('Verification of %s with checksum %s failed', url, checksum)
+        log.warning('Verification of %s with checksum %s failed', url,
+                    checksum)
         raise DownloadError('Checksums do not match')
     else:
         log.info('Verified download of %s', url)
