@@ -18,3 +18,5 @@
 - [ ] Use better HTTP codes
 - [ ] Use named celery queues
 - [ ] Use separate queues for production
+- [ ] use send_file() to stream files instead of reading them into memory
+- [ ] Dynamic number of workers for gunicorn (2-4 per CPU)
