@@ -4,7 +4,7 @@ MAINTAINER "Anhad Jai Singh"
 EXPOSE 5000
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python-dev supervisor python-pip
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python-dev supervisor python-pip gunicorn
 # curl is used by the hook script
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y curl
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf

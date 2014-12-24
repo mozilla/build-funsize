@@ -12,11 +12,10 @@ import logging
 import os
 import json
 
-import funsize.cache as cache
 import funsize.backend.tasks as tasks
 from funsize.frontend import _get_identifier, allow_from
+from funsize.cache import cache, CacheError
 
-CACHE_URI = None
 app = flask.Flask("funsize")
 log = logging.getLogger(__name__)
 
@@ -49,8 +48,7 @@ def save_patch():
     identifier = _get_identifier(sha_from, sha_to)
 
     log.debug('Saving patch file to cache with key %s', identifier)
-    cacheo = cache.Cache()
-    cacheo.save(storage.stream, 'patch', identifier)
+    cache.save(storage.stream, 'patch', identifier)
 
     url = flask.url_for('get_patch', sha_from=sha_from, sha_to=sha_to)
     return flask.Response(json.dumps({
@@ -72,8 +70,7 @@ def get_patch():
                                  flask.request.args['sha_to'])
 
     log.debug('Looking up record with identifier %s', identifier)
-    cacheo = cache.Cache()
-    if not cacheo.exists('patch', identifier):
+    if not cache.exists('patch', identifier):
         log.info('Invalid partial request')
         resp = flask.Response(json.dumps({
             "result": "Patch with identifier %s not found" % identifier,
@@ -83,7 +80,7 @@ def get_patch():
         return resp
 
     log.info('Patch found, retrieving ...')
-    return flask.Response(cacheo.retrieve('patch', identifier),
+    return flask.Response(cache.retrieve('patch', identifier),
                           status=200,
                           mimetype='application/octet-stream')
 
@@ -110,14 +107,13 @@ def trigger_partial():
     identifier = _get_identifier(sha_from, sha_to)
     url = flask.url_for('get_partial', identifier=identifier)
 
-    cacheo = cache.Cache()
-    if cacheo.exists('partial', identifier):
+    if cache.exists('partial', identifier):
         log.info('Partial has already been triggered/generated')
         return flask.Response(json.dumps({"result": url}), status=201,
                               mimetype='application/json')
     try:
-        cacheo.save_blank_file('partial', identifier)
-    except cache.CacheError:
+        cache.save_blank_file('partial', identifier)
+    except CacheError:
         log.error('Error processing trigger request for URL: %s\n', url)
         return flask.Response(
             json.dumps({"result": "Error while processing request %s" % url}),
@@ -138,8 +134,7 @@ def trigger_partial():
 @app.route('/partial/<identifier>', methods=['GET', 'HEAD'])
 def get_partial(identifier):
     """ Function to return a generated partial """
-    cacheo = cache.Cache()
-    if not cacheo.exists('partial', identifier):
+    if not cache.exists('partial', identifier):
         resp = flask.Response(json.dumps({
             "result": "Partial with identifier %s not found" % identifier,
             }),
@@ -147,7 +142,7 @@ def get_partial(identifier):
         )
         return resp
 
-    if cacheo.is_blank_file('partial', identifier):
+    if cache.is_blank_file('partial', identifier):
         log.debug('Record found, status: IN PROGRESS')
         resp = flask.Response(json.dumps({
             "result": "wait",
@@ -165,7 +160,7 @@ def get_partial(identifier):
                 mimetype='application/json'
             )
         else:
-            resp = flask.Response(cacheo.retrieve('partial', identifier),
+            resp = flask.Response(cache.retrieve('partial', identifier),
                                   status=200,
                                   mimetype='application/octet-stream')
     return resp

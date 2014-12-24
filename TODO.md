@@ -15,7 +15,8 @@
 - [ ] Less of deffensive programming practices (DownloadError)
 - [ ] Auth
 - [ ] Separate app and request logs
-- [ ] Run as a WSGI app?
 - [ ] Use better HTTP codes
 - [ ] Use named celery queues
 - [ ] Use separate queues for production
+- [ ] use send_file() to stream files instead of reading them into memory
+- [ ] Dynamic number of workers for gunicorn (2-4 per CPU)

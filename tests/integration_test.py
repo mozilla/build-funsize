@@ -62,7 +62,7 @@ def trigger_partial(data):
     rv.raise_for_status()
 
 
-def get_file(from_, to, attempt=0, max_attempts=100, interval=30):
+def get_file(from_, to, attempt=0, max_attempts=100, interval=5):
     print "Downloading", from_, "to", to
     while True:
         r = requests.get(from_)
