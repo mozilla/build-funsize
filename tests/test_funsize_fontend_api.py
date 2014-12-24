@@ -89,17 +89,17 @@ def test_trigger_partial_cache_error(m_cache):
     assert rv.status_code == 500
 
 
-def test_get_patch_missing_params():
+def test_get_patch_no_direct_access():
     c = app.test_client()
     rv = c.get("/cache")
-    assert rv.status_code == 400
+    assert rv.status_code == 405
 
 
 @mock.patch("funsize.frontend.api.cache")
 def test_get_patch_cache_miss(m_cache):
     m_cache.exists.return_value = False
     c = app.test_client()
-    rv = c.get("/cache?sha_from=a&sha_to=b")
+    rv = c.get("/cache/a/b")
     assert rv.status_code == 400
     assert m_cache.exists.call_count == 1
 
@@ -108,7 +108,7 @@ def test_get_patch_cache_miss(m_cache):
 def test_get_patch_cache_hit(m_cache):
     m_cache.exists.return_value = True
     c = app.test_client()
-    rv = c.get("/cache?sha_from=a&sha_to=b")
+    rv = c.get("/cache/a/b")
     assert rv.status_code == 200
     assert m_cache.exists.call_count == 1
     assert m_cache.retrieve.call_count == 1
