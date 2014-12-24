@@ -58,16 +58,10 @@ def save_patch():
         mimetype='application/json')
 
 
-@app.route('/cache', methods=['GET'])
-def get_patch():
+@app.route('/cache/<sha_from>/<sha_to>', methods=['GET'])
+def get_patch(sha_from, sha_to):
     """ Function to return a patch from cache """
-    required_params = ('sha_from', 'sha_to')
-    if not all(param in flask.request.args.keys() for param in required_params):
-        log.info('Arguments could not be validated')
-        flask.abort(400)
-
-    identifier = _get_identifier(flask.request.args['sha_from'],
-                                 flask.request.args['sha_to'])
+    identifier = _get_identifier(sha_from, sha_to)
 
     log.debug('Looking up record with identifier %s', identifier)
     if not cache.exists('patch', identifier):
