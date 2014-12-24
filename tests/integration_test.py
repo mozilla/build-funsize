@@ -57,8 +57,8 @@ def build_update_tree(from_release):
     return (completes, partials)
 
 
-def trigger_partial(data):
-    rv = requests.post("http://localhost:5000/partial", data=data)
+def trigger_partial(api_root, data):
+    rv = requests.post("{}/partial".format(api_root), data=data)
     rv.raise_for_status()
 
 
@@ -101,7 +101,7 @@ def build_sample(completes, partials, channel_id):
 
 def compare_partials(args):
     data, original_mar_url, api_root, identifier = args
-    trigger_partial(data)
+    trigger_partial(api_root, data)
     _, their_mar = tempfile.mkstemp()
     os.close(_)
     _, our_mar = tempfile.mkstemp()
