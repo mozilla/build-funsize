@@ -6,7 +6,10 @@ import tempfile
 import time
 import os
 import argparse
-from mar.mar import MarFile
+try:
+    from mar import MarFile
+except ImportError:
+    from mar.mar import MarFile
 
 
 partial_mar_re = re.compile(
