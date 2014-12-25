@@ -3,7 +3,6 @@
 - [ ] Tests
   - [ ] core.py tests
   - [ ] Mock S3 calls
-  - [ ] End-to-end integration test (generation of partials) per push
 - [ ] Migrate documentation from https://github.com/MihaiTabara/Senbonzakura to https://wiki.mozilla.org/ReleaseEngineering/Funsize and its branches
 - [ ] Enable two level caching: local cache before S3 cache
   - [ ] Purge local cache
