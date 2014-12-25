@@ -12,10 +12,12 @@ install:
     - travis_retry pip install tox==1.8
 
 env:
+    global:
+        - FUNSIZE_S3_UPLOAD_BUCKET=mozilla-releng-funsize-travis
+        - secure: "NJl0jbStascebyB/shlxMKMyywvMC2LniiKjdoVwjYakqfVWMiVc9y/Y4bPSYq1mLHbfNnGVHbqfi8P2o+4pcg0iXGcQC0E+VNGF1U+gn2lBkvPbxksVRHBCyOIfnASTxqyShuyJohvS/X8bQjzVyoKUJZZPmBLzysjwX7WgpFE="
+        - secure: "Uvs9NwwYi+p/xoosirEM7un4BtS6/mWDY/zPyq/kZmzfwEOpRno0MqJcwtOthxNw12z6efIkzi+XsCOEt3ULZchkcaYKaOGI6fFpqhVKlCHdzw9Ia6uTeg1XzsFkvLJkuUGpSsSTFBZv37Ik8dd5FTeirv8qn2VIDfJGb9deJEU="
+    matrix:
     - FUNSIZE_CACHE_TYPE=s3
-      secure: "NJl0jbStascebyB/shlxMKMyywvMC2LniiKjdoVwjYakqfVWMiVc9y/Y4bPSYq1mLHbfNnGVHbqfi8P2o+4pcg0iXGcQC0E+VNGF1U+gn2lBkvPbxksVRHBCyOIfnASTxqyShuyJohvS/X8bQjzVyoKUJZZPmBLzysjwX7WgpFE="
-      secure: "Uvs9NwwYi+p/xoosirEM7un4BtS6/mWDY/zPyq/kZmzfwEOpRno0MqJcwtOthxNw12z6efIkzi+XsCOEt3ULZchkcaYKaOGI6fFpqhVKlCHdzw9Ia6uTeg1XzsFkvLJkuUGpSsSTFBZv37Ik8dd5FTeirv8qn2VIDfJGb9deJEU="
-      FUNSIZE_S3_UPLOAD_BUCKET=mozilla-releng-funsize-travis
     - FUNSIZE_LOCAL_CACHE_DIR=/tmp/funnycache
 
 script:
