@@ -170,7 +170,9 @@ class S3Cache(CacheBase):
 if 'FUNSIZE_LOCAL_CACHE_DIR' in os.environ:
     logging.info("Using local cache")
     cache = LocalCache(os.environ["FUNSIZE_LOCAL_CACHE_DIR"])
-elif 'FUNSIZE_S3_UPLOAD_BUCKET' in os.environ:
+elif 'FUNSIZE_S3_UPLOAD_BUCKET' in os.environ and \
+        'AWS_ACCESS_KEY_ID' in os.environ and\
+        'AWS_SECRET_ACCESS_KEY' in os.environ:
     logging.info("Using S3 cache")
     cache = S3Cache(os.environ["FUNSIZE_S3_UPLOAD_BUCKET"])
 else:
