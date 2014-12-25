@@ -16,7 +16,8 @@ from funsize.cache import cache
 
 log = logging.getLogger(__name__)
 
-TOOLS_DIR = "/perma/tools"  # TODO: pass or keep them under the tree?
+# TODO: pass or keep them under the tree?
+TOOLS_DIR = os.environ.get("TOOLS_DIR", "/perma/tools")
 UNWRAP = os.path.join(TOOLS_DIR, 'unwrap_full_update.pl')
 MAKE_INCREMENTAL = os.path.join(TOOLS_DIR, 'make_incremental_update.sh')
 MAR = os.path.join(TOOLS_DIR, 'mar')

@@ -5,14 +5,14 @@ python:
 os:
     - linux
 
-#services:  # No need for rabbit with broken integration tests
-#    - rabbitmq
+services:
+    - rabbitmq
 
 install:
     - travis_retry pip install tox==1.8
 
 script:
-    - tox
+    - tox -e py27,py27-travis
 
 after_script:
     - tox -e py27-coveralls
