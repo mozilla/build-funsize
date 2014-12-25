@@ -98,10 +98,6 @@ while getopts ":A:c:gu" option; do
             SERVER_URL="$OPTARG"
             ;;
         c)
-            if [ ! -d "$OPTARG" ]; then
-                echo "A cache directory must be supplied (with -c flag)" >&2
-                exit 1
-            fi
             LOCAL_CACHE_DIR="$OPTARG"
             ;;
         g)

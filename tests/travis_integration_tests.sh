@@ -7,15 +7,12 @@ script_dir=$(dirname $0)
 
 CELERY_PID=
 FLASK_PID=
-export FUNSIZE_LOCAL_CACHE_DIR=/tmp/funnycache
 export BROKER_URL="amqp://guest@localhost//"
 export FUNSIZE_CELERY_CONFIG="funsize.backend.config.dev"
-export MBSDIFF_HOOK="$script_dir/../funsize/backend/mbsdiff_hook.sh -A http://127.0.0.1:5000/cache -c /tmp/funsize-patches"
-export FUNSIZE_DEBUG=1
+export MBSDIFF_HOOK="$script_dir/../funsize/backend/mbsdiff_hook.sh \
+    -A http://127.0.0.1:5000/cache -c /tmp/funsize-patches"
 export TOOLS_DIR=/tmp/tools
 
-
-mkdir -p /tmp/funsize-patches /tmp/funnycache
 mkdir -p $TOOLS_DIR
 wget -O $TOOLS_DIR/mar https://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/mar-tools/linux64/mar
 wget -O $TOOLS_DIR/mbsdiff https://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/mar-tools/linux64/mbsdiff
