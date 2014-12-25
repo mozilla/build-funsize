@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$TRAVIS_PULL_REQUEST" != "false" -a "$FUNSIZE_CACHE_TYPE" = "s3" ]; then
+if [ "$TRAVIS_PULL_REQUEST" != "false" -a "$FUNSIZE_S3_UPLOAD_BUCKET" != "" ]; then
     echo "S3 integration test doesn't work on pull requests. Skipping..."
     exit 0
 fi

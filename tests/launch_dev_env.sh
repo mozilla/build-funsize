@@ -6,7 +6,7 @@ script_dir=$(dirname $0)
 
 ENV_PARAMS="--env=FUNSIZE_CELERY_CONFIG=funsize.backend.config.dev"
 
-if [ "$FUNSIZE_CACHE_TYPE" = "s3" ]; then
+if [ "$FUNSIZE_S3_UPLOAD_BUCKET" != "" ]; then
     ENV_PARAMS="$ENV_PARAMS \
     --env=AWS_ACCESS_KEY_ID=$FUNSIZE_AWS_ACCESS_KEY_ID \
     --env=AWS_SECRET_ACCESS_KEY=$FUNSIZE_AWS_SECRET_ACCESS_KEY \

@@ -25,7 +25,6 @@ Dev-Env Requirements
 - You can run `./tests/launch_dev_env.sh /bin/bash` to get shell access to the funsize container. Note that the services won't be running. You can start them by running `supervisord &`.
 - To run funsize with S3 cache backend (by default it uses local cache), export the following variables:
 ```
-export FUNSIZE_CACHE_TYPE=s3
 export AWS_ACCESS_KEY_ID=your_aws_key_id
 export AWS_SECRET_ACCESS_KEY=your_aws_siktit
 export FUNSIZE_S3_UPLOAD_BUCKET=bucket-name
