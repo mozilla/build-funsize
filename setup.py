@@ -17,5 +17,6 @@ setup(name="funsize",
           'requests==2.2.1',
           'boto==2.33.0',
           'sh==1.09',
+          'mar>=1.0',
       ],
       )
