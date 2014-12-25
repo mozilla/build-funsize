@@ -39,3 +39,4 @@ deploy:
       on:
           repo: rail/build-funsize
           all_branches: true
+          condition: $FUNSIZE_CACHE_TYPE = s3
