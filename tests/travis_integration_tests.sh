@@ -1,8 +1,10 @@
 #!/bin/bash
 
-if [ "$TRAVIS_PULL_REQUEST" != "false" -a "$FUNSIZE_S3_UPLOAD_BUCKET" != "" ]; then
-    echo "S3 integration test doesn't work on pull requests. Skipping..."
-    exit 0
+if [ "$FUNSIZE_S3_UPLOAD_BUCKET" != "" ]; then
+    if [ "x$AWS_ACCESS_KEY_ID" = "x" -o "x$AWS_SECRET_ACCESS_KEY" = "x" ]; then
+        echo "S3 integration test doesn't work whouth S3 credentials. Skipping..."
+        exit 0
+    fi
 fi
 
 set -x
@@ -22,9 +24,9 @@ mkdir -p $TOOLS_DIR
 wget -O $TOOLS_DIR/mar https://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/mar-tools/linux64/mar
 wget -O $TOOLS_DIR/mbsdiff https://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/mar-tools/linux64/mbsdiff
 
-wget -O $TOOLS_DIR/make_incremental_update.sh https://hg.mozilla.org/mozilla-central/raw-file/b052018cf239/tools/update-packaging/make_incremental_update.sh
-wget -O $TOOLS_DIR/unwrap_full_update.pl https://hg.mozilla.org/mozilla-central/raw-file/b052018cf239/tools/update-packaging/unwrap_full_update.pl
-wget -O $TOOLS_DIR/common.sh https://hg.mozilla.org/mozilla-central/raw-file/b052018cf239/tools/update-packaging/common.sh
+wget -O $TOOLS_DIR/make_incremental_update.sh https://hg.mozilla.org/mozilla-central/raw-file/default/tools/update-packaging/make_incremental_update.sh
+wget -O $TOOLS_DIR/unwrap_full_update.pl https://hg.mozilla.org/mozilla-central/raw-file/default/tools/update-packaging/unwrap_full_update.pl
+wget -O $TOOLS_DIR/common.sh https://hg.mozilla.org/mozilla-central/raw-file/default/tools/update-packaging/common.sh
 
 chmod 755 $TOOLS_DIR/*
 
@@ -37,13 +39,17 @@ gunicorn -w 4 -b :5000 --daemon --pid=/tmp/flask.pid \
 on_exit(){
     kill `cat /tmp/celery.pid` || :
     kill `cat /tmp/flask.pid` || :
+    echo "Celery log:"
     cat /tmp/celery.log
+    echo
+    echo "Frontend log:"
     cat /tmp/flask.log
 }
 
 trap on_exit EXIT
 
 sleep 5
+# check if the required services are up and running
 ps --pid `cat /tmp/celery.pid`
 ps --pid `cat /tmp/flask.pid`
 

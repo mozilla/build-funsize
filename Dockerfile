@@ -17,9 +17,9 @@ RUN chown daemon /var/cache/funsize
 ADD https://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/mar-tools/linux64/mar /perma/tools/
 ADD https://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/mar-tools/linux64/mbsdiff /perma/tools/
 
-ADD https://hg.mozilla.org/mozilla-central/raw-file/b052018cf239/tools/update-packaging/make_incremental_update.sh /perma/tools/
-ADD https://hg.mozilla.org/mozilla-central/raw-file/b052018cf239/tools/update-packaging/unwrap_full_update.pl /perma/tools/
-ADD https://hg.mozilla.org/mozilla-central/raw-file/b052018cf239/tools/update-packaging/common.sh /perma/tools/
+ADD https://hg.mozilla.org/mozilla-central/raw-file/default/tools/update-packaging/make_incremental_update.sh /perma/tools/
+ADD https://hg.mozilla.org/mozilla-central/raw-file/default/tools/update-packaging/unwrap_full_update.pl /perma/tools/
+ADD https://hg.mozilla.org/mozilla-central/raw-file/default/tools/update-packaging/common.sh /perma/tools/
 
 RUN chmod 755 /perma/tools/*
 
