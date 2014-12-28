@@ -109,12 +109,18 @@ def compare_partials(args):
     os.close(_)
     _, our_mar = tempfile.mkstemp()
     os.close(_)
-    get_file(mar_url, their_mar)
-    get_file("{api_root}partial/{identifier}".format(
-        api_root=api_root, identifier=identifier), our_mar)
-    assert mar_internal_sha512(their_mar) == mar_internal_sha512(our_mar)
+    get_file(mar_url, their_mar, max_attempts=8)
+    our_mar_url = "{api_root}partial/{identifier}".format(
+        api_root=api_root, identifier=identifier)
+    get_file(our_mar_url, our_mar, interval=15)
+    expected = mar_internal_sha512(their_mar)
+    observed = mar_internal_sha512(our_mar)
     os.remove(their_mar)
     os.remove(our_mar)
+    if expected != observed:
+        raise Exception(
+            "MARs internal hashes do not match. Expected: {}, observed: {}. "
+            "URLs: {} and {}".format(expected, observed, mar_url, our_mar_url))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
