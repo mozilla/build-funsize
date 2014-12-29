@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 
 PACKAGE_VERSION = '0.1'
+requirements = open("requirements.txt").readlines()
 
 setup(name="funsize",
       version=PACKAGE_VERSION,
@@ -11,12 +12,5 @@ setup(name="funsize",
       url='https://github.com/mozilla/build-funsize',
       license='MPL',
       packages=find_packages(),
-      install_requires=[
-          'celery==3.1.11',
-          'Flask==0.10.1',
-          'requests==2.2.1',
-          'boto==2.33.0',
-          'sh==1.09',
-          'mar>=1.0',
-      ],
+      install_requires=requirements,
       )
