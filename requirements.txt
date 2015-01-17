@@ -10,7 +10,7 @@ boto==2.34.0
 celery==3.1.17
 itsdangerous==0.24
 kombu==3.0.24
-mar==1.0.1
+mar==1.1
 pytz==2014.10
 requests==2.5.1
 sh==1.09
