@@ -4,7 +4,7 @@ MAINTAINER "Anhad Jai Singh"
 EXPOSE 5000
 
 # Packages
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -q update && \
     apt-get install -y python-dev supervisor python-pip curl python-virtualenv
 
