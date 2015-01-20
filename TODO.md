@@ -15,4 +15,3 @@
 - [ ] Separate app and request logs
 - [ ] Use better HTTP codes
 - [ ] use send_file() to stream files instead of reading them into memory
-- [ ] Dynamic number of workers for gunicorn (2-4 per CPU)
