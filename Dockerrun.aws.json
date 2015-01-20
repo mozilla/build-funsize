@@ -3,5 +3,6 @@
   "Image": {
     "Name": "ubuntu:trusty",
     "Update": "true"
-  }
+  },
+  "Logging": "/var/log"
 }

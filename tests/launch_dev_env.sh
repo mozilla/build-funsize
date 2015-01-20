@@ -25,6 +25,7 @@ docker run -d  -P -p 56725:56725 -p 5555:5555 --name rabbitmq rabbitmq
 
 sleep 2
 docker run -v $(pwd):/app \
+    -v $(pwd)/logs:/var/log/funsize \
     --link rabbitmq:rabbitmq \
     -p 5000:5000 -P --rm \
     $ENV_PARAMS \
