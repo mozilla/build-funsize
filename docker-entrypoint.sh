@@ -1,4 +1,4 @@
 #!/bin/sh
 
-chmod 777 /app/logs
+chmod 777 /var/log/funsize
 exec "$@"

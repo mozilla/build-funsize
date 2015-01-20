@@ -12,8 +12,8 @@ RUN apt-get -q update && \
 COPY / /app
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-RUN mkdir -p /perma/tools /app/logs /var/cache/funsize
-RUN chmod 777 /app/logs
+RUN mkdir -p /perma/tools /var/log/funsize /var/cache/funsize
+RUN chmod 777 /var/log/funsize
 RUN chown daemon /var/cache/funsize
 
 # TODO: publish the tools as a separate tarball?
