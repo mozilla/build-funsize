@@ -5,6 +5,7 @@ set -x
 script_dir=$(dirname $0)
 
 ENV_PARAMS="--env=FUNSIZE_CELERY_CONFIG=funsize.backend.config.dev"
+ENV_PARAMS="$ENV_PARAMS --env=GUNCORN_CONF=/app/configs/gunicorn-dev-conf.py"
 
 if [ "$FUNSIZE_S3_UPLOAD_BUCKET" != "" ]; then
     ENV_PARAMS="$ENV_PARAMS \

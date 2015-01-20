@@ -10,7 +10,7 @@ RUN apt-get -q update && \
 
 # copy the current directory as /app inside the image
 COPY / /app
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY configs/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN mkdir -p /perma/tools /var/log/funsize /var/cache/funsize
 RUN chmod 777 /var/log/funsize
