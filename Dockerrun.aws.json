@@ -4,5 +4,5 @@
     "Name": "ubuntu:trusty",
     "Update": "true"
   },
-  "Logging": "/var/log"
+  "Logging": "/var/log/funsize"
 }

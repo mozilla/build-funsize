@@ -12,6 +12,5 @@
 - [ ] Upload individual patches from the HOOK async?
 - [ ] Less of deffensive programming practices (DownloadError)
 - [ ] Auth
-- [ ] Separate app and request logs
 - [ ] Use better HTTP codes
 - [ ] use send_file() to stream files instead of reading them into memory

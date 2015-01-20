@@ -13,8 +13,7 @@ COPY / /app
 COPY configs/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN mkdir -p /perma/tools /var/log/funsize /var/cache/funsize
-RUN chmod 777 /var/log/funsize
-RUN chown daemon /var/cache/funsize
+RUN chown daemon /var/cache/funsize /var/log/funsize
 
 # TODO: publish the tools as a separate tarball?
 ADD https://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/mar-tools/linux64/mar /perma/tools/
@@ -32,5 +31,4 @@ RUN /venv/bin/pip install gunicorn==19.1.1
 RUN /venv/bin/python setup.py develop
 
 WORKDIR /
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/usr/bin/supervisord"]
