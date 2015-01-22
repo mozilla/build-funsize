@@ -69,14 +69,12 @@ def get_patch(sha_from, sha_to):
         resp = flask.Response(json.dumps({
             "result": "Patch with identifier %s not found" % identifier,
             }),
-            status=400,
+            status=404,
         )
         return resp
 
     log.info('Patch found, retrieving ...')
-    return flask.Response(cache.retrieve('patch', identifier),
-                          status=200,
-                          mimetype='application/octet-stream')
+    return cache.retrieve_or_redirect('patch', identifier)
 
 
 @app.route('/partial', methods=['POST'])
@@ -154,9 +152,8 @@ def get_partial(identifier):
                 mimetype='application/json'
             )
         else:
-            resp = flask.Response(cache.retrieve('partial', identifier),
-                                  status=200,
-                                  mimetype='application/octet-stream')
+            resp = cache.retrieve_or_redirect('partial', identifier)
+
     return resp
 
 if __name__ == '__main__':  # pragma: no cover

@@ -71,7 +71,7 @@ get_patch(){
     fi
 
     # if unsuccessful, try to retrieve from funsize
-    cmd="curl -sSGw %{http_code} $SERVER_URL/$sha_from/$sha_to -o $tmp_file"
+    cmd="curl -LsSGw %{http_code} $SERVER_URL/$sha_from/$sha_to -o $tmp_file"
     ret_code=`$cmd`
 
     if [ $ret_code -eq 200 ]; then
