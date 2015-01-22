@@ -34,7 +34,10 @@ class CacheBase(object):
     def exists(self, category, identifier):
         raise NotImplementedError
 
-    def retrieve(self, category, identifier, output_file=None):
+    def retrieve_to_file(self, category, identifier, output_file):
+        raise NotImplementedError
+
+    def retrieve_or_redirect(self, category, identifier):
         raise NotImplementedError
 
     def delete(self, category, identifier):
@@ -84,13 +87,15 @@ class LocalCache(CacheBase):
         dest = self.abspath(category, identifier)
         return os.path.isfile(dest)
 
-    def retrieve(self, category, identifier, output_file=None):
+    def retrieve_to_file(self, category, identifier, output_file):
         src = self.abspath(category, identifier)
-        if output_file:
-            shutil.copyfile(src, output_file)
-        else:
-            with open(src, "rb") as fsrc:
-                return fsrc.read()
+        shutil.copyfile(src, output_file)
+
+    def retrieve_or_redirect(self, category, identifier):
+        from flask import send_file
+        src = self.abspath(category, identifier)
+        return send_file(src, mimetype="application/octet-stream",
+                         as_attachment=True)
 
     def delete(self, category, identifier):
         dest = self.abspath(category, identifier)
@@ -152,16 +157,16 @@ class S3Cache(CacheBase):
         """
         return bool(self.get_key(category, identifier))
 
-    def retrieve(self, category, identifier, output_file=None):
-        """ Retrieve file with the given key
-            writes the file to the path specified by output_file if present
-            otherwise returns the file as a binary string/file object
-        """
+    def retrieve_to_file(self, category, identifier, output_file):
         key = self.get_key(category, identifier)
-        if output_file:
-            key.get_contents_to_filename(output_file)
-        else:
-            return key.get_contents_as_string()
+        key.get_contents_to_filename(output_file)
+
+    def retrieve_or_redirect(self, category, identifier):
+        from flask import redirect
+        key = self.get_key(category, identifier)
+        expires_in = 60 * 60 * 24 * 2  # 2 days
+        url = key.generate_url(expires_in=expires_in)
+        return redirect(url)
 
     def delete(self, category, identifier):
         """ Method to remove a file from cache """

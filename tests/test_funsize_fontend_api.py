@@ -4,7 +4,7 @@ import os
 
 # Fake celery before importing app
 os.environ["FUNSIZE_CELERY_CONFIG"] = "funsize.backend.config.test"
-from funsize.frontend.api import app
+from funsize.frontend.api import app, cache
 
 
 def test_index():
@@ -99,18 +99,8 @@ def test_get_patch_cache_miss(m_cache):
     m_cache.exists.return_value = False
     c = app.test_client()
     rv = c.get("/cache/a/b")
-    assert rv.status_code == 400
+    assert rv.status_code == 404
     assert m_cache.exists.call_count == 1
-
-
-@mock.patch("funsize.frontend.api.cache")
-def test_get_patch_cache_hit(m_cache):
-    m_cache.exists.return_value = True
-    c = app.test_client()
-    rv = c.get("/cache/a/b")
-    assert rv.status_code == 200
-    assert m_cache.exists.call_count == 1
-    assert m_cache.retrieve.call_count == 1
 
 
 @mock.patch("funsize.frontend.api.cache")
@@ -143,12 +133,28 @@ def test_get_partial_completed_head(m_cache):
     assert m_cache.exists.call_count == 1
 
 
-@mock.patch("funsize.frontend.api.cache")
-def test_get_partial_completed_get(m_cache):
-    m_cache.exists.return_value = True
-    m_cache.is_blank_file.return_value = False
+@mock.patch.object(cache, "retrieve_or_redirect")
+@mock.patch.object(cache, "is_blank_file")
+@mock.patch.object(cache, "exists")
+def test_get_partial_completed_get(m_exists, m_is_blank_file,
+                                   m_retrieve_or_redirect):
+    m_exists.return_value = True
+    m_is_blank_file.return_value = False
+    m_retrieve_or_redirect.return_value = "123"
     c = app.test_client()
     rv = c.get("/partial/123")
+    print rv.data
     assert rv.status_code == 200
-    assert rv.content_type == "application/octet-stream"
-    assert m_cache.exists.call_count == 1
+    assert m_retrieve_or_redirect.call_count == 1
+
+
+@mock.patch.object(cache, "retrieve_or_redirect")
+@mock.patch.object(cache, "exists")
+def test_get_patch_cache_hit(m_exists, m_retrieve_or_redirect):
+    m_exists.return_value = True
+    m_retrieve_or_redirect.return_value = "123"
+    c = app.test_client()
+    rv = c.get("/cache/a/b")
+    assert rv.status_code == 200
+    assert m_exists.call_count == 1
+    assert m_retrieve_or_redirect.call_count == 1

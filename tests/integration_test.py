@@ -74,6 +74,7 @@ def get_file(from_, to, attempt=0, max_attempts=100, interval=5):
             attempt += 1
             if attempt >= max_attempts:
                 raise Exception("Timed out")
+            print ".",
             time.sleep(interval)
         elif r.status_code == 200:
             with open(to, mode="wb") as f:

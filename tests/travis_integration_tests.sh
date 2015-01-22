@@ -53,4 +53,4 @@ sleep 5
 ps --pid `cat /tmp/celery.pid`
 ps --pid `cat /tmp/flask.pid`
 
-python $script_dir/integration_test.py -j2 -n4
+python -u $script_dir/integration_test.py -j2 -n4

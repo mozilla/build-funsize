@@ -32,7 +32,7 @@ def get_complete_mar(url, mar_hash, output_file):
         fetch.download_mar(url, mar_hash, output_file)
         cache.save(output_file, 'complete', mar_hash, isfilename=True)
     else:
-        cache.retrieve('complete', mar_hash, output_file=output_file)
+        cache.retrieve_to_file('complete', mar_hash, output_file=output_file)
 
     log.info('Satisfied request for complete MAR %s with mar_hash %s', url,
              mar_hash)
