@@ -61,16 +61,31 @@ def build_update_tree(from_release):
 
 
 def trigger_partial(api_root, data):
-    rv = requests.post("{}/partial".format(api_root), data=data)
-    rv.raise_for_status()
+    attempt = 0
+    max_attempts = 100
+    interval = 5
+    while True:
+        r = requests.post("{}/partial".format(api_root), data=data)
+        # Retry on 502
+        if r.status_code == 502:
+            attempt += 1
+            if attempt >= max_attempts:
+                raise Exception("Timed out")
+            print ".",
+            time.sleep(interval)
+        elif str(r.status_code).startswith("2"):
+            break
+        else:
+            raise Exception("Unexpected status code: %s, %s", r.status_code,
+                            data)
 
 
 def get_file(from_, to, attempt=0, max_attempts=100, interval=5):
     print "Downloading", from_, "to", to
     while True:
         r = requests.get(from_)
-        r.raise_for_status()
-        if r.status_code == 202:
+        # Retry on 502 too
+        if r.status_code in (202, 502):
             attempt += 1
             if attempt >= max_attempts:
                 raise Exception("Timed out")
@@ -81,7 +96,8 @@ def get_file(from_, to, attempt=0, max_attempts=100, interval=5):
                 f.write(r.content)
             break
         else:
-            raise Exception("Unexpected status code: %s", r.status_code)
+            raise Exception("Unexpected status code: %s %s", r.status_code,
+                            from_)
 
 
 def build_sample(completes, partials, channel_id):
