@@ -51,9 +51,8 @@ def save_patch():
     cache.save(storage.stream, 'patch', identifier)
 
     url = flask.url_for('get_patch', sha_from=sha_from, sha_to=sha_to)
-    return flask.Response(json.dumps({
-        "result": url,
-        }),
+    return flask.Response(
+        json.dumps({"result": url}),
         status=200,
         mimetype='application/json')
 
@@ -66,8 +65,9 @@ def get_patch(sha_from, sha_to):
     log.debug('Looking up record with identifier %s', identifier)
     if not cache.exists('patch', identifier):
         log.info('Invalid partial request')
-        resp = flask.Response(json.dumps({
-            "result": "Patch with identifier %s not found" % identifier,
+        resp = flask.Response(
+            json.dumps({
+                "result": "Patch with identifier %s not found" % identifier
             }),
             status=404,
         )
@@ -127,8 +127,9 @@ def trigger_partial():
 def get_partial(identifier):
     """ Function to return a generated partial """
     if not cache.exists('partial', identifier):
-        resp = flask.Response(json.dumps({
-            "result": "Partial with identifier %s not found" % identifier,
+        resp = flask.Response(
+            json.dumps({
+                "result": "Partial with identifier %s not found" % identifier,
             }),
             status=404,
         )
@@ -136,21 +137,13 @@ def get_partial(identifier):
 
     if cache.is_blank_file('partial', identifier):
         log.debug('Record found, status: IN PROGRESS')
-        resp = flask.Response(json.dumps({
-            "result": "wait",
-            }),
-            status=202,
-        )
+        resp = flask.Response(json.dumps({"result": "wait"}), status=202)
     else:
         log.debug('Record found, status: COMPLETED')
         if flask.request.method == 'HEAD':
             url = flask.url_for('get_partial', identifier=identifier)
-            resp = flask.Response(json.dumps({
-                "result": url
-                }),
-                status=200,
-                mimetype='application/json'
-            )
+            resp = flask.Response(json.dumps({"result": url}), status=200,
+                                  mimetype='application/json')
         else:
             resp = cache.retrieve_or_redirect('partial', identifier)
 

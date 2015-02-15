@@ -8,8 +8,8 @@ class TestChecksum(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.test_string = "Make him an offer he can't refuse"
-        cls.correct_sha512 = 'fc97f6c478cf25412cac95ad7e33b0e00a9894862febe6e' \
-            '7996fcdf63c0ff7beccde5ca0156df03ed4b0d710eaf2c89982ec4fbb5f58d9b' \
+        cls.correct_sha512 = 'fc97f6c478cf25412cac95ad7e33b0e00a9894862febe6e'\
+            '7996fcdf63c0ff7beccde5ca0156df03ed4b0d710eaf2c89982ec4fbb5f58d9b'\
             '52e38bac9d1e9f86f'
 
     def test_gethash(self):
